@@ -1,7 +1,3 @@
-Number.prototype.round = function (places) {
-    return +(Math.round(this + 'e+' + places) + 'e-' + places);
-};
-
 var utils = {};
 
 utils.ajax = function (url, success, fail) {
@@ -91,15 +87,19 @@ utils.addIconToTab = function (tab) {
     }
 };
 
+utils.round = function (num, places) {
+    return +(Math.round(num + 'e+' + places) + 'e-' + places);
+};
+
 utils.bytesToStr = function (bytes) {
     if (bytes < 1024) {
         return bytes + ' Б';
     } else if (bytes < 1024 * 1024) {
-        return (bytes / 1024).round(2) + ' КиБ';
+        return utils.round(bytes / 1024, 2) + ' КиБ';
     } else if (bytes < 1024 * 1024 * 1024) {
-        return (bytes / (1024 * 1024)).round(2) + ' МиБ';
+        return utils.round(bytes / (1024 * 1024), 2) + ' МиБ';
     } else {
-        return (bytes / (1024 * 1024 * 1024)).round(2) + ' ГиБ';
+        return utils.round(bytes / (1024 * 1024 * 1024), 2) + ' ГиБ';
     }
 };
 

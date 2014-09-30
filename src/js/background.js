@@ -30,11 +30,16 @@ chrome.downloads.onChanged.addListener(function (delta) {
     chrome.downloads.search({
         id: delta.id
     }, function (downloads) {
-        var name = downloads[0].byExtensionName;
-        if (!name || name !== 'Yandex Music Fisher') {
+        if (!downloads.length) {
+            var message = 'Не найдена загрузка по id, для которой произошло событие';
+            console.error(message, delta);
+            log.addMessage(message);
             return;
         }
-        downloader.onChange(delta);
+        var name = downloads[0].byExtensionName;
+        if (name && name === 'Yandex Music Fisher') {
+            downloader.onChange(delta);
+        }
     });
 });
 
@@ -55,9 +60,32 @@ chrome.runtime.onInstalled.addListener(function (details) {
     });
 });
 
-chrome.notifications.onClicked.addListener(function (notificationId) {
-    console.log('clicked: ' + notificationId);
-//    chrome.notifications.clear(notificationId, function (wasCleared) {
-//        console.log('cleared: ' + wasCleared);
-//    });
+chrome.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex) {
+    // возобновление закачек
+    var notificationData = downloader.notifications[notificationId];
+    var tracks = notificationData.interruptedTracks;
+    downloader.notifications[notificationId].interruptedTracks = [];
+    for (var i = 0; i < tracks.length; i++) {
+        downloader.add(tracks[i].type, tracks[i].cargo, tracks[i].options);
+    }
+
+    var type = notificationId.split('#')[0];
+    switch (type) {
+        case 'track':
+            chrome.notifications.update(notificationId, {
+                title: 'Загрузка...',
+                buttons: []
+            }, function (wasUpdated) {
+            });
+            break;
+        case 'album':
+        case 'playlist':
+            chrome.notifications.update(notificationId, {
+                title: 'Загрузка (' + notificationData.trackCount + ' из ' + notificationData.totalTrackCount + ')...',
+                buttons: []
+            }, function (wasUpdated) {
+            });
+            break;
+
+    }
 });
