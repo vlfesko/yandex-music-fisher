@@ -4,11 +4,11 @@ yandex.getTrackLinks = function (storageDir, success, fail) {
     var url = '/api/v1.4/jsonp.xml?action=getTrackSrc&p=download-info/'
             + storageDir + '/2.mp3&r=' + Math.random();
     utils.ajax(url, function (jsonp) {
-        // чистим jsonp до json
-        var jsonStr = jsonp.replace(/^[^[]+/, '').replace(/\);$/, '');
+        var injection = 'var Ya = {}; Ya.Music = {}; Ya.Music.Jsonp = {}; '
+                + 'Ya.Music.Jsonp.callback = function(){return arguments[1]}; return ';
+        var f = new Function(injection + jsonp);
         try {
-            // json кривой, поэтому извлекаем через eval
-            var json = eval(jsonStr)[0];
+            var json = f()[0];
         } catch (e) {
             var message = 'Не удалось распарсить строку' + jsonp;
             console.error(message);
