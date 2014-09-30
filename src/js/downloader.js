@@ -37,25 +37,6 @@ downloader.download = function () {
     switch (entity.type) {
         case 'album_track':
         case 'playlist_track':
-            // вынести отсюда в методы загрузщики downloadAlbum, downloadPlaylist
-            if (entity.cargo.error) {
-                // todo: test
-                var nId = entity.options.notificationId;
-                downloader.notifications[nId].totalTrackCount--;
-                var notificationData = downloader.notifications[nId];
-                var progress = Math.round(notificationData.trackCount / notificationData.totalTrackCount * 100);
-                chrome.notifications.update(nId, {
-                    title: 'Загрузка (' + notificationData.trackCount + ' из ' + notificationData.totalTrackCount + ')...',
-                    progress: progress
-                }, function (wasUpdated) {
-                });
-
-                var message = 'Ошибка: ' + entity.cargo.error;
-                console.error(message, entity);
-                log.addMessage(message);
-                downloader.download();
-                return;
-            }
         case 'track':
             downloader.activeThreadCount++;
             var artists = entity.cargo.artists.map(function (artist) {
@@ -178,6 +159,7 @@ downloader.downloadAlbum = function (album) {
     var saveDir = downloader.clearPath(artists + ' - ' + album.title);
     var totalSize = 0;
     var totalDuration = 0;
+    var totalTrackCount = album.trackCount;
 
     downloader.add('cover', {
         url: 'https://' + album.coverUri.replace('%%', localStorage.getItem('albumCoverSize')),
@@ -188,6 +170,13 @@ downloader.downloadAlbum = function (album) {
         for (var i = 0; i < album.volumes.length; i++) {
             for (var j = 0; j < album.volumes[i].length; j++) {
                 var track = album.volumes[i][j];
+                if (track.error) {
+                    totalTrackCount--;
+                    var message = 'Ошибка: ' + track.error;
+                    console.error(message, track);
+                    log.addMessage(message);
+                    continue;
+                }
                 totalSize += track.fileSize;
                 totalDuration += track.durationMs;
                 downloader.add('album_track', track, {
@@ -200,6 +189,13 @@ downloader.downloadAlbum = function (album) {
     } else {
         for (var i = 0; i < album.volumes[0].length; i++) {
             var track = album.volumes[0][i];
+            if (track.error) {
+                totalTrackCount--;
+                var message = 'Ошибка: ' + track.error;
+                console.error(message, track);
+                log.addMessage(message);
+                continue;
+            }
             totalSize += track.fileSize;
             totalDuration += track.durationMs;
             downloader.add('album_track', track, {
@@ -213,7 +209,7 @@ downloader.downloadAlbum = function (album) {
     chrome.notifications.create(notificationId, {
         type: 'progress',
         iconUrl: 'https://' + album.coverUri.replace('%%', '100x100'),
-        title: 'Загрузка (0 из ' + album.trackCount + ')...',
+        title: 'Загрузка (0 из ' + totalTrackCount + ')...',
         message: saveDir,
         contextMessage: 'Альбом (' + utils.bytesToStr(totalSize) + ' - ' + utils.durationToStr(totalDuration) + ')',
         progress: 0,
@@ -221,7 +217,7 @@ downloader.downloadAlbum = function (album) {
     }, function (notificationId) {
         downloader.notifications[notificationId] = {
             trackCount: 0,
-            totalTrackCount: album.trackCount,
+            totalTrackCount: totalTrackCount,
             interruptedTracks: []
         };
     });
@@ -232,9 +228,17 @@ downloader.downloadPlaylist = function (playlist) {
     var saveDir = downloader.clearPath(playlist.title);
     var totalSize = 0;
     var totalDuration = 0;
+    var totalTrackCount = playlist.tracks.length;
 
     for (var i = 0; i < playlist.tracks.length; i++) {
         var track = playlist.tracks[i];
+        if (track.error) {
+            totalTrackCount--;
+            var message = 'Ошибка: ' + track.error;
+            console.error(message, track);
+            log.addMessage(message);
+            continue;
+        }
         totalSize += track.fileSize;
         totalDuration += track.durationMs;
         downloader.add('playlist_track', track, {
@@ -244,10 +248,22 @@ downloader.downloadPlaylist = function (playlist) {
         });
     }
 
+    var iconUrl = 'https://';
+    switch (playlist.cover.type) {
+        case 'pic':
+            iconUrl += playlist.cover.uri.replace('%%', '100x100');
+            break;
+        case 'mosaic':
+            iconUrl += playlist.cover.itemsUri[0].replace('%%', '100x100');
+            break;
+        default:
+            iconUrl = 'img/icon.png';
+    }
+
     chrome.notifications.create(notificationId, {
         type: 'progress',
-        iconUrl: 'https://' + playlist.cover.uri.replace('%%', '100x100'),
-        title: 'Загрузка (0 из ' + playlist.tracks.length + ')...',
+        iconUrl: iconUrl,
+        title: 'Загрузка (0 из ' + totalTrackCount + ')...',
         message: saveDir,
         contextMessage: 'Плейлист (' + utils.bytesToStr(totalSize) + ' - ' + utils.durationToStr(totalDuration) + ')',
         progress: 0,
@@ -255,7 +271,7 @@ downloader.downloadPlaylist = function (playlist) {
     }, function (notificationId) {
         downloader.notifications[notificationId] = {
             trackCount: 0,
-            totalTrackCount: playlist.tracks.length,
+            totalTrackCount: totalTrackCount,
             interruptedTracks: []
         };
     });

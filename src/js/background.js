@@ -31,6 +31,7 @@ chrome.downloads.onChanged.addListener(function (delta) {
         id: delta.id
     }, function (downloads) {
         if (!downloads.length) {
+            // todo: выяснить, что за херня - часто бывает, хз почему
             var message = 'Не найдена загрузка по id, для которой произошло событие';
             console.error(message, delta);
             log.addMessage(message);
