@@ -54,42 +54,43 @@ downloader.download = function () {
                     savePath = entity.options.saveDir + '/' + savePath;
                 }
             }
-            yandex.getTrackLinks(entity.cargo.storageDir, function (links) {
-                if (links.length) { // todo: перенести проверку в сам метод
-                    chrome.downloads.download({
-                        url: links[0],
-                        filename: savePath,
-                        saveAs: false
-                    }, function (downloadId) {
-                        downloader.downloads[downloadId] = entity;
-                    });
-                } else {
-                    var message = 'Не удалось найти ссылки';
-                    if (entity.options.error && entity.options.error === message) {
-                        // todo оповещение об ошибке, возможность попробывать снова
-                    } else {
-                        // todo: test
-                        entity.options.error = message;
-                        downloader.queue.unshift(entity);
-                    }
-                    console.error(message, entity);
-                    log.addMessage(message);
-                    downloader.activeThreadCount--;
-                    downloader.download();
+            yandex.getTrackUrl(entity.cargo.storageDir, function (url) {
+                chrome.downloads.download({
+                    url: url,
+                    filename: savePath,
+                    saveAs: false
+                }, function (downloadId) {
+                    downloader.downloads[downloadId] = entity;
+                });
+            }, function (error) {
+                var nId = entity.options.notificationId;
+                downloader.notifications[nId].interruptedTracks.push(entity);
+                var notificationData = downloader.notifications[nId];
+                switch (entity.type) {
+                    case 'track':
+                        chrome.notifications.update(nId, {
+                            title: 'Загрузка прервана',
+                            buttons: [{title: 'Повторить загрузку'}]
+                        }, function (wasUpdated) {
+                        });
+                        break;
+                    case 'album_track':
+                    case 'playlist_track':
+                        var interruptedCount = notificationData.interruptedTracks.length;
+                        chrome.notifications.update(nId, {
+                            buttons: [{title: 'Повторить загрузку прерванных треков (' + interruptedCount + ' шт.)'}]
+                        }, function (wasUpdated) {
+                        });
+                        if (notificationData.trackCount + interruptedCount === notificationData.totalTrackCount) {
+                            chrome.notifications.update(nId, {
+                                title: 'Загрузка частично прервана (загружено ' + notificationData.trackCount + ' из ' + notificationData.totalTrackCount + ')'
+                            }, function (wasUpdated) {
+                            });
+                        }
+                        break;
                 }
-            }, function () {
-                // ajax transport fail или json не распарсили
-                var message = 'Ошибка получения URL трека';
-                if (entity.options.error && entity.options.error === message) {
-                    // todo оповещение об ошибке, возможность попробывать снова
-                    console.info('entity.options.error');
-                } else {
-                    // todo: test
-                    entity.options.error = message;
-                    downloader.add(entity.type, entity.cargo, entity.options);
-                }
-                console.error(message, entity);
-                log.addMessage(message);
+                console.error(error, entity);
+                log.addMessage(error);
                 downloader.activeThreadCount--;
                 downloader.download();
             });
@@ -106,7 +107,7 @@ downloader.download = function () {
             break;
         default:
             var message = 'Неизвестный тип загрузки: ' + entity.type;
-            console.error(message);
+            console.error(message, entity);
             log.addMessage(message);
     }
 };
@@ -172,7 +173,7 @@ downloader.downloadAlbum = function (album) {
                 var track = album.volumes[i][j];
                 if (track.error) {
                     totalTrackCount--;
-                    var message = 'Ошибка: ' + track.error;
+                    var message = 'Ошибка: ' + track.error + '. trackId: ' + track.id;
                     console.error(message, track);
                     log.addMessage(message);
                     continue;
@@ -191,7 +192,7 @@ downloader.downloadAlbum = function (album) {
             var track = album.volumes[0][i];
             if (track.error) {
                 totalTrackCount--;
-                var message = 'Ошибка: ' + track.error;
+                var message = 'Ошибка: ' + track.error + '. trackId: ' + track.id;
                 console.error(message, track);
                 log.addMessage(message);
                 continue;
@@ -234,7 +235,7 @@ downloader.downloadPlaylist = function (playlist) {
         var track = playlist.tracks[i];
         if (track.error) {
             totalTrackCount--;
-            var message = 'Ошибка: ' + track.error;
+            var message = 'Ошибка: ' + track.error + '. trackId: ' + track.id;
             console.error(message, track);
             log.addMessage(message);
             continue;

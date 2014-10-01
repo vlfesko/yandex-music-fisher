@@ -1,30 +1,31 @@
 var yandex = {};
 
-yandex.getTrackLinks = function (storageDir, success, fail) {
+yandex.getTrackUrl = function (storageDir, success, fail) {
     var url = '/api/v1.4/jsonp.xml?action=getTrackSrc&p=download-info/'
             + storageDir + '/2.mp3&r=' + Math.random();
     utils.ajax(url, function (jsonp) {
         var injection = 'var Ya = {}; Ya.Music = {}; Ya.Music.Jsonp = {}; '
-                + 'Ya.Music.Jsonp.callback = function(){return arguments[1]}; return ';
+                + 'Ya.Music.Jsonp.callback = function(){return arguments[1]}; return fds';
         var f = new Function(injection + jsonp);
         try {
             var json = f()[0];
         } catch (e) {
-            var message = 'Не удалось распарсить строку' + jsonp;
-            console.error(message);
-            log.addMessage(message);
-            fail();
+            fail('Не удалось распарсить jsonp. storageDir: ' + storageDir);
             return;
         }
         var hosts = json['regional-hosts'];
         hosts.push(json.host);
+        if (!hosts.length) {
+            fail('Не найдены хранилища трека. storageDir: ' + storageDir);
+            return;
+        }
 
         var md5 = utils.md5('XGRlBW9FXlekgbPrRHuSiA' + json.path.substr(1) + json.s);
         var urlBody = '/get-mp3/' + md5 + '/' + json.ts + json.path;
         var links = hosts.map(function (host) {
             return 'http://' + host + urlBody;
         });
-        success(links);
+        success(links[0]);
     }, fail);
 };
 

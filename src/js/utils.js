@@ -1,8 +1,9 @@
 var utils = {};
 
 utils.ajax = function (url, success, fail) {
+    url = 'https://music.yandex.ru' + url;
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'https://music.yandex.ru' + url, true);
+    xhr.open('GET', url, true);
     xhr.timeout = 10000;
     xhr.onload = function () {
         if (xhr.status === 200) {
@@ -18,23 +19,14 @@ utils.ajax = function (url, success, fail) {
                 success(reply);
             }
         } else {
-            var message = 'HTTP error code: ' + xhr.status;
-            console.error(message);
-            log.addMessage(message);
-            fail();
+            fail('HTTP код: ' + xhr.status + '. url: ' + url);
         }
     };
-    xhr.onerror = function () {
-        var message = 'AJAX error: ' + url;
-        console.error(message);
-        log.addMessage(message);
-        fail();
+    xhr.onerror = function (e) {
+        fail('Ошибка AJAX. HTTP код: ' + e.target.status + ', url: ' + url);
     };
     xhr.ontimeout = function () {
-        var message = 'AJAX timeout: ' + url;
-        console.error(message);
-        log.addMessage(message);
-        fail();
+        fail('Время ожидания (' + xhr.timeout + ' мс) вышло. url: ' + url);
     };
     xhr.send();
 };
