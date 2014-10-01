@@ -5,7 +5,7 @@ yandex.getTrackUrl = function (storageDir, success, fail) {
             + storageDir + '/2.mp3&r=' + Math.random();
     utils.ajax(url, function (jsonp) {
         var injection = 'var Ya = {}; Ya.Music = {}; Ya.Music.Jsonp = {}; '
-                + 'Ya.Music.Jsonp.callback = function(){return arguments[1]}; return fds';
+                + 'Ya.Music.Jsonp.callback = function(){return arguments[1]}; return ';
         var f = new Function(injection + jsonp);
         try {
             var json = f()[0];
