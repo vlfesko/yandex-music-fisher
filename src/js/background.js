@@ -34,10 +34,7 @@ chrome.downloads.onChanged.addListener(function (delta) {
         id: delta.id
     }, function (downloads) {
         if (!downloads.length) {
-            // todo: выяснить, что за херня - часто бывает, хз почему
-            var message = 'Не найдена загрузка по id, для которой произошло событие';
-            console.error(message, delta);
-            log.addMessage(message);
+            // todo: отследить неплановые вхождения
             return;
         }
         var name = downloads[0].byExtensionName;
@@ -65,31 +62,58 @@ chrome.runtime.onInstalled.addListener(function (details) {
 });
 
 chrome.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex) {
-    // возобновление закачек
-    var notificationData = downloader.notifications[notificationId];
-    var tracks = notificationData.interruptedTracks;
-    downloader.notifications[notificationId].interruptedTracks = [];
-    for (var i = 0; i < tracks.length; i++) {
-        downloader.add(tracks[i].type, tracks[i].cargo, tracks[i].options);
-    }
+    if (buttonIndex) {
+        // возобновление закачек
+        var notificationData = downloader.notifications[notificationId];
+        var tracks = notificationData.interruptedTracks;
+        downloader.notifications[notificationId].interruptedTracks = [];
+        for (var i = 0; i < tracks.length; i++) {
+            downloader.add(tracks[i].type, tracks[i].cargo, tracks[i].options);
+        }
 
-    var type = notificationId.split('#')[0];
-    switch (type) {
-        case 'track':
-            chrome.notifications.update(notificationId, {
-                title: 'Загрузка...',
-                buttons: []
-            }, function (wasUpdated) {
-            });
-            break;
-        case 'album':
-        case 'playlist':
-            chrome.notifications.update(notificationId, {
-                title: 'Загрузка (' + notificationData.trackCount + ' из ' + notificationData.totalTrackCount + ')...',
-                buttons: []
-            }, function (wasUpdated) {
-            });
-            break;
+        var type = notificationId.split('#')[0];
+        switch (type) {
+            case 'track':
+                chrome.notifications.update(notificationId, {
+                    title: 'Загрузка...',
+                    buttons: [{title: 'Прервать загрузку'}]
+                }, function (wasUpdated) {
+                });
+                break;
+            case 'album':
+            case 'playlist':
+                chrome.notifications.update(notificationId, {
+                    title: 'Загрузка (' + notificationData.trackCount + ' из ' + notificationData.totalTrackCount + ')...',
+                    buttons: [{title: 'Прервать загрузку'}]
+                }, function (wasUpdated) {
+                });
+                break;
 
+        }
+    } else {
+        // отмена загрузки
+        // todo: прерывать отправленные ajax запросы
+        var newQueue = [];
+        for (var i = 0; i < downloader.queue.length; i++) {
+            if (downloader.queue[i].options.notificationId !== notificationId) {
+                newQueue.push(downloader.queue[i]);
+            }
+        }
+        downloader.queue = newQueue;
+        downloader.downloads.forEach(function (entity, downloadId) {
+            if (entity.options.notificationId === notificationId) {
+                downloader.activeThreadCount--;
+                chrome.downloads.erase({
+                    id: downloadId
+                });
+                downloader.download();
+            }
+        });
+        chrome.notifications.update(notificationId, {
+            title: '(удалено)'
+        }, function (wasUpdated) {
+        });
+        chrome.notifications.clear(notificationId, function (wasCleared) {
+        });
     }
 });
