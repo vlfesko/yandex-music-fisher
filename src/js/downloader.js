@@ -164,6 +164,8 @@ downloader.downloadAlbum = function (album) {
     downloader.add('cover', {
         url: 'https://' + album.coverUri.replace('%%', localStorage.getItem('albumCoverSize')),
         filename: saveDir + '/cover.jpg'
+    }, {
+        notificationId: notificationId
     });
 
     if (album.volumes.length > 1) {
