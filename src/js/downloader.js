@@ -148,6 +148,19 @@ downloader.downloadTrack = function (track) {
     });
 };
 
+downloader.downloadArtist = function (artist) {
+    var albums=artist.albums;
+    var albumCount=artist.albums.length;
+    for (var i = 0 ;i < albumCount;i++){
+        yandex.getAlbum(albums[i].id, downloader.downloadAlbum, function (error) {
+            console.error(error);
+            log.addMessage(error);
+            utils.addIconToTab(tab);
+        });
+    }
+    
+}; 
+
 downloader.downloadAlbum = function (album) {
     var notificationId = 'album#' + album.id;
     var artists = album.artists.map(function (artist) {

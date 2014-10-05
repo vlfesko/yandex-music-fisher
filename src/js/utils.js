@@ -42,6 +42,7 @@ utils.getUrlInfo = function (url) {
     info.isPlaylist = (parts[3] === 'users' && parts[5] === 'playlists' && !!parts[6]);
     info.isTrack = (parts[3] === 'album' && parts[5] === 'track' && !!parts[6]);
     info.isAlbum = (parts[3] === 'album' && !!parts[4]);
+    info.isArtist = (parts[3] === 'artist' && !!parts[4]);
     if (info.isPlaylist) {
         info.username = parts[4];
         info.playlistId = parts[6];
@@ -49,6 +50,8 @@ utils.getUrlInfo = function (url) {
         info.trackId = parts[6];
     } else if (info.isAlbum) {
         info.albumId = parts[4];
+    } else if (info.isArtist) {
+        info.artistId = parts[4];
     }
     return info;
 };
@@ -76,7 +79,14 @@ utils.addIconToTab = function (tab) {
             path: 'img/yellow.png'
         });
         chrome.pageAction.show(tab.id);
+    } else if (page.isArtist) {
+        chrome.pageAction.setIcon({
+            tabId: tab.id,
+            path: 'img/yellow.png'
+        });
+        chrome.pageAction.show(tab.id);
     }
+    
 };
 
 utils.round = function (num, places) {

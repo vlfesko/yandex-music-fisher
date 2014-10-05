@@ -26,6 +26,12 @@ chrome.pageAction.onClicked.addListener(function (tab) {
             log.addMessage(error);
             utils.addIconToTab(tab);
         });
+    } else if (page.isArtist) {
+        yandex.getArtist(page.artistId, downloader.downloadArtist, function (error) {
+            console.error(error);
+            log.addMessage(error);
+            utils.addIconToTab(tab);
+        });
     }
 });
 
