@@ -34,7 +34,7 @@ chrome.downloads.onChanged.addListener(function (delta) {
         id: delta.id
     }, function (downloads) {
         if (!downloads.length) {
-            // todo: отследить неплановые вхождения
+            // загрузка пропала из памяти, например из-за chrome.downloads.erase
             return;
         }
         var name = downloads[0].byExtensionName;
@@ -62,8 +62,7 @@ chrome.runtime.onInstalled.addListener(function (details) {
 });
 
 chrome.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex) {
-    if (buttonIndex) {
-        // возобновление закачек
+    if (buttonIndex) { // возобновление закачек
         var notificationData = downloader.notifications[notificationId];
         var tracks = notificationData.interruptedTracks;
         downloader.notifications[notificationId].interruptedTracks = [];
@@ -76,7 +75,10 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
             case 'track':
                 chrome.notifications.update(notificationId, {
                     title: 'Загрузка...',
-                    buttons: [{title: 'Прервать загрузку'}]
+                    buttons: [{
+                            title: 'Отменить загрузку',
+                            iconUrl: 'img/cancel.png'
+                        }]
                 }, function (wasUpdated) {
                 });
                 break;
@@ -84,36 +86,47 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
             case 'playlist':
                 chrome.notifications.update(notificationId, {
                     title: 'Загрузка (' + notificationData.trackCount + ' из ' + notificationData.totalTrackCount + ')...',
-                    buttons: [{title: 'Прервать загрузку'}]
+                    buttons: [{
+                            title: 'Отменить загрузку',
+                            iconUrl: 'img/cancel.png'
+                        }]
                 }, function (wasUpdated) {
                 });
                 break;
 
         }
-    } else {
-        // отмена загрузки
-        // todo: прерывать отправленные ajax запросы
+    } else { // отмена загрузки
         var newQueue = [];
         for (var i = 0; i < downloader.queue.length; i++) {
-            if (downloader.queue[i].options.notificationId !== notificationId) {
-                newQueue.push(downloader.queue[i]);
+            var entity = downloader.queue[i];
+            if (entity.options.notificationId === notificationId) {
+                downloader.notifications[notificationId].interruptedTracks.push(entity);
+            } else {
+                newQueue.push(entity);
             }
         }
         downloader.queue = newQueue;
         downloader.downloads.forEach(function (entity, downloadId) {
             if (entity.options.notificationId === notificationId) {
+                downloader.notifications[notificationId].interruptedTracks.push(entity);
                 downloader.activeThreadCount--;
                 chrome.downloads.erase({
                     id: downloadId
                 });
+                delete(downloader.downloads[downloadId]);
                 downloader.download();
             }
         });
         chrome.notifications.update(notificationId, {
-            title: '(удалено)'
+            title: 'Загрузка отменена',
+            buttons: [{
+                    title: 'Отменить загрузку',
+                    iconUrl: 'img/cancel.png'
+                }, {
+                    title: 'Повторить загрузку прерванных треков',
+                    iconUrl: 'img/resume.png'
+                }]
         }, function (wasUpdated) {
-        });
-        chrome.notifications.clear(notificationId, function (wasCleared) {
         });
     }
 });
