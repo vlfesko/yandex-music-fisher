@@ -68,17 +68,29 @@ downloader.download = function () {
                     case 'track':
                         chrome.notifications.update(nId, {
                             title: 'Загрузка прервана',
-                            buttons: [{title: 'Прервать загрузку'}, {title: 'Повторить загрузку'}]
+                            buttons: [{
+                                    title: 'Отменить загрузку',
+                                    iconUrl: 'img/cancel.png'
+                                }, {
+                                    title: 'Повторить загрузку',
+                                    iconUrl: 'img/resume.png'
+                                }]
                         }, function (wasUpdated) {
                         });
                         break;
                     case 'album_track':
                     case 'playlist_track':
-                        var interruptedCount = notificationData.interruptedTracks.length;
                         chrome.notifications.update(nId, {
-                            buttons: [{title: 'Прервать загрузку'}, {title: 'Повторить загрузку прерванных треков (' + interruptedCount + ' шт.)'}]
+                            buttons: [{
+                                    title: 'Отменить загрузку',
+                                    iconUrl: 'img/cancel.png'
+                                }, {
+                                    title: 'Повторить загрузку прерванных треков',
+                                    iconUrl: 'img/resume.png'
+                                }]
                         }, function (wasUpdated) {
                         });
+                        var interruptedCount = notificationData.interruptedTracks.length;
                         if (notificationData.trackCount + interruptedCount === notificationData.totalTrackCount) {
                             chrome.notifications.update(nId, {
                                 title: 'Загрузка частично прервана (загружено ' + notificationData.trackCount + ' из ' + notificationData.totalTrackCount + ')'
@@ -140,7 +152,10 @@ downloader.downloadTrack = function (track) {
         contextMessage: 'Трек (' + utils.bytesToStr(track.fileSize) + ' - ' + utils.durationToStr(track.durationMs) + ')',
         progress: 0,
         isClickable: false,
-        buttons: [{title: 'Прервать загрузку'}]
+        buttons: [{
+                title: 'Отменить загрузку',
+                iconUrl: 'img/cancel.png'
+            }]
     }, function (notificationId) {
         downloader.notifications[notificationId] = {
             interruptedTracks: []
@@ -226,7 +241,10 @@ downloader.downloadAlbum = function (album) {
         contextMessage: 'Альбом (' + utils.bytesToStr(totalSize) + ' - ' + utils.durationToStr(totalDuration) + ')',
         progress: 0,
         isClickable: false,
-        buttons: [{title: 'Прервать загрузку'}]
+        buttons: [{
+                title: 'Отменить загрузку',
+                iconUrl: 'img/cancel.png'
+            }]
     }, function (notificationId) {
         downloader.notifications[notificationId] = {
             trackCount: 0,
@@ -281,7 +299,10 @@ downloader.downloadPlaylist = function (playlist) {
         contextMessage: 'Плейлист (' + utils.bytesToStr(totalSize) + ' - ' + utils.durationToStr(totalDuration) + ')',
         progress: 0,
         isClickable: false,
-        buttons: [{title: 'Прервать загрузку'}]
+        buttons: [{
+                title: 'Отменить загрузку',
+                iconUrl: 'img/cancel.png'
+            }]
     }, function (notificationId) {
         downloader.notifications[notificationId] = {
             trackCount: 0,
@@ -301,20 +322,29 @@ downloader.onChange = function (delta) {
     }
     if (delta.state) {
         switch (entity.type) {
-            // todo: разобрать ситуацию, когда пользователь закрыл оповещение - освободить downloader.notifications[nId]
+            // todo: разобрать ситуацию, когда пользователь закрыл оповещение:
+            // - освободить downloader.notifications[nId]
+            // - отменить текущие загрузки данного оповещения?
             case 'track':
                 var nId = entity.options.notificationId;
                 if (delta.state.current === 'complete') {
                     chrome.notifications.update(nId, {
                         title: 'Загрузка завершена',
-                        progress: 100
+                        progress: 100,
+                        buttons: []
                     }, function (wasUpdated) {
                     });
                 } else if (delta.state.current === 'interrupted') {
                     downloader.notifications[nId].interruptedTracks.push(downloader.downloads[delta.id]);
                     chrome.notifications.update(nId, {
                         title: 'Загрузка прервана',
-                        buttons: [{title: 'Прервать загрузку'}, {title: 'Повторить загрузку'}]
+                        buttons: [{
+                                title: 'Отменить загрузку',
+                                iconUrl: 'img/cancel.png'
+                            }, {
+                                title: 'Повторить загрузку',
+                                iconUrl: 'img/resume.png'
+                            }]
                     }, function (wasUpdated) {
                     });
                 }
@@ -328,7 +358,8 @@ downloader.onChange = function (delta) {
                     if (notificationData.trackCount === notificationData.totalTrackCount) {
                         chrome.notifications.update(nId, {
                             title: 'Загрузка завершена',
-                            progress: 100
+                            progress: 100,
+                            buttons: []
                         }, function (wasUpdated) {
                         });
                     } else {
@@ -341,9 +372,14 @@ downloader.onChange = function (delta) {
                     }
                 } else if (delta.state.current === 'interrupted') {
                     downloader.notifications[nId].interruptedTracks.push(downloader.downloads[delta.id]);
-                    var interruptedCount = downloader.notifications[nId].interruptedTracks.length;
                     chrome.notifications.update(nId, {
-                        buttons: [{title: 'Прервать загрузку'}, {title: 'Повторить загрузку прерванных треков (' + interruptedCount + ' шт.)'}]
+                        buttons: [{
+                                title: 'Отменить загрузку',
+                                iconUrl: 'img/cancel.png'
+                            }, {
+                                title: 'Повторить загрузку прерванных треков',
+                                iconUrl: 'img/resume.png'
+                            }]
                     }, function (wasUpdated) {
                     });
                 }
@@ -351,7 +387,7 @@ downloader.onChange = function (delta) {
                 var interruptedCount = notificationData.interruptedTracks.length;
                 if (interruptedCount && notificationData.trackCount + interruptedCount === notificationData.totalTrackCount) {
                     chrome.notifications.update(nId, {
-                        title: 'Загрузка частично прервана (загружено ' + notificationData.trackCount + ' из ' + notificationData.totalTrackCount + ')'
+                        title: 'Загрузка прервана (загружено ' + notificationData.trackCount + ' из ' + notificationData.totalTrackCount + ')'
                     }, function (wasUpdated) {
                     });
                 }
