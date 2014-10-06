@@ -73,20 +73,13 @@ utils.addIconToTab = function (tab) {
             path: 'img/blue.png'
         });
         chrome.pageAction.show(tab.id);
-    } else if (page.isAlbum) {
-        chrome.pageAction.setIcon({
-            tabId: tab.id,
-            path: 'img/yellow.png'
-        });
-        chrome.pageAction.show(tab.id);
-    } else if (page.isArtist) {
+    } else if (page.isAlbum || page.isArtist) {
         chrome.pageAction.setIcon({
             tabId: tab.id,
             path: 'img/yellow.png'
         });
         chrome.pageAction.show(tab.id);
     }
-    
 };
 
 utils.round = function (num, places) {

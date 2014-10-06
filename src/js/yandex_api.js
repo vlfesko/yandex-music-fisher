@@ -38,7 +38,7 @@ yandex.getTrack = function (trackId, success, fail) {
 
 yandex.getArtist = function (artistId, success, fail) {
     var url = '/handlers/artist.jsx?artist=' + artistId
-            + '&r=' + Math.random();
+            + '&what=albums&r=' + Math.random();
     utils.ajax(url, success, fail);
 };
 
