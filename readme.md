@@ -1,7 +1,8 @@
 #Yandex Music Fisher (0.2.2)
 
 Расширение Google Chrome для загрузки музыки с сервиса [Яндекс.Музыка](http://music.yandex.ru/).
- [Список изменений](/changes.md)
+
+[Список изменений](/changes.md)
 
 ![Yandex Music Fisher](/publish/screen.png)
 
