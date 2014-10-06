@@ -35,24 +35,25 @@ downloader.download = function () {
         return;
     }
     switch (entity.type) {
+        case 'track':
         case 'album_track':
         case 'playlist_track':
-        case 'track':
             downloader.activeThreadCount++;
-            var artists = entity.cargo.artists.map(function (artist) {
+            var track = entity.cargo;
+            var artists = track.artists.map(function (artist) {
                 return artist.name;
             }).join(', ');
-            if (entity.cargo.version) {
-                entity.cargo.title += ' (' + entity.cargo.version + ')';
+            if (track.version) {
+                track.title += ' (' + track.version + ')';
             }
-            var savePath = downloader.clearPath(artists + ' - ' + entity.cargo.title + '.mp3');
+            var savePath = downloader.clearPath(artists + ' - ' + track.title + '.mp3');
             if (entity.options.namePrefix) {
                 savePath = entity.options.namePrefix + ' ' + savePath;
             }
             if (entity.options.saveDir) {
                 savePath = entity.options.saveDir + '/' + savePath;
             }
-            yandex.getTrackUrl(entity.cargo.storageDir, function (url) {
+            yandex.getTrackUrl(track.storageDir, function (url) {
                 chrome.downloads.download({
                     url: url,
                     filename: savePath,
@@ -85,7 +86,7 @@ downloader.download = function () {
                                     title: 'Отменить загрузку',
                                     iconUrl: 'img/cancel.png'
                                 }, {
-                                    title: 'Повторить загрузку прерванных треков',
+                                    title: 'Повторить загрузку',
                                     iconUrl: 'img/resume.png'
                                 }]
                         }, function (wasUpdated) {
@@ -320,86 +321,85 @@ downloader.onChange = function (delta) {
         log.addMessage(message);
         return;
     }
-    if (delta.state) {
-        switch (entity.type) {
-            // todo: разобрать ситуацию, когда пользователь закрыл оповещение:
-            // - освободить downloader.notifications[nId]
-            // - отменить текущие загрузки данного оповещения?
-            case 'track':
-                var nId = entity.options.notificationId;
-                if (delta.state.current === 'complete') {
+    if (!delta.state) {
+        return;
+    }
+    var nId = entity.options.notificationId;
+    var notificationData = downloader.notifications[nId];
+    switch (entity.type) {
+        // todo: разобрать ситуацию, когда пользователь закрыл оповещение:
+        // - освободить downloader.notifications[nId]
+        // - отменить текущие загрузки данного оповещения?
+        case 'track':
+            if (delta.state.current === 'complete') {
+                chrome.notifications.update(nId, {
+                    title: 'Загрузка завершена',
+                    progress: 100,
+                    buttons: []
+                }, function (wasUpdated) {
+                });
+            } else if (delta.state.current === 'interrupted') {
+                downloader.notifications[nId].interruptedTracks.push(downloader.downloads[delta.id]);
+                chrome.notifications.update(nId, {
+                    title: 'Загрузка прервана',
+                    buttons: [{
+                            title: 'Отменить загрузку',
+                            iconUrl: 'img/cancel.png'
+                        }, {
+                            title: 'Повторить загрузку',
+                            iconUrl: 'img/resume.png'
+                        }]
+                }, function (wasUpdated) {
+                });
+            }
+            break;
+        case 'album_track':
+        case 'playlist_track':
+            if (delta.state.current === 'complete') {
+                downloader.notifications[nId].trackCount++;
+                if (notificationData.trackCount === notificationData.totalTrackCount) {
                     chrome.notifications.update(nId, {
                         title: 'Загрузка завершена',
                         progress: 100,
                         buttons: []
                     }, function (wasUpdated) {
                     });
-                } else if (delta.state.current === 'interrupted') {
-                    downloader.notifications[nId].interruptedTracks.push(downloader.downloads[delta.id]);
+                } else {
+                    var progress = Math.round(notificationData.trackCount / notificationData.totalTrackCount * 100);
                     chrome.notifications.update(nId, {
-                        title: 'Загрузка прервана',
-                        buttons: [{
-                                title: 'Отменить загрузку',
-                                iconUrl: 'img/cancel.png'
-                            }, {
-                                title: 'Повторить загрузку',
-                                iconUrl: 'img/resume.png'
-                            }]
+                        title: 'Загрузка (' + notificationData.trackCount + ' из ' + notificationData.totalTrackCount + ')...',
+                        progress: progress
                     }, function (wasUpdated) {
                     });
                 }
-                break;
-            case 'album_track':
-            case 'playlist_track':
-                var nId = entity.options.notificationId;
-                if (delta.state.current === 'complete') {
-                    downloader.notifications[nId].trackCount++;
-                    var notificationData = downloader.notifications[nId];
-                    if (notificationData.trackCount === notificationData.totalTrackCount) {
-                        chrome.notifications.update(nId, {
-                            title: 'Загрузка завершена',
-                            progress: 100,
-                            buttons: []
-                        }, function (wasUpdated) {
-                        });
-                    } else {
-                        var progress = Math.round(notificationData.trackCount / notificationData.totalTrackCount * 100);
-                        chrome.notifications.update(nId, {
-                            title: 'Загрузка (' + notificationData.trackCount + ' из ' + notificationData.totalTrackCount + ')...',
-                            progress: progress
-                        }, function (wasUpdated) {
-                        });
-                    }
-                } else if (delta.state.current === 'interrupted') {
-                    downloader.notifications[nId].interruptedTracks.push(downloader.downloads[delta.id]);
-                    chrome.notifications.update(nId, {
-                        buttons: [{
-                                title: 'Отменить загрузку',
-                                iconUrl: 'img/cancel.png'
-                            }, {
-                                title: 'Повторить загрузку прерванных треков',
-                                iconUrl: 'img/resume.png'
-                            }]
-                    }, function (wasUpdated) {
-                    });
-                }
-                var notificationData = downloader.notifications[nId];
-                var interruptedCount = notificationData.interruptedTracks.length;
-                if (interruptedCount && notificationData.trackCount + interruptedCount === notificationData.totalTrackCount) {
-                    chrome.notifications.update(nId, {
-                        title: 'Загрузка прервана (загружено ' + notificationData.trackCount + ' из ' + notificationData.totalTrackCount + ')'
-                    }, function (wasUpdated) {
-                    });
-                }
-                break;
-            case 'cover':
-                break;
-        }
-        downloader.activeThreadCount--;
-        delete(downloader.downloads[delta.id]);
-        chrome.downloads.erase({
-            id: delta.id
-        });
-        downloader.download();
+            } else if (delta.state.current === 'interrupted') {
+                downloader.notifications[nId].interruptedTracks.push(downloader.downloads[delta.id]);
+                chrome.notifications.update(nId, {
+                    buttons: [{
+                            title: 'Отменить загрузку',
+                            iconUrl: 'img/cancel.png'
+                        }, {
+                            title: 'Повторить загрузку',
+                            iconUrl: 'img/resume.png'
+                        }]
+                }, function (wasUpdated) {
+                });
+            }
+            var interruptedCount = notificationData.interruptedTracks.length;
+            if (interruptedCount && notificationData.trackCount + interruptedCount === notificationData.totalTrackCount) {
+                chrome.notifications.update(nId, {
+                    title: 'Загрузка прервана (загружено ' + notificationData.trackCount + ' из ' + notificationData.totalTrackCount + ')'
+                }, function (wasUpdated) {
+                });
+            }
+            break;
+        case 'cover':
+            break;
     }
+    downloader.activeThreadCount--;
+    delete(downloader.downloads[delta.id]);
+    chrome.downloads.erase({
+        id: delta.id
+    });
+    downloader.download();
 };

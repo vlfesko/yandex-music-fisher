@@ -129,7 +129,7 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
                     title: 'Отменить загрузку',
                     iconUrl: 'img/cancel.png'
                 }, {
-                    title: 'Повторить загрузку прерванных треков',
+                    title: 'Повторить загрузку',
                     iconUrl: 'img/resume.png'
                 }]
         }, function (wasUpdated) {
