@@ -7,8 +7,9 @@
 [Список изменений](/changes.md)
 
 ### Требования
-1. Браузер на базе Chromium ([Chrome](http://www.google.com/chrome), [Opera](http://opera.com/),
+1. Браузер на базе Chromium ([Chrome](http://www.google.com/chrome),
  [Яндекс.Браузер](http://browser.yandex.ru), [Амиго](http://amigo.mail.ru)) версии большей, чем __32__
+ (Opera не поддерживается)
 2. Включенная новая версия сайта Яндекс.Музыка
  (Из старой версии можно перейти на новую нажав на ссылку в верхнем меню "Новая Музыка").
 
