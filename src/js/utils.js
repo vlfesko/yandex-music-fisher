@@ -58,6 +58,10 @@ utils.getUrlInfo = function (url) {
 
 utils.addIconToTab = function (tab) {
     chrome.pageAction.hide(tab.id);
+    chrome.pageAction.setPopup({
+        tabId: tab.id,
+        popup: ''
+    });
     var page = utils.getUrlInfo(tab.url);
     if (!page.isYandexMusic) {
         return;
@@ -73,10 +77,20 @@ utils.addIconToTab = function (tab) {
             path: 'img/blue.png'
         });
         chrome.pageAction.show(tab.id);
-    } else if (page.isAlbum || page.isArtist) {
+    } else if (page.isAlbum) {
         chrome.pageAction.setIcon({
             tabId: tab.id,
             path: 'img/yellow.png'
+        });
+        chrome.pageAction.show(tab.id);
+    } else if (page.isArtist) {
+        chrome.pageAction.setIcon({
+            tabId: tab.id,
+            path: 'img/yellow.png' // todo: новая иконка
+        });
+        chrome.pageAction.setPopup({
+            tabId: tab.id,
+            popup: 'popup/popup.html'
         });
         chrome.pageAction.show(tab.id);
     }

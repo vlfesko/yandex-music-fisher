@@ -164,16 +164,6 @@ downloader.downloadTrack = function (track) {
     });
 };
 
-downloader.downloadArtist = function (artist) {
-    var albums = artist.albums;
-    for (var i = 0; i < albums.length; i++) {
-        yandex.getAlbum(albums[i].id, downloader.downloadAlbum, function (error) {
-            console.error(error);
-            log.addMessage(error);
-        });
-    }
-};
-
 downloader.downloadAlbum = function (album) {
     var notificationId = 'album#' + album.id;
     var artists = album.artists.map(function (artist) {
@@ -327,6 +317,8 @@ downloader.onChange = function (delta) {
     var nId = entity.options.notificationId;
     var notificationData = downloader.notifications[nId];
     switch (entity.type) {
+        // todo: после завершения загрузок пересоздовать оповещения, чтобы их было видно пользователю
+        // (если завершено успешно - можно сменить тип на simple)
         // todo: разобрать ситуацию, когда пользователь закрыл оповещение:
         // - освободить downloader.notifications[nId]
         // - отменить текущие загрузки данного оповещения?
