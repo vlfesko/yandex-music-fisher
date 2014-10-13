@@ -93,7 +93,6 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
                 }, function (wasUpdated) {
                 });
                 break;
-
         }
     } else { // отмена загрузки
         var newQueue = [];

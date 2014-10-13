@@ -1,5 +1,4 @@
-function downloadAlbums() {
-    // todo: загрузка дискографии в отдельную папку
+function downloadAlbums(artistName) {
     var albumElems = document.getElementsByClassName('album');
     var compilationElems = document.getElementsByClassName('compilation');
     var allElems = [].slice.call(albumElems);
@@ -7,7 +6,9 @@ function downloadAlbums() {
 
     for (var i = 0; i < allElems.length; i++) {
         if (allElems[i].checked) {
-            backgroundPage.yandex.getAlbum(allElems[i].value, backgroundPage.downloader.downloadAlbum, function (error) {
+            backgroundPage.yandex.getAlbum(allElems[i].value, function (album) {
+                backgroundPage.downloader.downloadAlbum(album, artistName);
+            }, function (error) {
                 backgroundPage.console.error(error);
                 backgroundPage.log.addMessage(error);
             });
@@ -67,7 +68,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             backgroundPage.yandex.getArtist(page.artistId, function (artist) {
                 generatePopup(artist);
-                document.getElementById('download').addEventListener('click', downloadAlbums);
+                document.getElementById('download').addEventListener('click', function () {
+                    downloadAlbums(artist.artist.name);
+                });
                 document.getElementById('albumCheckbox').addEventListener('click', albumCheckboxChange);
                 var compilationCheckbox = document.getElementById('compilationCheckbox');
                 if (compilationCheckbox) {

@@ -164,7 +164,7 @@ downloader.downloadTrack = function (track) {
     });
 };
 
-downloader.downloadAlbum = function (album) {
+downloader.downloadAlbum = function (album, discographyArtist) {
     var notificationId = 'album#' + album.id;
     var artists = album.artists.map(function (artist) {
         return artist.name;
@@ -173,6 +173,9 @@ downloader.downloadAlbum = function (album) {
         album.title += ' (' + album.version + ')';
     }
     var saveDir = downloader.clearPath(artists + ' - ' + album.title);
+    if (discographyArtist) {
+        saveDir = downloader.clearPath(discographyArtist) + '/' + saveDir;
+    }
     var totalSize = 0;
     var totalDuration = 0;
     var totalTrackCount = album.trackCount;
