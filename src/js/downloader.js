@@ -140,14 +140,18 @@ downloader.downloadTrack = function (track) {
     var artists = track.artists.map(function (artist) {
         return artist.name;
     }).join(', ');
+    var iconUrl = 'img/icon.png';
 
     downloader.add('track', track, {
         notificationId: notificationId
     });
 
+    if (track.albums[0].coverUri) {
+        iconUrl = 'https://' + track.albums[0].coverUri.replace('%%', '100x100');
+    }
     chrome.notifications.create(notificationId, {
         type: 'progress',
-        iconUrl: 'https://' + track.albums[0].coverUri.replace('%%', '100x100'),
+        iconUrl: iconUrl,
         title: 'Загрузка...',
         message: artists + ' - ' + track.title,
         contextMessage: 'Трек (' + utils.bytesToStr(track.fileSize) + ' - ' + utils.durationToStr(track.durationMs) + ')',
@@ -165,6 +169,12 @@ downloader.downloadTrack = function (track) {
 };
 
 downloader.downloadAlbum = function (album, discographyArtist) {
+    if (!album.volumes.length) {
+        var message = 'Пустой альбом. album.id:' + album.id;
+        console.error(message, album);
+        log.addMessage(message);
+        return;
+    }
     var notificationId = 'album#' + album.id;
     var artists = album.artists.map(function (artist) {
         return artist.name;
@@ -179,13 +189,17 @@ downloader.downloadAlbum = function (album, discographyArtist) {
     var totalSize = 0;
     var totalDuration = 0;
     var totalTrackCount = album.trackCount;
+    var iconUrl = 'img/icon.png';
 
-    downloader.add('cover', {
-        url: 'https://' + album.coverUri.replace('%%', localStorage.getItem('albumCoverSize')),
-        filename: saveDir + '/cover.jpg'
-    }, {
-        notificationId: notificationId
-    });
+    if (album.coverUri) {
+        iconUrl = 'https://' + album.coverUri.replace('%%', '100x100');
+        downloader.add('cover', {
+            url: 'https://' + album.coverUri.replace('%%', localStorage.getItem('albumCoverSize')),
+            filename: saveDir + '/cover.jpg'
+        }, {
+            notificationId: notificationId
+        });
+    }
 
     if (album.volumes.length > 1) {
         for (var i = 0; i < album.volumes.length; i++) {
@@ -229,7 +243,7 @@ downloader.downloadAlbum = function (album, discographyArtist) {
 
     chrome.notifications.create(notificationId, {
         type: 'progress',
-        iconUrl: 'https://' + album.coverUri.replace('%%', '100x100'),
+        iconUrl: iconUrl,
         title: 'Загрузка (0 из ' + totalTrackCount + ')...',
         message: saveDir,
         contextMessage: 'Альбом (' + utils.bytesToStr(totalSize) + ' - ' + utils.durationToStr(totalDuration) + ')',
