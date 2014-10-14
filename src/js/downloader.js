@@ -263,6 +263,13 @@ downloader.downloadAlbum = function (album, discographyArtist) {
 };
 
 downloader.downloadPlaylist = function (playlist) {
+    if (!playlist.tracks.length) {
+        var message = 'Пустой плейлист. playlist.owner.login:'
+                + playlist.owner.login + ', playlist.kind:' + playlist.kind;
+        console.error(message, playlist);
+        log.addMessage(message);
+        return;
+    }
     var notificationId = 'playlist#' + playlist.owner.login + '#' + playlist.kind;
     var saveDir = downloader.clearPath(playlist.title);
     var totalSize = 0;
