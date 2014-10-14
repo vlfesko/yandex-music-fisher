@@ -273,16 +273,20 @@ downloader.downloadPlaylist = function (playlist) {
         });
     }
 
-    var iconUrl = 'https://';
-    switch (playlist.cover.type) {
-        case 'pic':
-            iconUrl += playlist.cover.uri.replace('%%', '100x100');
-            break;
-        case 'mosaic':
-            iconUrl += playlist.cover.itemsUri[0].replace('%%', '100x100');
-            break;
-        default:
-            iconUrl = 'img/icon.png';
+    var iconUrl = 'img/icon.png';
+    if (playlist.cover) {
+        switch (playlist.cover.type) {
+            case 'pic':
+                iconUrl = 'https://' + playlist.cover.uri.replace('%%', '100x100');
+                break;
+            case 'mosaic':
+                iconUrl = 'https://' + playlist.cover.itemsUri[0].replace('%%', '100x100');
+                break;
+            default:
+                var message = 'Неизвестный тип обложки: ' + playlist.cover.type;
+                console.error(message);
+                log.addMessage(message);
+        }
     }
 
     chrome.notifications.create(notificationId, {
