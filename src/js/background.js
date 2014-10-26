@@ -48,6 +48,9 @@ chrome.runtime.onInstalled.addListener(function (details) {
     if (!localStorage.getItem('downloadThreadCount')) {
         localStorage.setItem('downloadThreadCount', 4);
     }
+    if (!localStorage.getItem('shouldDownloadCover')) {
+        localStorage.setItem('shouldDownloadCover', 'yes');
+    }
     if (!localStorage.getItem('albumCoverSize')) {
         localStorage.setItem('albumCoverSize', '460x460');
     }

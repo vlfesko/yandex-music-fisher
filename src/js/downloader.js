@@ -194,7 +194,7 @@ downloader.downloadAlbum = function (album, discographyArtist) {
     var totalTrackCount = album.trackCount;
     var iconUrl = 'img/icon.png';
 
-    if (album.coverUri) {
+    if (localStorage.getItem('shouldDownloadCover') === 'yes' && album.coverUri) {
         iconUrl = 'https://' + album.coverUri.replace('%%', '100x100');
         downloader.add('cover', {
             url: 'https://' + album.coverUri.replace('%%', localStorage.getItem('albumCoverSize')),
