@@ -41,22 +41,21 @@ function handleTrackMaskButton(button, buttonMarker) {
 document.addEventListener('DOMContentLoaded', function () {
     chrome.runtime.getBackgroundPage(function (bp) {
         backgroundPage = bp;
-        var threadCount = backgroundPage.storage.get('downloadThreadCount');
-        var shouldDownloadCover = backgroundPage.storage.get('shouldDownloadCover');
-        var albumCoverSize = backgroundPage.storage.get('albumCoverSize');
-        var trackNameMask = backgroundPage.storage.get('trackNameMask');
-        if (threadCount) {
-            document.getElementById('download-thread-count').value = threadCount;
+    });
+    var paramKeys = ['downloadThreadCount', 'shouldDownloadCover', 'albumCoverSize', 'trackNameMask'];
+    chrome.storage.local.get(paramKeys, function (params) {
+        if (params['downloadThreadCount']) {
+            document.getElementById('download-thread-count').value = params['downloadThreadCount'];
         }
-        if (shouldDownloadCover) {
-            document.getElementById('should-download-cover').value = shouldDownloadCover;
+        if (params['shouldDownloadCover']) {
+            document.getElementById('should-download-cover').value = params['shouldDownloadCover'];
             document.getElementById('should-download-cover').onchange();
         }
-        if (albumCoverSize) {
-            document.getElementById('album-cover-size').value = albumCoverSize;
+        if (params['albumCoverSize']) {
+            document.getElementById('album-cover-size').value = params['albumCoverSize'];
         }
-        if (trackNameMask) {
-            document.getElementById('track-name-mask').value = trackNameMask;
+        if (params['trackNameMask']) {
+            document.getElementById('track-name-mask').value = params['trackNameMask'];
             document.getElementById('track-name-mask').oninput();
         }
     });
@@ -68,7 +67,9 @@ document.getElementById('download-thread-count').onchange = function () {
     } else if (this.value < 1) {
         this.value = 1;
     }
-    backgroundPage.storage.set('downloadThreadCount', this.value);
+    chrome.storage.local.set({
+        downloadThreadCount: this.value
+    }, backgroundPage.storage.load);
 };
 
 document.getElementById('should-download-cover').onchange = function () {
@@ -78,11 +79,15 @@ document.getElementById('should-download-cover').onchange = function () {
     } else {
         albumCoverSizeElement.disabled = true;
     }
-    backgroundPage.storage.set('shouldDownloadCover', this.value);
+    chrome.storage.local.set({
+        shouldDownloadCover: this.value
+    }, backgroundPage.storage.load);
 };
 
 document.getElementById('album-cover-size').onchange = function () {
-    backgroundPage.storage.set('albumCoverSize', this.value);
+    chrome.storage.local.set({
+        albumCoverSize: this.value
+    }, backgroundPage.storage.load);
 };
 
 document.getElementById('track-name-mask-btn-artists').onclick = function () {
@@ -111,7 +116,9 @@ document.getElementById('track-name-mask').oninput = function () {
         buttonArtists.classList.remove('active');
     }
     if (this.value) {
-        backgroundPage.storage.set('trackNameMask', this.value);
+        chrome.storage.local.set({
+            trackNameMask: this.value
+        }, backgroundPage.storage.load());
     }
 };
 
@@ -123,8 +130,10 @@ document.getElementById('btn-log').onclick = function () {
 
 document.getElementById('btn-reset').onclick = function () {
     if (confirm('Вы уверены, что хотите сбросить все настройки?')) {
-        backgroundPage.storage.resetAll();
-        location.reload();
+        backgroundPage.storage.resetAll(function () {
+            backgroundPage.storage.load();
+            location.reload();
+        });
     }
 };
 

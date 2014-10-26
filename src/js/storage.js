@@ -1,37 +1,43 @@
-var storage = {};
-// todo: перейти с localStorage на chrome.storage
-
-storage.defaults = {
-    downloadThreadCount: 4,
-    shouldDownloadCover: 'yes',
-    albumCoverSize: '460x460',
-    trackNameMask: '#ИСПОЛНИТЕЛИ# - #НАЗВАНИЕ#'
+var storage = {
+    defaults: {
+        downloadThreadCount: 4,
+        shouldDownloadCover: 'yes',
+        albumCoverSize: '460x460',
+        trackNameMask: '#ИСПОЛНИТЕЛИ# - #НАЗВАНИЕ#'
+    },
+    current: {}
 };
 
 storage.init = function () {
-    for (var param in storage.defaults) {
-        if (!storage.get(param)) {
-            storage.reset(param);
+    var keys = Object.keys(storage.defaults);
+    chrome.storage.local.get(keys, function (items) {
+        for (var key in storage.defaults) {
+            if (!items[key]) {
+                storage.reset(key);
+            }
         }
-    }
+    });
 };
 
-storage.get = function (param) {
-    return localStorage.getItem(param);
-};
-
-storage.set = function (param, value) {
-    localStorage.setItem(param, value);
+storage.load = function () {
+    chrome.storage.local.get(function (params) {
+        storage.current = params;
+    });
 };
 
 storage.reset = function (param) {
     var defaultValue = storage.defaults[param];
-    localStorage.setItem(param, defaultValue);
+    var data = {};
+    data[param] = defaultValue;
+    chrome.storage.local.set(data, storage.load);
 };
 
-storage.resetAll = function () {
-    localStorage.clear();
-    for (var param in storage.defaults) {
-        localStorage.setItem(param, storage.defaults[param]);
-    }
+storage.resetAll = function (success) {
+    chrome.storage.local.clear(function () {
+        var data = {};
+        for (var param in storage.defaults) {
+            data[param] = storage.defaults[param];
+        }
+        chrome.storage.local.set(data, success);
+    });
 };
