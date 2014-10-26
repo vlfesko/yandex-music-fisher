@@ -4,32 +4,77 @@
         <title>Yandex Music Fisher</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
     </head>
     <body>
-        <table>
-            <tr>
-                <th>Параметр</th>
-                <th>Значение</th>
-            </tr>
-            <tr>
-                <td>Количество потоков загрузки</td>
-                <td><input type="number" id="downloadThreadCount" min="1" max="10"></td>
-            </tr>
-            <tr>
-                <td>Размер обложки альбомов</td>
-                <td>
-                    <select id="albumCoverSize">
-                        <option value="200x200">200x200</option>
-                        <option value="300x300">300x300</option>
-                        <option value="460x460">460x460</option>
-                        <option value="1000x1000">1000x1000</option>
-                    </select>
-                </td>
-            </tr>
-        </table><br><br>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h1>Yandex Music Fisher <small><span class="glyphicon glyphicon-cog"></span> Настройки</small></h1>
+                </div>
+            </div>
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Параметр</th>
+                        <th>Значение</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Количество потоков загрузки</td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <input type="number" id="download-thread-count" class="form-control input-sm" min="1" max="10">
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Размер обложки альбомов</td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <select id="album-cover-size" class="form-control input-sm">
+                                        <option value="200x200">200x200</option>
+                                        <option value="300x300">300x300</option>
+                                        <option value="460x460">460x460</option>
+                                        <option value="1000x1000">1000x1000</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Маска названия трека</td>
+                        <td>
+                            <div class="form-group">
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" id="track-name-mask-btn-artists" class="btn btn-default" title="Исполнители трека">
+                                        <span class="glyphicon glyphicon-user"></span> Исполнители
+                                    </button>
+                                    <button type="button" id="track-name-mask-btn-name" class="btn btn-default" title="Название трека">
+                                        <span class="glyphicon glyphicon-music"></span> Название трека
+                                    </button>
+                                </div>
+                            </div>
+                            <input type="text" id="track-name-mask" class="form-control input-sm">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
 
-        <a href="#" id="btn-log">Посмотреть отладочный журнал</a>
+            <div class="row">
+                <div class="col-sm-3">
+                    <button class="btn btn-default" id="btn-log">
+                        <span class="glyphicon glyphicon-wrench"></span> Отладочный журнал
+                    </button>
+                </div>
+            </div>
+        </div>
 
-        <script src="options.js"></script>
+        <script src="js/options.js"></script>
     </body>
 </html>

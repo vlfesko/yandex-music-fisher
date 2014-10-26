@@ -1,4 +1,3 @@
-// todo: предварительная загрузка страницы может не вызвать это событие
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (changeInfo.status === 'loading') {
         utils.addIconToTab(tab);
@@ -51,6 +50,9 @@ chrome.runtime.onInstalled.addListener(function (details) {
     }
     if (!localStorage.getItem('albumCoverSize')) {
         localStorage.setItem('albumCoverSize', '460x460');
+    }
+    if (!localStorage.getItem('trackNameMask')) {
+        localStorage.setItem('trackNameMask', '#ИСПОЛНИТЕЛИ# - #НАЗВАНИЕ#');
     }
     chrome.tabs.query({
         url: '*://music.yandex.ru/*'

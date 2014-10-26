@@ -40,16 +40,19 @@ downloader.download = function () {
         case 'playlist_track':
             downloader.activeThreadCount++;
             var track = entity.cargo;
+            var trackNameMask = localStorage.getItem('trackNameMask');
             var artists = track.artists.map(function (artist) {
                 return artist.name;
             }).join(', ');
             if (track.version) {
                 track.title += ' (' + track.version + ')';
             }
-            var savePath = downloader.clearPath(artists + ' - ' + track.title + '.mp3');
+            var savePath = trackNameMask.replace('#НАЗВАНИЕ#', track.title);
+            savePath = savePath.replace('#ИСПОЛНИТЕЛИ#', artists);
             if (entity.options.namePrefix) {
                 savePath = entity.options.namePrefix + ' ' + savePath;
             }
+            savePath = downloader.clearPath(savePath) + '.mp3';
             if (entity.options.saveDir) {
                 savePath = entity.options.saveDir + '/' + savePath;
             }
