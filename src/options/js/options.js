@@ -39,24 +39,27 @@ function handleTrackMaskButton(button, buttonMarker) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    var threadCount = localStorage.getItem('downloadThreadCount');
-    var shouldDownloadCover = localStorage.getItem('shouldDownloadCover');
-    var albumCoverSize = localStorage.getItem('albumCoverSize');
-    var trackNameMask = localStorage.getItem('trackNameMask');
-    if (threadCount) {
-        document.getElementById('download-thread-count').value = threadCount;
-    }
-    if (shouldDownloadCover) {
-        document.getElementById('should-download-cover').value = shouldDownloadCover;
-        document.getElementById('should-download-cover').onchange();
-    }
-    if (albumCoverSize) {
-        document.getElementById('album-cover-size').value = albumCoverSize;
-    }
-    if (trackNameMask) {
-        document.getElementById('track-name-mask').value = trackNameMask;
-        document.getElementById('track-name-mask').oninput();
-    }
+    chrome.runtime.getBackgroundPage(function (bp) {
+        backgroundPage = bp;
+        var threadCount = backgroundPage.storage.get('downloadThreadCount');
+        var shouldDownloadCover = backgroundPage.storage.get('shouldDownloadCover');
+        var albumCoverSize = backgroundPage.storage.get('albumCoverSize');
+        var trackNameMask = backgroundPage.storage.get('trackNameMask');
+        if (threadCount) {
+            document.getElementById('download-thread-count').value = threadCount;
+        }
+        if (shouldDownloadCover) {
+            document.getElementById('should-download-cover').value = shouldDownloadCover;
+            document.getElementById('should-download-cover').onchange();
+        }
+        if (albumCoverSize) {
+            document.getElementById('album-cover-size').value = albumCoverSize;
+        }
+        if (trackNameMask) {
+            document.getElementById('track-name-mask').value = trackNameMask;
+            document.getElementById('track-name-mask').oninput();
+        }
+    });
 });
 
 document.getElementById('download-thread-count').onchange = function () {
@@ -65,7 +68,7 @@ document.getElementById('download-thread-count').onchange = function () {
     } else if (this.value < 1) {
         this.value = 1;
     }
-    localStorage.setItem('downloadThreadCount', this.value);
+    backgroundPage.storage.set('downloadThreadCount', this.value);
 };
 
 document.getElementById('should-download-cover').onchange = function () {
@@ -75,19 +78,11 @@ document.getElementById('should-download-cover').onchange = function () {
     } else {
         albumCoverSizeElement.disabled = true;
     }
-    localStorage.setItem('shouldDownloadCover', this.value);
+    backgroundPage.storage.set('shouldDownloadCover', this.value);
 };
 
 document.getElementById('album-cover-size').onchange = function () {
-    localStorage.setItem('albumCoverSize', this.value);
-};
-
-document.getElementById('btn-log').onclick = function () {
-    chrome.runtime.getBackgroundPage(function (backgroundPage) {
-        chrome.tabs.create({
-            url: 'data:text/plain;charset=utf-8,' + encodeURIComponent(backgroundPage.log.string)
-        });
-    });
+    backgroundPage.storage.set('albumCoverSize', this.value);
 };
 
 document.getElementById('track-name-mask-btn-artists').onclick = function () {
@@ -116,6 +111,21 @@ document.getElementById('track-name-mask').oninput = function () {
         buttonArtists.classList.remove('active');
     }
     if (this.value) {
-        localStorage.setItem('trackNameMask', this.value);
+        backgroundPage.storage.set('trackNameMask', this.value);
     }
 };
+
+document.getElementById('btn-log').onclick = function () {
+    chrome.tabs.create({
+        url: 'data:text/plain;charset=utf-8,' + encodeURIComponent(backgroundPage.log.string)
+    });
+};
+
+document.getElementById('btn-reset').onclick = function () {
+    if (confirm('Вы уверены, что хотите сбросить все настройки?')) {
+        backgroundPage.storage.resetAll();
+        location.reload();
+    }
+};
+
+var backgroundPage;

@@ -44,19 +44,7 @@ chrome.downloads.onChanged.addListener(function (delta) {
 });
 
 chrome.runtime.onInstalled.addListener(function (details) {
-    // todo: перейти с localStorage на chrome.storage
-    if (!localStorage.getItem('downloadThreadCount')) {
-        localStorage.setItem('downloadThreadCount', 4);
-    }
-    if (!localStorage.getItem('shouldDownloadCover')) {
-        localStorage.setItem('shouldDownloadCover', 'yes');
-    }
-    if (!localStorage.getItem('albumCoverSize')) {
-        localStorage.setItem('albumCoverSize', '460x460');
-    }
-    if (!localStorage.getItem('trackNameMask')) {
-        localStorage.setItem('trackNameMask', '#ИСПОЛНИТЕЛИ# - #НАЗВАНИЕ#');
-    }
+    storage.init();
     chrome.tabs.query({
         url: '*://music.yandex.ru/*'
     }, function (tabs) {

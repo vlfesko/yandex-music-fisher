@@ -40,7 +40,7 @@ downloader.download = function () {
         case 'playlist_track':
             downloader.activeThreadCount++;
             var track = entity.cargo;
-            var trackNameMask = localStorage.getItem('trackNameMask');
+            var trackNameMask = storage.get('trackNameMask');
             var artists = track.artists.map(function (artist) {
                 return artist.name;
             }).join(', ');
@@ -132,7 +132,7 @@ downloader.add = function (type, cargo, options) {
         cargo: cargo,
         options: options
     });
-    var newThreadCount = localStorage.getItem('downloadThreadCount') - downloader.activeThreadCount;
+    var newThreadCount = storage.get('downloadThreadCount') - downloader.activeThreadCount;
     for (var i = 0; i < newThreadCount; i++) {
         downloader.download();
     }
@@ -194,10 +194,10 @@ downloader.downloadAlbum = function (album, discographyArtist) {
     var totalTrackCount = album.trackCount;
     var iconUrl = 'img/icon.png';
 
-    if (localStorage.getItem('shouldDownloadCover') === 'yes' && album.coverUri) {
+    if (storage.get('shouldDownloadCover') === 'yes' && album.coverUri) {
         iconUrl = 'https://' + album.coverUri.replace('%%', '100x100');
         downloader.add('cover', {
-            url: 'https://' + album.coverUri.replace('%%', localStorage.getItem('albumCoverSize')),
+            url: 'https://' + album.coverUri.replace('%%', storage.get('albumCoverSize')),
             filename: saveDir + '/cover.jpg'
         }, {
             notificationId: notificationId
