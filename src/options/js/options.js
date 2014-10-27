@@ -43,10 +43,22 @@ document.addEventListener('DOMContentLoaded', function () {
         backgroundPage = bp;
         document.getElementById('download-thread-count').value = bp.storage.current.downloadThreadCount;
 
-        document.getElementById('should-download-cover').value = bp.storage.current.shouldDownloadCover;
+
+        if (bp.storage.current.shouldDownloadCover) {
+            document.getElementById('should-download-cover').value = 'true';
+        } else {
+            document.getElementById('should-download-cover').value = '';
+        }
         document.getElementById('should-download-cover').onchange();
 
         document.getElementById('album-cover-size').value = bp.storage.current.albumCoverSize;
+
+
+        if (bp.storage.current.shouldNumberLists) {
+            document.getElementById('should-number-lists').value = 'true';
+        } else {
+            document.getElementById('should-number-lists').value = '';
+        }
 
         document.getElementById('track-name-mask').value = bp.storage.current.trackNameMask;
         document.getElementById('track-name-mask').oninput();
@@ -66,19 +78,25 @@ document.getElementById('download-thread-count').onchange = function () {
 
 document.getElementById('should-download-cover').onchange = function () {
     var albumCoverSizeElement = document.getElementById('album-cover-size');
-    if (this.value === 'yes') {
+    if (this.value) {
         albumCoverSizeElement.disabled = false;
     } else {
         albumCoverSizeElement.disabled = true;
     }
     chrome.storage.local.set({
-        shouldDownloadCover: this.value
+        shouldDownloadCover: !!this.value
     }, backgroundPage.storage.load);
 };
 
 document.getElementById('album-cover-size').onchange = function () {
     chrome.storage.local.set({
         albumCoverSize: this.value
+    }, backgroundPage.storage.load);
+};
+
+document.getElementById('should-number-lists').onchange = function () {
+    chrome.storage.local.set({
+        shouldNumberLists: !!this.value
     }, backgroundPage.storage.load);
 };
 

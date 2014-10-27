@@ -49,7 +49,7 @@ downloader.download = function () {
             }
             var savePath = trackNameMask.replace('#НАЗВАНИЕ#', track.title);
             savePath = savePath.replace('#ИСПОЛНИТЕЛИ#', artists);
-            if (entity.options.namePrefix) {
+            if (storage.current.shouldNumberLists && entity.options.namePrefix) {
                 savePath = entity.options.namePrefix + ' ' + savePath;
             }
             savePath = downloader.clearPath(savePath) + '.mp3';
@@ -194,7 +194,7 @@ downloader.downloadAlbum = function (album, discographyArtist) {
     var totalTrackCount = album.trackCount;
     var iconUrl = 'img/icon.png';
 
-    if (storage.current.shouldDownloadCover === 'yes' && album.coverUri) {
+    if (storage.current.shouldDownloadCover && album.coverUri) {
         iconUrl = 'https://' + album.coverUri.replace('%%', '100x100');
         downloader.add('cover', {
             url: 'https://' + album.coverUri.replace('%%', storage.current.albumCoverSize),

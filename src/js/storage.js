@@ -1,8 +1,9 @@
 var storage = {
     defaults: {
         downloadThreadCount: 4,
-        shouldDownloadCover: 'yes',
+        shouldDownloadCover: true,
         albumCoverSize: '460x460',
+        shouldNumberLists: true,
         trackNameMask: '#ИСПОЛНИТЕЛИ# - #НАЗВАНИЕ#'
     },
     current: {}
@@ -12,7 +13,7 @@ storage.init = function () {
     var keys = Object.keys(storage.defaults);
     chrome.storage.local.get(keys, function (items) {
         for (var key in storage.defaults) {
-            if (!items[key]) {
+            if (items[key] === undefined) {
                 storage.reset(key);
             }
         }
