@@ -102,8 +102,7 @@ downloader.download = function () {
                         }
                         break;
                 }
-                console.error(error, entity);
-                log.addMessage(error);
+                logger.addMessage(error);
                 downloader.activeThreadCount--;
                 downloader.download();
             });
@@ -119,9 +118,7 @@ downloader.download = function () {
             });
             break;
         default:
-            var message = 'Неизвестный тип загрузки: ' + entity.type;
-            console.error(message, entity);
-            log.addMessage(message);
+            logger.addMessage('Неизвестный тип загрузки: ' + entity.type);
     }
 };
 
@@ -172,9 +169,7 @@ downloader.downloadTrack = function (track) {
 
 downloader.downloadAlbum = function (album, discographyArtist) {
     if (!album.volumes.length) {
-        var message = 'Пустой альбом. album.id:' + album.id;
-        console.error(message, album);
-        log.addMessage(message);
+        logger.addMessage('Пустой альбом. album.id:' + album.id);
         return;
     }
     var notificationId = 'album#' + album.id;
@@ -209,9 +204,7 @@ downloader.downloadAlbum = function (album, discographyArtist) {
                 var track = album.volumes[i][j];
                 if (track.error) {
                     totalTrackCount--;
-                    var message = 'Ошибка: ' + track.error + '. trackId: ' + track.id;
-                    console.error(message, track);
-                    log.addMessage(message);
+                    logger.addMessage('Ошибка: ' + track.error + '. trackId: ' + track.id);
                     continue;
                 }
                 totalSize += track.fileSize;
@@ -228,9 +221,7 @@ downloader.downloadAlbum = function (album, discographyArtist) {
             var track = album.volumes[0][i];
             if (track.error) {
                 totalTrackCount--;
-                var message = 'Ошибка: ' + track.error + '. trackId: ' + track.id;
-                console.error(message, track);
-                log.addMessage(message);
+                logger.addMessage('Ошибка: ' + track.error + '. trackId: ' + track.id);
                 continue;
             }
             totalSize += track.fileSize;
@@ -268,8 +259,7 @@ downloader.downloadPlaylist = function (playlist) {
     if (!playlist.tracks.length) {
         var message = 'Пустой плейлист. playlist.owner.login:'
                 + playlist.owner.login + ', playlist.kind:' + playlist.kind;
-        console.error(message, playlist);
-        log.addMessage(message);
+        logger.addMessage(message);
         return;
     }
     var notificationId = 'playlist#' + playlist.owner.login + '#' + playlist.kind;
@@ -282,9 +272,7 @@ downloader.downloadPlaylist = function (playlist) {
         var track = playlist.tracks[i];
         if (track.error) {
             totalTrackCount--;
-            var message = 'Ошибка: ' + track.error + '. trackId: ' + track.id;
-            console.error(message, track);
-            log.addMessage(message);
+            logger.addMessage('Ошибка: ' + track.error + '. trackId: ' + track.id);
             continue;
         }
         totalSize += track.fileSize;
@@ -306,9 +294,7 @@ downloader.downloadPlaylist = function (playlist) {
                 iconUrl = 'https://' + playlist.cover.itemsUri[0].replace('%%', '100x100');
                 break;
             default:
-                var message = 'Неизвестный тип обложки: ' + playlist.cover.type;
-                console.error(message);
-                log.addMessage(message);
+                logger.addMessage('Неизвестный тип обложки: ' + playlist.cover.type);
         }
     }
 
@@ -336,9 +322,7 @@ downloader.downloadPlaylist = function (playlist) {
 downloader.onChange = function (delta) {
     var entity = downloader.downloads[delta.id];
     if (!entity || !entity.type) {
-        var message = 'Загруженного файла нет в downloader.downloads';
-        console.error(message, delta);
-        log.addMessage(message);
+        logger.addMessage('Загруженного файла нет в downloader.downloads');
         return;
     }
     if (!delta.state) {

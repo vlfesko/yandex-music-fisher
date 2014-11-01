@@ -8,10 +8,7 @@ function downloadAlbums(artistName) {
         if (allElems[i].checked) {
             backgroundPage.yandex.getAlbum(allElems[i].value, function (album) {
                 backgroundPage.downloader.downloadAlbum(album, artistName);
-            }, function (error) {
-                backgroundPage.console.error(error);
-                backgroundPage.log.addMessage(error);
-            });
+            }, backgroundPage.logger.addMessage);
         }
     }
     chrome.pageAction.hide(activeTab.id);
@@ -78,8 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }, function (error) {
                 document.getElementById('content').innerHTML = 'Ошибка. Попробуйте позже';
-                backgroundPage.console.error(error);
-                backgroundPage.log.addMessage(error);
+                backgroundPage.logger.addMessage(error);
             });
         });
     });

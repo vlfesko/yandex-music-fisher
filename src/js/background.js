@@ -11,20 +11,17 @@ chrome.pageAction.onClicked.addListener(function (tab) {
     var page = utils.getUrlInfo(tab.url);
     if (page.isPlaylist) {
         yandex.getPlaylist(page.username, page.playlistId, downloader.downloadPlaylist, function (error) {
-            console.error(error);
-            log.addMessage(error);
+            logger.addMessage(error);
             utils.addIconToTab(tab);
         });
     } else if (page.isTrack) {
         yandex.getTrack(page.trackId, downloader.downloadTrack, function (error) {
-            console.error(error);
-            log.addMessage(error);
+            logger.addMessage(error);
             utils.addIconToTab(tab);
         });
     } else if (page.isAlbum) {
         yandex.getAlbum(page.albumId, downloader.downloadAlbum, function (error) {
-            console.error(error);
-            log.addMessage(error);
+            logger.addMessage(error);
             utils.addIconToTab(tab);
         });
     }

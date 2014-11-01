@@ -133,7 +133,7 @@ document.getElementById('track-name-mask').oninput = function () {
 
 document.getElementById('btn-log').onclick = function () {
     chrome.tabs.create({
-        url: 'data:text/plain;charset=utf-8,' + encodeURIComponent(backgroundPage.log.string)
+        url: 'data:text/plain;charset=utf-8,' + encodeURIComponent(backgroundPage.logger.string)
     });
 };
 
