@@ -10,7 +10,6 @@ downloader.clearPath = function (path) {
 };
 
 downloader.getPrefix = function (i, max) {
-    // todo: сделать рекурсивную функцию и соеденить с utils.leadZero
     var prefix = '';
     max = max.toString();
     switch (max.length) {
@@ -348,11 +347,6 @@ downloader.onChange = function (delta) {
     var nId = entity.options.notificationId;
     var notificationData = downloader.notifications[nId];
     switch (entity.type) {
-        // todo: после завершения загрузок пересоздовать оповещения, чтобы их было видно пользователю
-        // (если завершено успешно - можно сменить тип на simple)
-        // todo: разобрать ситуацию, когда пользователь закрыл оповещение:
-        // - освободить downloader.notifications[nId]
-        // - отменить текущие загрузки данного оповещения?
         case 'track':
             if (delta.state.current === 'complete') {
                 chrome.notifications.update(nId, {

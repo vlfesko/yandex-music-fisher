@@ -31,7 +31,6 @@ function handleTrackMaskButton(button, buttonMarker) {
         }
     }
     if (!isButtonActive && !maskContainsMarker) { // добавление маркера
-        // todo: запрет добавления внутрь другого маркера
         maskElement.value = maskElement.value.insert(maskElementSelectionStart, buttonMarker);
         maskElement.selectionStart = maskElementSelectionStart + buttonMarker.length;
         maskElement.selectionEnd = maskElementSelectionStart + buttonMarker.length;

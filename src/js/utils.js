@@ -86,7 +86,7 @@ utils.addIconToTab = function (tab) {
     } else if (page.isArtist) {
         chrome.pageAction.setIcon({
             tabId: tab.id,
-            path: 'img/yellow.png' // todo: новая иконка
+            path: 'img/yellow.png'
         });
         chrome.pageAction.setPopup({
             tabId: tab.id,
