@@ -155,7 +155,6 @@ downloader.downloadTrack = function (track) {
         message: artists + ' - ' + track.title,
         contextMessage: 'Трек (' + utils.bytesToStr(track.fileSize) + ' - ' + utils.durationToStr(track.durationMs) + ')',
         progress: 0,
-        isClickable: false,
         buttons: [{
                 title: 'Отменить загрузку',
                 iconUrl: 'img/cancel.png'
@@ -241,7 +240,6 @@ downloader.downloadAlbum = function (album, discographyArtist) {
         message: saveDir,
         contextMessage: 'Альбом (' + utils.bytesToStr(totalSize) + ' - ' + utils.durationToStr(totalDuration) + ')',
         progress: 0,
-        isClickable: false,
         buttons: [{
                 title: 'Отменить загрузку',
                 iconUrl: 'img/cancel.png'
@@ -250,7 +248,8 @@ downloader.downloadAlbum = function (album, discographyArtist) {
         downloader.notifications[notificationId] = {
             trackCount: 0,
             totalTrackCount: totalTrackCount,
-            interruptedTracks: []
+            interruptedTracks: [],
+            saveDir: saveDir
         };
     });
 };
@@ -305,7 +304,6 @@ downloader.downloadPlaylist = function (playlist) {
         message: saveDir,
         contextMessage: 'Плейлист (' + utils.bytesToStr(totalSize) + ' - ' + utils.durationToStr(totalDuration) + ')',
         progress: 0,
-        isClickable: false,
         buttons: [{
                 title: 'Отменить загрузку',
                 iconUrl: 'img/cancel.png'
@@ -314,7 +312,8 @@ downloader.downloadPlaylist = function (playlist) {
         downloader.notifications[notificationId] = {
             trackCount: 0,
             totalTrackCount: totalTrackCount,
-            interruptedTracks: []
+            interruptedTracks: [],
+            saveDir: saveDir
         };
     });
 };
@@ -326,6 +325,16 @@ downloader.onChange = function (delta) {
         return;
     }
     if (!delta.state) {
+        return;
+    }
+    if (entity.type === 'opener') {
+        if (delta.state.current === 'complete') {
+            chrome.downloads.show(delta.id);
+            chrome.downloads.removeFile(delta.id);
+            chrome.downloads.erase({
+                id: delta.id
+            });
+        }
         return;
     }
     var nId = entity.options.notificationId;

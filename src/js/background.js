@@ -53,6 +53,30 @@ chrome.runtime.onInstalled.addListener(function (details) {
     });
 });
 
+chrome.notifications.onClicked.addListener(function (notificationId) {
+    var notificationData = downloader.notifications[notificationId];
+    var type = notificationId.split('#')[0];
+
+    switch (type) {
+        case 'track':
+            chrome.downloads.showDefaultFolder();
+            break;
+        case 'album':
+        case 'playlist':
+            // магия: начинаем загрузку в нужную папку, чтобы открыть её
+            chrome.downloads.download({
+                url: 'data:text/plain;charset=utf-8,',
+                filename: notificationData.saveDir + '/opener',
+                saveAs: false
+            }, function (downloadId) {
+                downloader.downloads[downloadId] = {
+                    type: 'opener'
+                };
+            });
+            break;
+    }
+});
+
 chrome.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex) {
     if (buttonIndex) { // возобновление закачек
         var notificationData = downloader.notifications[notificationId];
