@@ -237,7 +237,7 @@ downloader.downloadAlbum = function (album, discographyArtist) {
         type: 'progress',
         iconUrl: iconUrl,
         title: 'Загрузка (0 из ' + totalTrackCount + ')...',
-        message: saveDir,
+        message: artists + ' - ' + album.title,
         contextMessage: 'Альбом (' + utils.bytesToStr(totalSize) + ' - ' + utils.durationToStr(totalDuration) + ')',
         progress: 0,
         buttons: [{
@@ -301,7 +301,7 @@ downloader.downloadPlaylist = function (playlist) {
         type: 'progress',
         iconUrl: iconUrl,
         title: 'Загрузка (0 из ' + totalTrackCount + ')...',
-        message: saveDir,
+        message: playlist.title,
         contextMessage: 'Плейлист (' + utils.bytesToStr(totalSize) + ' - ' + utils.durationToStr(totalDuration) + ')',
         progress: 0,
         buttons: [{
@@ -334,6 +334,7 @@ downloader.onChange = function (delta) {
             chrome.downloads.erase({
                 id: delta.id
             });
+            delete(downloader.downloads[delta.id]);
         }
         return;
     }
