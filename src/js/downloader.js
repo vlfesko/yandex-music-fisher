@@ -6,7 +6,9 @@ var downloader = {
 };
 
 downloader.clearPath = function (path) {
-    return path.replace(/[\\/:*?"<>|]/g, '_'); // Windows path illegals
+    var clearedPath = path.replace(/[\\/:*?"<>|]/g, '_'); // Windows path illegals
+    clearedPath = clearedPath.replace(/\.$/, '_'); // точка в конце
+    return clearedPath;
 };
 
 downloader.getPrefix = function (i, max) {
