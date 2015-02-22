@@ -51,6 +51,17 @@ function compilationCheckboxChange() {
     }
 }
 
+function resize(tabHeight) {
+    var popupHeight = document.getElementById('content').offsetHeight;
+    var popupNewHeight = tabHeight - 14;
+    if (popupNewHeight < 100) {
+        popupNewHeight = 100;
+    }
+    if (popupHeight > popupNewHeight) { // содержимое не влазит в окно
+        document.getElementById('content').style.height = popupNewHeight + 'px';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     chrome.tabs.query({
         active: true,
@@ -65,6 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             backgroundPage.yandex.getArtist(page.artistId, function (artist) {
                 generatePopup(artist);
+                resize(activeTab.height);
                 document.getElementById('download').addEventListener('click', function () {
                     downloadAlbums(artist.artist.name);
                 });
