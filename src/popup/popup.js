@@ -11,14 +11,12 @@ function downloadAlbums(artistName) {
             }, backgroundPage.logger.addMessage);
         }
     }
-    chrome.pageAction.hide(activeTab.id);
-    window.close();
 }
 
 function generatePopup(artist) {
     var content = document.getElementById('content');
-    content.innerHTML = '<h3>Дискография ' + artist.artist.name
-            + '</h3><label><input type="checkbox" id="albumCheckbox" checked><b>Альбомы ('
+    content.innerHTML = '<h3>Дискография ' + artist.artist.name + '</h3>'
+            + '<label><input type="checkbox" id="albumCheckbox" checked><b>Альбомы ('
             + artist.albums.length + ')</b></label><br>';
     for (var i = 0; i < artist.albums.length; i++) {
         content.innerHTML += '<label><input type="checkbox" class="album" checked value="'
@@ -67,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
         active: true,
         currentWindow: true
     }, function (tabs) {
-        activeTab = tabs[0];
+        var activeTab = tabs[0];
         chrome.runtime.getBackgroundPage(function (bp) {
             backgroundPage = bp;
             var page = backgroundPage.utils.getUrlInfo(activeTab.url);
@@ -79,6 +77,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 resize(activeTab.height);
                 document.getElementById('download').addEventListener('click', function () {
                     downloadAlbums(artist.artist.name);
+                    chrome.pageAction.hide(activeTab.id);
+                    window.close();
                 });
                 document.getElementById('albumCheckbox').addEventListener('click', albumCheckboxChange);
                 var compilationCheckbox = document.getElementById('compilationCheckbox');
@@ -93,4 +93,4 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-var backgroundPage, activeTab;
+var backgroundPage;
