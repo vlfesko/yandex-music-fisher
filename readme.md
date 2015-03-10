@@ -1,4 +1,4 @@
-#Yandex Music Fisher (0.2.6.2)
+#Yandex Music Fisher (0.2.6.3)
 
 Расширение Chromium для загрузки музыки с сервиса [Яндекс.Музыка](http://music.yandex.ru/).
 
