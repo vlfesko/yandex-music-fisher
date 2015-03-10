@@ -34,7 +34,9 @@ yandex.getTrackUrl = function (storageDir, success, fail) {
 yandex.getTrack = function (trackId, success, fail) {
     var url = '/handlers/track.jsx?track=' + trackId
             + '&r=' + Math.random();
-    utils.ajax(url, success, fail);
+    utils.ajax(url, function (json) {
+        success(json.track);
+    }, fail);
 };
 
 yandex.getArtist = function (artistId, success, fail) {
