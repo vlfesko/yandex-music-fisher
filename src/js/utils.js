@@ -88,7 +88,7 @@ utils.addIconToTab = function (tab) {
     } else if (page.isArtist) {
         chrome.pageAction.setIcon({
             tabId: tab.id,
-            path: 'img/yellow.png'
+            path: 'img/pink.png'
         });
         chrome.pageAction.setPopup({
             tabId: tab.id,

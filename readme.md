@@ -1,4 +1,4 @@
-#Yandex Music Fisher (0.2.6.3)
+#Yandex Music Fisher (0.2.7)
 
 Расширение Chromium для загрузки музыки с сервиса [Яндекс.Музыка](http://music.yandex.ru/).
 
@@ -19,8 +19,8 @@
 
 ### Как пользоваться
 
-Открыть страницу на [Яндекс.Музыка](http://music.yandex.ru/) с нужным ![blue](/src/img/blue.png) треком,
-![yellow](/src/img/yellow.png) альбомом или ![green](/src/img/green.png) плейлистом, нажать на появившуюся иконку.
+Открыть страницу на [Яндекс.Музыка](http://music.yandex.ru/) с нужным ![blue](/publish/blue.png) треком,
+![yellow](/publish/yellow.png) альбомом или ![green](/publish/green.png) плейлистом, нажать на появившуюся иконку.
 
 ![Первый шаг](/publish/1.jpg)
 
