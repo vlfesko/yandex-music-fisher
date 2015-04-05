@@ -1,3 +1,5 @@
+/* global chrome */
+
 var logger = {
     string: ''
 };

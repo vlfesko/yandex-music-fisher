@@ -1,3 +1,5 @@
+/* global storage, yandex, chrome, logger, utils */
+
 var downloader = {
     queue: [],
     downloads: [],
@@ -199,10 +201,12 @@ downloader.downloadAlbum = function (album, discographyArtist) {
         });
     }
 
+    var i;
+    var track;
     if (album.volumes.length > 1) {
-        for (var i = 0; i < album.volumes.length; i++) {
+        for (i = 0; i < album.volumes.length; i++) {
             for (var j = 0; j < album.volumes[i].length; j++) {
-                var track = album.volumes[i][j];
+                track = album.volumes[i][j];
                 if (track.error) {
                     totalTrackCount--;
                     logger.addMessage('Ошибка: ' + track.error + '. trackId: ' + track.id);
@@ -218,8 +222,8 @@ downloader.downloadAlbum = function (album, discographyArtist) {
             }
         }
     } else {
-        for (var i = 0; i < album.volumes[0].length; i++) {
-            var track = album.volumes[0][i];
+        for (i = 0; i < album.volumes[0].length; i++) {
+            track = album.volumes[0][i];
             if (track.error) {
                 totalTrackCount--;
                 logger.addMessage('Ошибка: ' + track.error + '. trackId: ' + track.id);
@@ -258,8 +262,8 @@ downloader.downloadAlbum = function (album, discographyArtist) {
 
 downloader.downloadPlaylist = function (playlist) {
     if (!playlist.tracks.length) {
-        var message = 'Пустой плейлист. playlist.owner.login:'
-                + playlist.owner.login + ', playlist.kind:' + playlist.kind;
+        var message = 'Пустой плейлист. playlist.owner.login: ';
+        message += playlist.owner.login + ', playlist.kind: ' + playlist.kind;
         logger.addMessage(message);
         return;
     }

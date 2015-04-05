@@ -1,3 +1,5 @@
+/* global chrome */
+
 function downloadAlbums(artistName) {
     var albumElems = document.getElementsByClassName('album');
     var compilationElems = document.getElementsByClassName('compilation');
@@ -14,23 +16,24 @@ function downloadAlbums(artistName) {
 }
 
 function generatePopup(artist) {
-    var content = document.getElementById('content');
-    content.innerHTML = '<h3>Дискография ' + artist.artist.name + '</h3>'
-            + '<label><input type="checkbox" id="albumCheckbox" checked><b>Альбомы ('
-            + artist.albums.length + ')</b></label><br>';
-    for (var i = 0; i < artist.albums.length; i++) {
-        content.innerHTML += '<label><input type="checkbox" class="album" checked value="'
-                + artist.albums[i].id + '">' + artist.albums[i].title + '</label><br>';
+    var i;
+    var content = '<h3>Дискография ' + artist.artist.name + '</h3>';
+    content += '<label><input type="checkbox" id="albumCheckbox" checked><b>Альбомы (';
+    content += artist.albums.length + ')</b></label><br>';
+    for (i = 0; i < artist.albums.length; i++) {
+        content += '<label><input type="checkbox" class="album" checked value="';
+        content += artist.albums[i].id + '">' + artist.albums[i].title + '</label><br>';
     }
     if (artist.alsoAlbums.length) {
-        content.innerHTML += '<br><label><input type="checkbox" id="compilationCheckbox"><b>Сборники ('
-                + artist.alsoAlbums.length + ')</b></label><br>';
+        content += '<br><label><input type="checkbox" id="compilationCheckbox"><b>Сборники (';
+        content += artist.alsoAlbums.length + ')</b></label><br>';
     }
-    for (var i = 0; i < artist.alsoAlbums.length; i++) {
-        content.innerHTML += '<label><input type="checkbox" class="compilation" value="'
-                + artist.alsoAlbums[i].id + '">' + artist.alsoAlbums[i].title + '</label><br>';
+    for (i = 0; i < artist.alsoAlbums.length; i++) {
+        content += '<label><input type="checkbox" class="compilation" value="';
+        content += artist.alsoAlbums[i].id + '">' + artist.alsoAlbums[i].title + '</label><br>';
     }
-    content.innerHTML += '<br><button id="download">Скачать выбранное</button>';
+    content += '<br><button id="download">Скачать выбранное</button>';
+    document.getElementById('content').innerHTML = content;
 }
 
 function albumCheckboxChange() {

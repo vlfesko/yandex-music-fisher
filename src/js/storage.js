@@ -1,3 +1,5 @@
+/* global chrome */
+
 var storage = {
     defaults: {
         downloadThreadCount: 4,
@@ -37,7 +39,9 @@ storage.resetAll = function (success) {
     chrome.storage.local.clear(function () {
         var data = {};
         for (var param in storage.defaults) {
-            data[param] = storage.defaults[param];
+            if (storage.defaults.hasOwnProperty(param)) {
+                data[param] = storage.defaults[param];
+            }
         }
         chrome.storage.local.set(data, success);
     });

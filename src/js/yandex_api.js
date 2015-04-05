@@ -1,11 +1,13 @@
+/* global utils */
+
 var yandex = {};
 
 yandex.getTrackUrl = function (storageDir, success, fail) {
-    var url = '/api/v1.4/jsonp.xml?action=getTrackSrc&p=download-info/'
-            + storageDir + '/2.mp3&r=' + Math.random();
+    var url = '/api/v1.4/jsonp.xml?action=getTrackSrc&p=download-info/';
+    url += storageDir + '/2.mp3&r=' + Math.random();
     utils.ajax(url, function (jsonp) {
         var json;
-        var jsonp = jsonp.replace('Ya.Music.Jsonp.', '');
+        jsonp = jsonp.replace('Ya.Music.Jsonp.', '');
         var f = new Function('callback', jsonp);
         try {
             f(function (requestId, parsedJson) {
@@ -32,29 +34,29 @@ yandex.getTrackUrl = function (storageDir, success, fail) {
 };
 
 yandex.getTrack = function (trackId, success, fail) {
-    var url = '/handlers/track.jsx?track=' + trackId
-            + '&r=' + Math.random();
+    var url = '/handlers/track.jsx?track=' + trackId;
+    url += '&r=' + Math.random();
     utils.ajax(url, function (json) {
         success(json.track);
     }, fail);
 };
 
 yandex.getArtist = function (artistId, success, fail) {
-    var url = '/handlers/artist.jsx?artist=' + artistId
-            + '&what=albums&r=' + Math.random();
+    var url = '/handlers/artist.jsx?artist=' + artistId;
+    url += '&what=albums&r=' + Math.random();
     utils.ajax(url, success, fail);
 };
 
 yandex.getAlbum = function (albumId, success, fail) {
-    var url = '/handlers/album.jsx?album=' + albumId
-            + '&r=' + Math.random();
+    var url = '/handlers/album.jsx?album=' + albumId;
+    url += '&r=' + Math.random();
     utils.ajax(url, success, fail);
 };
 
 yandex.getPlaylist = function (username, playlistId, success, fail) {
-    var url = '/handlers/playlist.jsx?owner=' + username
-            + '&kinds=' + playlistId
-            + '&r=' + Math.random();
+    var url = '/handlers/playlist.jsx?owner=' + username;
+    url += '&kinds=' + playlistId;
+    url += '&r=' + Math.random();
     utils.ajax(url, function (json) {
         success(json.playlist);
     }, fail);

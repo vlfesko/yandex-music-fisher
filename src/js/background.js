@@ -1,3 +1,5 @@
+/* global chrome, storage, utils, yandex, downloader, logger */
+
 storage.load();
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
@@ -78,11 +80,12 @@ chrome.notifications.onClicked.addListener(function (notificationId) {
 });
 
 chrome.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex) {
+    var i;
     if (buttonIndex) { // возобновление закачек
         var notificationData = downloader.notifications[notificationId];
         var tracks = notificationData.interruptedTracks;
         downloader.notifications[notificationId].interruptedTracks = [];
-        for (var i = 0; i < tracks.length; i++) {
+        for (i = 0; i < tracks.length; i++) {
             downloader.add(tracks[i].type, tracks[i].cargo, tracks[i].options);
         }
 
@@ -112,7 +115,7 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
         }
     } else { // отмена загрузки
         var newQueue = [];
-        for (var i = 0; i < downloader.queue.length; i++) {
+        for (i = 0; i < downloader.queue.length; i++) {
             var entity = downloader.queue[i];
             if (entity.options.notificationId === notificationId) {
                 downloader.notifications[notificationId].interruptedTracks.push(entity);

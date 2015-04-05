@@ -1,3 +1,5 @@
+/* global chrome */
+
 var utils = {};
 
 utils.ajax = function (url, success, fail) {
@@ -252,7 +254,8 @@ utils.md5 = (function () {
         return e.join("");
     }
     function d(e) {
-        return h(o(unescape(encodeURIComponent(e))));
+//        return h(o(unescape(encodeURIComponent(e))));
+        return h(o(e));
     }
     function m(e, t) {
         return e + t & 4294967295;
