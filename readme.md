@@ -6,11 +6,13 @@
 
 [Список изменений](/changes.md)
 
-### Требования
-1. Браузер на базе Chromium: [Chrome](http://www.google.com/chrome) (31+), [Яндекс.Браузер](http://browser.yandex.ru),
-[Амиго](http://amigo.mail.ru), [Opera](http://www.opera.com/) (25+) и другие
-2. Включенная новая версия сайта Яндекс.Музыка. Из старой версии можно перейти на новую нажав на ссылку в верхнем меню "Новая Музыка":
-![Смена версии Яндекс.Музыка](/publish/change_version.jpg)
+### Требование
+
+Необходим браузер на базе Chromium:
+[Chrome](http://www.google.com/chrome) (31+),
+[Яндекс.Браузер](http://browser.yandex.ru),
+[Амиго](http://amigo.mail.ru),
+[Opera](http://www.opera.com/) (25+) или другие
 
 ### Подключение
 
