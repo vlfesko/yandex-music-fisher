@@ -1,4 +1,5 @@
 /* global chrome */
+'use strict';
 
 function downloadAlbums(artistName) {
     var albumElems = document.getElementsByClassName('album');

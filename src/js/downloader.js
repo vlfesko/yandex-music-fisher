@@ -1,4 +1,5 @@
 /* global storage, yandex, chrome, logger, utils */
+'use strict';
 
 var downloader = {
     queue: [],

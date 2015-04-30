@@ -1,4 +1,5 @@
 /* global chrome */
+'use strict';
 
 var storage = {
     defaults: {
