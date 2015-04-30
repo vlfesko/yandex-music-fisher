@@ -9,7 +9,8 @@
         "downloads",
         "notifications",
         "https://music.yandex.ru/",
-        "https://avatars.yandex.net/"
+        "https://avatars.yandex.net/",
+        "https://storage.mds.yandex.net/"
     ],
     "minimum_chrome_version": "31.0",
     "background": {
@@ -25,6 +26,5 @@
         "32": "img/icon.png",
         "48": "img/icon.png",
         "128": "img/icon.png"
-    },
-    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+    }
 }
