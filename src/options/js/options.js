@@ -1,4 +1,5 @@
 /* global chrome */
+'use strict';
 
 String.prototype.insert = function (index, string) {
     if (index > 0) {

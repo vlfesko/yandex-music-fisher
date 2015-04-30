@@ -1,4 +1,5 @@
 /* global utils */
+'use strict';
 
 var yandex = {};
 
