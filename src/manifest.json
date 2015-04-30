@@ -8,9 +8,7 @@
         "storage",
         "downloads",
         "notifications",
-        "https://music.yandex.ru/",
-        "https://avatars.yandex.net/",
-        "http://localhost/"
+        "*://*/*"
     ],
     "minimum_chrome_version": "31.0",
     "background": {
