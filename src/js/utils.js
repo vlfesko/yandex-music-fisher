@@ -4,7 +4,6 @@
 var utils = {};
 
 utils.ajax = function (url, success, fail) {
-    url = 'https://music.yandex.ru' + url;
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.timeout = 10000;

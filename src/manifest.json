@@ -24,6 +24,5 @@
         "32": "img/icon.png",
         "48": "img/icon.png",
         "128": "img/icon.png"
-    },
-    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+    }
 }
