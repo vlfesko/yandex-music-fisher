@@ -3,32 +3,32 @@
 
 storage.load();
 
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-    if (changeInfo.status === 'loading') {
-        utils.addIconToTab(tab);
-    }
-});
+//chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+//    if (changeInfo.status === 'loading') {
+//        utils.addIconToTab(tab);
+//    }
+//});
 
-chrome.pageAction.onClicked.addListener(function (tab) {
-    chrome.pageAction.hide(tab.id);
-    var page = utils.getUrlInfo(tab.url);
-    if (page.isPlaylist) {
-        yandex.getPlaylist(page.username, page.playlistId, downloader.downloadPlaylist, function (error) {
-            logger.addMessage(error);
-            utils.addIconToTab(tab);
-        });
-    } else if (page.isTrack) {
-        yandex.getTrack(page.trackId, downloader.downloadTrack, function (error) {
-            logger.addMessage(error);
-            utils.addIconToTab(tab);
-        });
-    } else if (page.isAlbum) {
-        yandex.getAlbum(page.albumId, downloader.downloadAlbum, function (error) {
-            logger.addMessage(error);
-            utils.addIconToTab(tab);
-        });
-    }
-});
+//chrome.pageAction.onClicked.addListener(function (tab) {
+//    chrome.pageAction.hide(tab.id);
+//    var page = utils.getUrlInfo(tab.url);
+//    if (page.isPlaylist) {
+//        yandex.getPlaylist(page.username, page.playlistId, downloader.downloadPlaylist, function (error) {
+//            logger.addMessage(error);
+//            utils.addIconToTab(tab);
+//        });
+//    } else if (page.isTrack) {
+//        yandex.getTrack(page.trackId, downloader.downloadTrack, function (error) {
+//            logger.addMessage(error);
+//            utils.addIconToTab(tab);
+//        });
+//    } else if (page.isAlbum) {
+//        yandex.getAlbum(page.albumId, downloader.downloadAlbum, function (error) {
+//            logger.addMessage(error);
+//            utils.addIconToTab(tab);
+//        });
+//    }
+//});
 
 chrome.downloads.onChanged.addListener(function (delta) {
     chrome.downloads.search({
@@ -45,16 +45,16 @@ chrome.downloads.onChanged.addListener(function (delta) {
     });
 });
 
-chrome.runtime.onInstalled.addListener(function (details) {
-    storage.init();
-    chrome.tabs.query({
-        url: '*://music.yandex.ru/*'
-    }, function (tabs) {
-        for (var i = 0; i < tabs.length; i++) {
-            utils.addIconToTab(tabs[i]);
-        }
-    });
-});
+//chrome.runtime.onInstalled.addListener(function (details) {
+//    storage.init();
+//    chrome.tabs.query({
+//        url: '*://music.yandex.ru/*'
+//    }, function (tabs) {
+//        for (var i = 0; i < tabs.length; i++) {
+//            utils.addIconToTab(tabs[i]);
+//        }
+//    });
+//});
 
 chrome.notifications.onClicked.addListener(function (notificationId) {
     var notificationData = downloader.notifications[notificationId];

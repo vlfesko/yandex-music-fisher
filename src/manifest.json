@@ -16,8 +16,10 @@
         "persistent": true
     },
     "options_page": "options/options.html",
-    "page_action": {
-        "default_title": "Yandex Music Fisher"
+    "browser_action": {
+        "default_title": "Yandex Music Fisher",
+        "default_popup": "popup/popup.html",
+        "default_icon": "img/icon.png"
     },
     "icons": {
         "16": "img/icon.png",
