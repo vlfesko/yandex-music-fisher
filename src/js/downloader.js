@@ -61,6 +61,24 @@ downloader.download = function () {
                 savePath = entity.options.saveDir + '/' + savePath;
             }
             yandex.getTrackUrl(track.storageDir, function (url) {
+
+                jBinary.load(url, null, function (err, binary) {
+                    var newBinary = new jBinary(binary.view.byteLength + 128);
+                    newBinary.write('binary', binary);
+                    newBinary.write(['string', 3], 'TAG');
+                    newBinary.write(['string0', 30, 'utf8'], 'Русский, ёпта'); // title
+                    newBinary.write(['string0', 30, 'utf8'], 'Рвач хач'); // artist
+                    newBinary.write(['string0', 30, 'utf8'], 'Пендосия'); // album
+                    newBinary.write(['string', 4], '1998'); //year
+                    newBinary.write(['string0', 28, 'utf8'], 'Офигенски!'); // comment
+                    newBinary.write('uint8', 0); // zero_byte
+                    newBinary.write('uint8', 68); // track
+                    newBinary.write('uint8', 3); // genre (Dance)
+                    newBinary.saveAs('test.mp3');
+                });
+
+                return;
+
                 chrome.downloads.download({
                     url: url,
                     filename: savePath,
