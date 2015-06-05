@@ -18,7 +18,7 @@
 
 [Скачайте архив](https://github.com/egoroof/yandex-music-fisher/archive/master.zip),
 распакуйте, из папки __yandex-music-fisher-master__ мышкой перенесите папку __src__ на
-[страницу расширений](chrome://extensions/), после чего там появится новое расширение.
+страницу расширений (chrome://extensions), после чего там появится новое расширение.
 
 Обновляется расширение таким же способом.
 
