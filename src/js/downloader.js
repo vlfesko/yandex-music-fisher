@@ -62,30 +62,29 @@ downloader.download = function () {
             }
             yandex.getTrackUrl(track.storageDir, function (url) {
 
-                jBinary.load(url, null, function (err, binary) {
-                    var newBinary = new jBinary(binary.view.byteLength + 128);
-                    newBinary.write('binary', binary);
-                    newBinary.write(['string', 3], 'TAG');
-                    newBinary.write(['string0', 30, 'utf8'], 'Русский, ёпта'); // title
-                    newBinary.write(['string0', 30, 'utf8'], 'Рвач хач'); // artist
-                    newBinary.write(['string0', 30, 'utf8'], 'Пендосия'); // album
-                    newBinary.write(['string', 4], '1998'); //year
-                    newBinary.write(['string0', 28, 'utf8'], 'Офигенски!'); // comment
-                    newBinary.write('uint8', 0); // zero_byte
-                    newBinary.write('uint8', 68); // track
-                    newBinary.write('uint8', 3); // genre (Dance)
-                    newBinary.saveAs('test.mp3');
+                jBinary.load(url, null, function (error, binary) {
+                    if (error) {
+                        logger.addMessage(error);
+                        return;
+                    }
+                    var localUrl = utils.addId3Tag(binary, {
+                        TIT2: track.title, // Title/songname/content description
+                        TPE1: artists, // Lead performer(s)/Soloist(s)
+//                        TALB: 'альбом', // Album/Movie/Show title
+//                        TYER: '1998', // Year
+//                        TRCK: '67', // Track number/Position in set
+//                        TCON: 'Dance' // Content type
+                    });
+
+                    chrome.downloads.download({
+                        url: localUrl,
+                        filename: savePath,
+                        saveAs: false
+                    }, function (downloadId) {
+                        downloader.downloads[downloadId] = entity;
+                    });
                 });
 
-                return;
-
-                chrome.downloads.download({
-                    url: url,
-                    filename: savePath,
-                    saveAs: false
-                }, function (downloadId) {
-                    downloader.downloads[downloadId] = entity;
-                });
             }, function (error) {
                 var nId = entity.options.notificationId;
                 downloader.notifications[nId].interruptedTracks.push(entity);
