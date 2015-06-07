@@ -30,27 +30,6 @@ storage.load();
 //    }
 //});
 
-// test
-(function () {
-//    var url = 'https://jdataview.github.io/jBinary.Repo/demo/mp3/sample.mp3';
-    var url = 'https://music.yandex.ru/album/2380392/track/20845997';
-    var page = utils.getUrlInfo(url);
-    if (page.isPlaylist) {
-        yandex.getPlaylist(page.username, page.playlistId, downloader.downloadPlaylist, function (error) {
-            logger.addMessage(error);
-        });
-    } else if (page.isTrack) {
-        yandex.getTrack(page.trackId, downloader.downloadTrack, function (error) {
-            logger.addMessage(error);
-        });
-    } else if (page.isAlbum) {
-        yandex.getAlbum(page.albumId, downloader.downloadAlbum, function (error) {
-            logger.addMessage(error);
-        });
-    }
-})();
-// end test
-
 chrome.downloads.onChanged.addListener(function (delta) {
     chrome.downloads.search({
         id: delta.id
