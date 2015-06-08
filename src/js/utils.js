@@ -1,4 +1,4 @@
-/* global chrome */
+/* global chrome, LegacyTextEncoder, jBinary */
 'use strict';
 
 var utils = {};
@@ -97,8 +97,9 @@ utils.addId3Tag = function (oldBinary, frames) {
     var coder = new LegacyTextEncoder('windows-1251', {
         NONSTANDARD_allowLegacyEncoding: true
     });
+    var frame;
     var frameSize = 0;
-    for (var frame in frames) {
+    for (frame in frames) {
         frameSize += frames[frame].length + 11; // 10 на заголовок + 1 на кодировку
     }
     var tagSize = frameSize + 10; // 10 на заголовок
@@ -110,7 +111,7 @@ utils.addId3Tag = function (oldBinary, frames) {
     binary.skip(1); // флаги
     binary.write('uint32', tagSize); // размер тега
 
-    for (var frame in frames) {
+    for (frame in frames) {
         binary.write('string', frame); // название фрейма
         binary.write('uint32', frames[frame].length + 1); // размер фрейма
         binary.skip(2); // флаги

@@ -1,4 +1,4 @@
-/* global storage, yandex, chrome, logger, utils */
+/* global storage, yandex, chrome, logger, utils, jBinary */
 'use strict';
 
 var downloader = {
