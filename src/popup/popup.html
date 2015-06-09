@@ -9,69 +9,84 @@
         <link rel="stylesheet" href="popup.css" type="text/css">
     </head>
     <body>
-
-        <div class="btn-group btn-group-justified">
+        <div class="btn-toolbar">
             <div class="btn-group">
-                <button type="button" class="btn btn-default active" data-action="add">Добавление</button>
+                <button type="button" class="btn btn-default active" id="addBtn">
+                    <i class="glyphicon glyphicon-plus"></i> Добавление
+                </button>
+                <button type="button" class="btn btn-default" id="downloadBtn">
+                    <i class="glyphicon glyphicon-save"></i> Загрузки
+                </button>
             </div>
+
             <div class="btn-group">
-                <button type="button" class="btn btn-default" data-action="download">Загрузки</button>
+                <button type="button" class="btn btn-default" id="downloadFolderBtn" title="Открыть папку загрузок">
+                    <i class="glyphicon glyphicon-folder-open"></i>
+                </button>
             </div>
         </div>
 
-        <br>
-        <table class="table table-striped table-condensed">
-            <tbody>
-                <tr>
-                    <th>Тип</th>
-                    <td>Дискография</td>
-                </tr>
-                <tr>
-                    <th>Исполнитель</th>
-                    <td>Andrew Lockington</td>
-                </tr>
-                <tr>
-                    <th>Название</th>
-                    <td>«Евровидение 2015» — песни участников</td>
-                </tr>
-                <tr>
-                    <th>Длительность</th>
-                    <td>3:08:26</td>
-                </tr>
-                <tr>
-                    <th>Размер</th>
-                    <td>8.24 МиБ</td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <div class="checkbox">
-                            <label><input type="checkbox" checked><b>Альбомы (2)</b></label>
-                        </div>
-                        <div class="checkbox">
-                            <label><input type="checkbox" checked>Emergency</label>
-                        </div>
-                        <div class="checkbox">
-                            <label><input type="checkbox" checked>Encore</label>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <div class="checkbox">
-                            <label><input type="checkbox"><b>Сборники (2)</b></label>
-                        </div>
-                        <div class="checkbox">
-                            <label><input type="checkbox">Emergency uber</label>
-                        </div>
-                        <div class="checkbox">
-                            <label><input type="checkbox">Encore</label>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div id="addContainer">
+            <br>
+            <table class="table table-striped table-condensed">
+                <tbody>
+                    <tr>
+                        <th>Тип</th>
+                        <td>Дискография</td>
+                    </tr>
+                    <tr>
+                        <th>Исполнитель</th>
+                        <td>Andrew Lockington</td>
+                    </tr>
+                    <tr>
+                        <th>Название</th>
+                        <td>«Евровидение 2015» — песни участников</td>
+                    </tr>
+                    <tr>
+                        <th>Длительность</th>
+                        <td>3:08:26</td>
+                    </tr>
+                    <tr>
+                        <th>Размер</th>
+                        <td>8.24 МиБ</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="checkbox">
+                                <label><input type="checkbox" checked><b>Альбомы (2)</b></label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" checked>Emergency</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" checked>Encore</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="checkbox">
+                                <label><input type="checkbox"><b>Сборники (2)</b></label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox">Emergency uber</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox">Encore</label>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
 
-        <button type="button" class="btn btn-success btn-block">Скачать</button>
+            <button type="button" class="btn btn-success btn-block">
+                <i class="glyphicon glyphicon-save"></i> Скачать
+            </button>
+        </div>
+
+        <div id="downloadContainer" class="hide">
+            
+        </div>
 
         <script src="popup.js"></script>
     </body>
