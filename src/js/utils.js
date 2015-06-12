@@ -53,44 +53,22 @@ utils.getUrlInfo = function (url) {
     return info;
 };
 
-utils.addIconToTab = function (tab) {
-    chrome.pageAction.hide(tab.id);
-    chrome.pageAction.setPopup({
-        tabId: tab.id,
-        popup: ''
-    });
+utils.updateTabIcon = function (tab) {
     var page = utils.getUrlInfo(tab.url);
-    if (!page.isYandexMusic) {
-        return;
-    } else if (page.isPlaylist) {
-        chrome.pageAction.setIcon({
-            tabId: tab.id,
-            path: 'img/green.png'
-        });
-        chrome.pageAction.show(tab.id);
+    var iconPath = 'img/black.png';
+    if (page.isPlaylist) {
+        iconPath = 'img/green.png';
     } else if (page.isTrack) {
-        chrome.pageAction.setIcon({
-            tabId: tab.id,
-            path: 'img/blue.png'
-        });
-        chrome.pageAction.show(tab.id);
+        iconPath = 'img/blue.png';
     } else if (page.isAlbum) {
-        chrome.pageAction.setIcon({
-            tabId: tab.id,
-            path: 'img/yellow.png'
-        });
-        chrome.pageAction.show(tab.id);
+        iconPath = 'img/yellow.png';
     } else if (page.isArtist) {
-        chrome.pageAction.setIcon({
-            tabId: tab.id,
-            path: 'img/pink.png'
-        });
-        chrome.pageAction.setPopup({
-            tabId: tab.id,
-            popup: 'popup/popup.html'
-        });
-        chrome.pageAction.show(tab.id);
+        iconPath = 'img/pink.png';
     }
+    chrome.browserAction.setIcon({
+        tabId: tab.id,
+        path: iconPath
+    });
 };
 
 utils.addId3Tag = function (oldBinary, frames) {
