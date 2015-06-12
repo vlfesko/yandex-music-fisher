@@ -8,7 +8,9 @@
         "storage",
         "downloads",
         "notifications",
-        "*://*/*"
+        "https://music.yandex.ru/",
+        "https://avatars.yandex.net/",
+        "https://storage.mds.yandex.net/"
     ],
     "minimum_chrome_version": "31.0",
     "background": {

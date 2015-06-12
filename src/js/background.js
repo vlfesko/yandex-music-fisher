@@ -149,25 +149,3 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
         });
     }
 });
-
-var data = {
-    a: 1,
-    b: 33,
-    camel: 'banana'
-};
-
-//chrome.downloads.download({
-//    url: 'http://127.0.0.1:80/loader.php',
-//    filename: 'test.zip',
-//    saveAs: false,
-//    method: 'POST',
-//    headers: [
-//        {
-//            name: 'Content-Type',
-//            value: 'application/x-www-form-urlencoded'
-//        }
-//    ],
-//    body: 'data=' + encodeURIComponent(JSON.stringify(data))
-//}, function (downloadId) {
-//    console.info(downloadId);
-//});
