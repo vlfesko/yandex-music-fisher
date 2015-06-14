@@ -37,7 +37,12 @@ utils.getUrlInfo = function (url) {
     var info = {};
     var parts = url.replace(/\?.*/, '').split('/');
     //["http:", "", "music.yandex.ru", "users", "furfurmusic", "playlists", "1000"]
-    info.isYandexMusic = (parts[2] === 'music.yandex.ru');
+    info.isYandexMusic = (
+            parts[2] === 'music.yandex.ru' ||
+            parts[2] === 'music.yandex.ua' ||
+            parts[2] === 'music.yandex.kz' ||
+            parts[2] === 'music.yandex.by'
+            );
     if (!info.isYandexMusic) {
         return info;
     }

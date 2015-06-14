@@ -48,7 +48,12 @@ chrome.downloads.onChanged.addListener(function (delta) {
 chrome.runtime.onInstalled.addListener(function (details) {
     storage.init();
     chrome.tabs.query({
-        url: '*://music.yandex.ru/*'
+        url: [
+            '*://music.yandex.ru/*',
+            '*://music.yandex.ua/*',
+            '*://music.yandex.kz/*',
+            '*://music.yandex.by/*'
+        ]
     }, function (tabs) {
         for (var i = 0; i < tabs.length; i++) {
             utils.addIconToTab(tabs[i]);
