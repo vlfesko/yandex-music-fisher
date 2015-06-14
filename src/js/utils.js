@@ -1,4 +1,4 @@
-/* global chrome, LegacyTextEncoder, jBinary */
+/* global chrome, LegacyTextEncoder, jBinary, storage */
 'use strict';
 
 var utils = {};
@@ -32,8 +32,15 @@ utils.getUrlInfo = function (url) {
     var info = {};
     var parts = url.replace(/\?.*/, '').split('/');
     //["http:", "", "music.yandex.ru", "users", "furfurmusic", "playlists", "1000"]
-    info.isYandexMusic = (parts[2] === 'music.yandex.ru');
-    if (!info.isYandexMusic) {
+    info.isYandexMusic = (
+            parts[2] === 'music.yandex.ru' ||
+            parts[2] === 'music.yandex.ua' ||
+            parts[2] === 'music.yandex.kz' ||
+            parts[2] === 'music.yandex.by'
+            );
+    if (info.isYandexMusic) {
+        storage.current.domain = parts[2].split('.')[2];
+    } else {
         return info;
     }
     info.isPlaylist = (parts[3] === 'users' && parts[5] === 'playlists' && !!parts[6]);

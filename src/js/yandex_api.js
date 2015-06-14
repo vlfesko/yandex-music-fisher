@@ -1,4 +1,4 @@
-/* global utils */
+/* global utils, storage */
 'use strict';
 
 var yandex = {};
@@ -13,25 +13,29 @@ yandex.getTrackUrl = function (storageDir, success, fail) {
 };
 
 yandex.getTrack = function (trackId, success, fail) {
-    var url = 'https://music.yandex.ru/handlers/track.jsx?track=' + trackId;
+    var url = 'https://music.yandex.' + storage.current.domain;
+    url += '/handlers/track.jsx?track=' + trackId;
     utils.ajax(url, function (json) {
         success(json.track);
     }, fail);
 };
 
 yandex.getArtist = function (artistId, success, fail) {
-    var url = 'https://music.yandex.ru/handlers/artist.jsx?artist=' + artistId;
+    var url = 'https://music.yandex.' + storage.current.domain;
+    url += '/handlers/artist.jsx?artist=' + artistId;
     url += '&what=albums';
     utils.ajax(url, success, fail);
 };
 
 yandex.getAlbum = function (albumId, success, fail) {
-    var url = 'https://music.yandex.ru/handlers/album.jsx?album=' + albumId;
+    var url = 'https://music.yandex.' + storage.current.domain;
+    url += '/handlers/album.jsx?album=' + albumId;
     utils.ajax(url, success, fail);
 };
 
 yandex.getPlaylist = function (username, playlistId, success, fail) {
-    var url = 'https://music.yandex.ru/handlers/playlist.jsx?owner=' + username;
+    var url = 'https://music.yandex.' + storage.current.domain;
+    url += '/handlers/playlist.jsx?owner=' + username;
     url += '&kinds=' + playlistId;
     utils.ajax(url, function (json) {
         success(json.playlist);

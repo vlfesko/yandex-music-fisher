@@ -27,6 +27,7 @@ storage.load = function () {
     chrome.storage.local.get(function (params) {
         storage.current = params;
     });
+    storage.current.domain = 'ru';
 };
 
 storage.reset = function (param) {
