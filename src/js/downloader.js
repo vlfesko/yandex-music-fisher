@@ -67,14 +67,18 @@ downloader.download = function () {
                         logger.addMessage(error);
                         return;
                     }
-                    var localUrl = utils.addId3Tag(binary, {
+                    var frames = {
                         TIT2: track.title, // Title/songname/content description
                         TPE1: artists, // Lead performer(s)/Soloist(s)
-//                        TALB: 'альбом', // Album/Movie/Show title
-//                        TYER: '1998', // Year
-//                        TRCK: '67', // Track number/Position in set
-//                        TCON: 'Dance' // Content type
-                    });
+                        TALB: track.albums[0].title, // Album/Movie/Show title
+                        TYER: track.albums[0].year, // Year
+                        TCON: track.albums[0].genre // Content type // todo: преобразовывать, как на сайте
+                    };
+                    if (entity.type === 'album_track') {
+                        // todo: ставить не порядковый номер, а из альбома
+                        frames.TRCK = entity.options.namePrefix; // Track number/Position in set
+                    }
+                    var localUrl = utils.addId3Tag(binary, frames);
 
                     chrome.downloads.download({
                         url: localUrl,

@@ -79,13 +79,14 @@ utils.updateTabIcon = function (tab) {
 };
 
 utils.addId3Tag = function (oldBinary, frames) {
+    // todo: преобразовывать символы, которые нельзя закодировать в 1251 (åö)
     var coder = new LegacyTextEncoder('windows-1251', {
         NONSTANDARD_allowLegacyEncoding: true
     });
     var frame;
     var frameSize = 0;
     for (frame in frames) {
-        frameSize += frames[frame].length + 11; // 10 на заголовок + 1 на кодировку
+        frameSize += frames[frame].toString().length + 11; // 10 на заголовок + 1 на кодировку
     }
     var tagSize = frameSize + 10; // 10 на заголовок
     var binary = new jBinary(oldBinary.view.byteLength + tagSize);
@@ -98,10 +99,10 @@ utils.addId3Tag = function (oldBinary, frames) {
 
     for (frame in frames) {
         binary.write('string', frame); // название фрейма
-        binary.write('uint32', frames[frame].length + 1); // размер фрейма
+        binary.write('uint32', frames[frame].toString().length + 1); // размер фрейма
         binary.skip(2); // флаги
         binary.write('uint8', 0); // кодировка
-        binary.write('blob', coder.encode(frames[frame])); // значение фрейма
+        binary.write('blob', coder.encode(frames[frame].toString())); // значение фрейма
     }
 
     binary.write('binary', oldBinary);
