@@ -1,4 +1,4 @@
-/* global chrome */
+/* global chrome, storage */
 'use strict';
 
 var utils = {};
@@ -43,7 +43,9 @@ utils.getUrlInfo = function (url) {
             parts[2] === 'music.yandex.kz' ||
             parts[2] === 'music.yandex.by'
             );
-    if (!info.isYandexMusic) {
+    if (info.isYandexMusic) {
+        storage.current.domain = parts[2].split('.')[2];
+    } else {
         return info;
     }
     info.isPlaylist = (parts[3] === 'users' && parts[5] === 'playlists' && !!parts[6]);
