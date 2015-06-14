@@ -1,4 +1,4 @@
-#Yandex Music Fisher (0.2.7.1)
+#Yandex Music Fisher (0.2.7.3)
 
 Расширение для загрузки музыки с сервиса [Яндекс.Музыка](http://music.yandex.ru/).
 
