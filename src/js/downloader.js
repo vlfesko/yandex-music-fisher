@@ -72,7 +72,7 @@ downloader.download = function () {
                         TPE1: artists, // Lead performer(s)/Soloist(s)
                         TALB: track.albums[0].title, // Album/Movie/Show title
                         TYER: track.albums[0].year, // Year
-                        TCON: track.albums[0].genre // Content type // todo: преобразовывать, как на сайте
+                        TCON: track.albums[0].genre // Content type
                     };
                     if (entity.type === 'album_track') {
                         // todo: ставить не порядковый номер, а из альбома
