@@ -9,12 +9,14 @@ utils.ajax = function (url, success, fail) {
     xhr.timeout = 10000;
     xhr.onload = function () {
         if (xhr.status === 200) {
+            var json;
             try {
-                var json = JSON.parse(xhr.responseText);
-                success(json);
+                json = JSON.parse(xhr.responseText);
             } catch (e) {
                 fail('Ответ не в формате JSON. url: ' + url);
+                return;
             }
+            success(json);
         } else {
             fail('HTTP код: ' + xhr.status + '. url: ' + url);
         }
