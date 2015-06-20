@@ -6,26 +6,16 @@ var utils = {};
 utils.ajax = function (url, success, fail) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
-    xhr.timeout = 10000;
+    xhr.responseType = 'json';
     xhr.onload = function () {
         if (xhr.status === 200) {
-            var json;
-            try {
-                json = JSON.parse(xhr.responseText);
-            } catch (e) {
-                fail('Ответ не в формате JSON. url: ' + url);
-                return;
-            }
-            success(json);
+            success(xhr.response);
         } else {
             fail('HTTP код: ' + xhr.status + '. url: ' + url);
         }
     };
     xhr.onerror = function (e) {
         fail('Ошибка AJAX. HTTP код: ' + e.target.status + ', url: ' + url);
-    };
-    xhr.ontimeout = function () {
-        fail('Время ожидания (' + xhr.timeout + ' мс) вышло. url: ' + url);
     };
     xhr.send();
 };
