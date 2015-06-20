@@ -20,6 +20,45 @@ document.getElementById('downloadFolderBtn').addEventListener('click', function 
     chrome.downloads.showDefaultFolder();
 });
 
+document.getElementById('startDownloadBtn').addEventListener('click', function () {
+    var downloadType = this.getAttribute('data-type');
+    switch (downloadType) {
+        case 'track':
+            var trackId = this.getAttribute('data-trackId');
+            backgroundPage.yandex.getTrack(trackId, function (track) {
+                backgroundPage.downloader.downloadTrack(track);
+            }, backgroundPage.logger.addMessage);
+            break;
+        case 'album':
+            var albumId = this.getAttribute('data-albumId');
+            backgroundPage.yandex.getAlbum(albumId, function (album) {
+                backgroundPage.downloader.downloadAlbum(album);
+            }, backgroundPage.logger.addMessage);
+            break;
+        case 'playlist':
+            var username = this.getAttribute('data-username');
+            var playlistId = this.getAttribute('data-playlistId');
+            backgroundPage.yandex.getPlaylist(username, playlistId, function (playlist) {
+                backgroundPage.downloader.downloadPlaylist(playlist);
+            }, backgroundPage.logger.addMessage);
+            break;
+        case 'artist':
+            var artistName = this.getAttribute('data-artistName');;
+            var albumElems = document.getElementsByClassName('album');
+            var compilationElems = document.getElementsByClassName('compilation');
+            var allElems = [].slice.call(albumElems).concat([].slice.call(compilationElems));
+
+            for (var i = 0; i < allElems.length; i++) {
+                if (allElems[i].checked) {
+                    backgroundPage.yandex.getAlbum(allElems[i].value, function (album) {
+                        backgroundPage.downloader.downloadAlbum(album, artistName);
+                    }, backgroundPage.logger.addMessage);
+                }
+            }
+            break;
+    }
+});
+
 function generateDownloadArtist(artist) {
     // todo: добавить размер и продолжительность треков
     var i;
@@ -74,31 +113,37 @@ chrome.tabs.query({
     chrome.runtime.getBackgroundPage(function (bp) {
         backgroundPage = bp;
         var page = bp.utils.getUrlInfo(activeTab.url);
+        var downloadBtn = document.getElementById('startDownloadBtn');
         if (page.isPlaylist) {
             bp.yandex.getPlaylist(page.username, page.playlistId, function (playlist) {
-                console.log(playlist);
                 generateDownloadPlaylist(playlist);
+                downloadBtn.setAttribute('data-type', 'playlist');
+                downloadBtn.setAttribute('data-username', page.username);
+                downloadBtn.setAttribute('data-playlistId', page.playlistId);
             }, function (error) {
                 bp.logger.addMessage(error);
             });
         } else if (page.isTrack) {
             bp.yandex.getTrack(page.trackId, function (track) {
-                console.log(track);
                 generateDownloadTrack(track);
+                downloadBtn.setAttribute('data-type', 'track');
+                downloadBtn.setAttribute('data-trackId', page.trackId);
             }, function (error) {
                 bp.logger.addMessage(error);
             });
         } else if (page.isAlbum) {
             bp.yandex.getAlbum(page.albumId, function (album) {
-                console.log(album);
                 generateDownloadAlbum(album);
+                downloadBtn.setAttribute('data-type', 'album');
+                downloadBtn.setAttribute('data-albumId', page.albumId);
             }, function (error) {
                 bp.logger.addMessage(error);
             });
         } else if (page.isArtist) {
             bp.yandex.getArtist(page.artistId, function (artist) {
-                console.log(artist);
                 generateDownloadArtist(artist);
+                downloadBtn.setAttribute('data-type', 'artist');
+                downloadBtn.setAttribute('data-artistName', artist.artist.name);
             }, function (error) {
                 bp.logger.addMessage(error);
             });
