@@ -45,9 +45,7 @@ downloader.download = function () {
             downloader.activeThreadCount++;
             var track = entity.cargo;
             var trackNameMask = storage.current.trackNameMask;
-            var artists = track.artists.map(function (artist) {
-                return artist.name;
-            }).join(', ');
+            var artists = utils.parseArtists(track.artists);
             if (track.version) {
                 track.title += ' (' + track.version + ')';
             }
@@ -162,9 +160,7 @@ downloader.add = function (type, cargo, options) {
 
 downloader.downloadTrack = function (track) {
     var notificationId = 'track#' + track.id;
-    var artists = track.artists.map(function (artist) {
-        return artist.name;
-    }).join(', ');
+    var artists = utils.parseArtists(track.artists);
     var iconUrl = 'img/icon.png';
 
     downloader.add('track', track, {
@@ -198,9 +194,7 @@ downloader.downloadAlbum = function (album, discographyArtist) {
         return;
     }
     var notificationId = 'album#' + album.id;
-    var artists = album.artists.map(function (artist) {
-        return artist.name;
-    }).join(', ');
+    var artists = utils.parseArtists(album.artists);
     if (album.version) {
         album.title += ' (' + album.version + ')';
     }

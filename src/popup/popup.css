@@ -1,7 +1,17 @@
 body {
     width: 268px;
 }
-.checkbox {
-    margin-top: 0;
-    margin-bottom: 5px;
+label {
+    display: inline;
+    font-weight: normal;
+    cursor: pointer;
+}
+input[type=checkbox] {
+    margin-right: 5px;
+}
+#addContainer {
+    padding: 10px 8px 0;
+}
+#albums, #compilations {
+    margin-top: 10px;
 }

@@ -1,4 +1,4 @@
-/* global chrome, LegacyTextEncoder, jBinary, storage */
+/* global chrome, jBinary, storage */
 'use strict';
 
 var utils = {};
@@ -60,6 +60,12 @@ utils.getUrlInfo = function (url) {
         info.artistId = parts[4];
     }
     return info;
+};
+
+utils.parseArtists = function (artists) {
+    return artists.map(function (artist) {
+        return artist.name;
+    }).join(', ');
 };
 
 utils.updateTabIcon = function (tab) {
