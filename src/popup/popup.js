@@ -43,7 +43,7 @@ document.getElementById('startDownloadBtn').addEventListener('click', function (
             }, backgroundPage.logger.addMessage);
             break;
         case 'artist':
-            var artistName = this.getAttribute('data-artistName');;
+            var artistName = this.getAttribute('data-artistName');
             var albumElems = document.getElementsByClassName('album');
             var compilationElems = document.getElementsByClassName('compilation');
             var allElems = [].slice.call(albumElems).concat([].slice.call(compilationElems));
@@ -82,6 +82,21 @@ function generateDownloadArtist(artist) {
     document.getElementById('info').innerHTML = 'Дискография';
     document.getElementById('albums').innerHTML = albumContent;
     document.getElementById('compilations').innerHTML = compilationContent;
+
+    document.getElementById('albumCheckbox').addEventListener('click', function () {
+        var toggle = document.getElementById('albumCheckbox');
+        var albums = document.getElementsByClassName('album');
+        for (var i = 0; i < albums.length; i++) {
+            albums[i].checked = toggle.checked;
+        }
+    });
+    document.getElementById('compilationCheckbox').addEventListener('click', function () {
+        var toggle = document.getElementById('compilationCheckbox');
+        var compilations = document.getElementsByClassName('compilation');
+        for (var i = 0; i < compilations.length; i++) {
+            compilations[i].checked = toggle.checked;
+        }
+    });
 }
 
 function generateDownloadTrack(track) {
