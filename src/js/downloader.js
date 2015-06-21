@@ -155,13 +155,15 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
                     logger.addMessage('Ошибка: ' + track.error + '. trackId: ' + track.id);
                     continue;
                 }
-                if (album.volumes.length > 1) {
-                    saveDir += '/CD' + (i + 1);
-                }
-                downloader.add('album_track', track, {
+                var options = {
                     saveDir: saveDir,
                     namePrefix: downloader.getPrefix(j + 1, album.volumes[i].length)
-                });
+                };
+                if (album.volumes.length > 1) {
+                    // пример: https://music.yandex.ru/album/2490723
+                    options.saveDir += '/CD' + (i + 1);
+                }
+                downloader.add('album_track', track, options);
             }
         }
     }, logger.addMessage);
