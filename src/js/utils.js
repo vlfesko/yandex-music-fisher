@@ -1,22 +1,25 @@
-/* global chrome, jBinary, storage */
+/* global chrome, storage */
 'use strict';
 
 var utils = {};
 
-utils.ajax = function (url, success, fail) {
+utils.ajax = function (url, type, onSuccess, onFail, onProgress) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
-    xhr.responseType = 'json';
+    xhr.responseType = type;
     xhr.onload = function () {
         if (xhr.status === 200) {
-            success(xhr.response);
+            onSuccess(xhr.response);
         } else {
-            fail('HTTP код: ' + xhr.status + '. url: ' + url);
+            onFail('HTTP код: ' + xhr.status + '. URL: ' + url);
         }
     };
     xhr.onerror = function (e) {
-        fail('Ошибка AJAX. HTTP код: ' + e.target.status + ', url: ' + url);
+        onFail('Ошибка AJAX. HTTP код: ' + e.target.status + ', URL: ' + url);
     };
+    if (onProgress) {
+        xhr.onprogress = onProgress;
+    }
     xhr.send();
 };
 
@@ -76,31 +79,57 @@ utils.updateTabIcon = function (tab) {
     });
 };
 
-utils.addId3Tag = function (oldBinary, frames) {
+utils.addId3Tag = function (oldArrayBuffer, frames) {
+    var uint32ToUint8Array = function (uint32) {
+        return [
+            uint32 >>> 24,
+            (uint32 >>> 16) & 0xff,
+            (uint32 >>> 8) & 0xff,
+            uint32 & 0xff
+        ];
+    };
+    var offset = 0;
     var frame;
     var frameSize = 0;
     for (frame in frames) {
         frameSize += frames[frame].toString().length + 11; // 10 на заголовок + 1 на кодировку
     }
     var tagSize = frameSize + 10; // 10 на заголовок
-    var binary = new jBinary(oldBinary.view.byteLength + tagSize);
+    var arrayBuffer = new ArrayBuffer(oldArrayBuffer.byteLength + tagSize);
 
-    binary.write('string', 'ID3'); // тег
-    binary.write('uint8', 3); // версия
-    binary.skip(1); // ревизия версии
-    binary.skip(1); // флаги
-    binary.write('uint32', tagSize); // размер тега
+    var writeBytes = utils.stringToWin1251Array('ID3'); // тег
+    writeBytes.push(3); // версия
+
+    new Uint8Array(arrayBuffer).set(writeBytes, offset);
+    offset += writeBytes.length;
+
+    offset++; // ревизия версии
+    offset++; // флаги
+
+    writeBytes = uint32ToUint8Array(tagSize); // размер тега
+    new Uint8Array(arrayBuffer).set(writeBytes, offset);
+    offset += writeBytes.length;
 
     for (frame in frames) {
-        binary.write('string', frame); // название фрейма
-        binary.write('uint32', frames[frame].toString().length + 1); // размер фрейма
-        binary.skip(2); // флаги
-        binary.write('uint8', 0); // кодировка
-        binary.write('blob', utils.stringToWin1251Array(frames[frame].toString())); // значение фрейма
+        writeBytes = utils.stringToWin1251Array(frame); // название фрейма
+        new Uint8Array(arrayBuffer).set(writeBytes, offset);
+        offset += writeBytes.length;
+
+        writeBytes = uint32ToUint8Array(frames[frame].toString().length + 1); // размер фрейма
+        new Uint8Array(arrayBuffer).set(writeBytes, offset);
+        offset += writeBytes.length;
+
+        offset += 2; // флаги
+        offset++; // кодировка
+
+        writeBytes = utils.stringToWin1251Array(frames[frame].toString()); // значение фрейма
+        new Uint8Array(arrayBuffer).set(writeBytes, offset);
+        offset += writeBytes.length;
     }
 
-    binary.write('binary', oldBinary);
-    return binary.toURI('audio/mpeg');
+    new Uint8Array(arrayBuffer).set(new Uint8Array(oldArrayBuffer), offset);
+    var blob = new Blob([arrayBuffer], {type: 'audio/mpeg'});
+    return window.URL.createObjectURL(blob);
 };
 
 utils.stringToWin1251Array = function (string) {

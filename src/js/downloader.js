@@ -1,4 +1,4 @@
-/* global storage, yandex, chrome, logger, utils, jBinary */
+/* global storage, yandex, chrome, logger, utils */
 'use strict';
 
 var downloader = {
@@ -60,11 +60,7 @@ downloader.download = function () {
             }
             yandex.getTrackUrl(track.storageDir, function (url) {
 
-                jBinary.load(url, null, function (error, binary) {
-                    if (error) {
-                        logger.addMessage(error);
-                        return;
-                    }
+                utils.ajax(url, 'arraybuffer', function (arrayBuffer) {
                     var frames = {
                         TIT2: track.title, // Title/songname/content description
                         TPE1: artists, // Lead performer(s)/Soloist(s)
@@ -76,7 +72,7 @@ downloader.download = function () {
                         // todo: ставить не порядковый номер, а из альбома
                         frames.TRCK = entity.options.namePrefix; // Track number/Position in set
                     }
-                    var localUrl = utils.addId3Tag(binary, frames);
+                    var localUrl = utils.addId3Tag(arrayBuffer, frames);
 
                     chrome.downloads.download({
                         url: localUrl,
@@ -85,6 +81,10 @@ downloader.download = function () {
                     }, function (downloadId) {
                         downloader.downloads[downloadId] = entity;
                     });
+                }, function (error) {
+                    logger.addMessage(error);
+                }, function (event) {
+                    console.info(event.loaded + ' / ' + event.total);
                 });
 
             }, function (error) {
