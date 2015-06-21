@@ -167,7 +167,9 @@ chrome.tabs.query({
                 bp.logger.addMessage(error);
             });
         } else {
-            console.log('Nothing to download here');
+            hidePreloader();
+            document.getElementById('downloadBtn').click();
+            document.getElementById('addBtn').classList.add('disabled');
         }
     });
 });
