@@ -21,6 +21,7 @@ document.getElementById('downloadFolderBtn').addEventListener('click', function 
 });
 
 document.getElementById('startDownloadBtn').addEventListener('click', function () {
+    document.getElementById('downloadBtn').click();
     var downloadType = this.getAttribute('data-type');
     switch (downloadType) {
         case 'track':
@@ -50,6 +51,11 @@ document.getElementById('startDownloadBtn').addEventListener('click', function (
             break;
     }
 });
+
+function hidePreloader() {
+    document.getElementById('preloader').classList.add('hide');
+    document.getElementById('addContainer').classList.remove('hide');
+}
 
 function generateDownloadArtist(artist) {
     // todo: добавить размер и продолжительность треков
@@ -125,6 +131,7 @@ chrome.tabs.query({
         var downloadBtn = document.getElementById('startDownloadBtn');
         if (page.isPlaylist) {
             bp.yandex.getPlaylist(page.username, page.playlistId, function (playlist) {
+                hidePreloader();
                 generateDownloadPlaylist(playlist);
                 downloadBtn.setAttribute('data-type', 'playlist');
                 downloadBtn.setAttribute('data-username', page.username);
@@ -134,6 +141,7 @@ chrome.tabs.query({
             });
         } else if (page.isTrack) {
             bp.yandex.getTrack(page.trackId, function (track) {
+                hidePreloader();
                 generateDownloadTrack(track);
                 downloadBtn.setAttribute('data-type', 'track');
                 downloadBtn.setAttribute('data-trackId', page.trackId);
@@ -142,6 +150,7 @@ chrome.tabs.query({
             });
         } else if (page.isAlbum) {
             bp.yandex.getAlbum(page.albumId, function (album) {
+                hidePreloader();
                 generateDownloadAlbum(album);
                 downloadBtn.setAttribute('data-type', 'album');
                 downloadBtn.setAttribute('data-albumId', page.albumId);
@@ -150,6 +159,7 @@ chrome.tabs.query({
             });
         } else if (page.isArtist) {
             bp.yandex.getArtist(page.artistId, function (artist) {
+                hidePreloader();
                 generateDownloadArtist(artist);
                 downloadBtn.setAttribute('data-type', 'artist');
                 downloadBtn.setAttribute('data-artistName', artist.artist.name);

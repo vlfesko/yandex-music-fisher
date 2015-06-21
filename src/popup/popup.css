@@ -9,6 +9,9 @@ label {
 input[type=checkbox] {
     margin-right: 5px;
 }
+#preloader > img {
+    margin: 25px 102px;
+}
 #addContainer {
     padding: 10px 8px 0;
 }
