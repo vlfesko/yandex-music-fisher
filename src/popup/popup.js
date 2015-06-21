@@ -25,22 +25,16 @@ document.getElementById('startDownloadBtn').addEventListener('click', function (
     switch (downloadType) {
         case 'track':
             var trackId = this.getAttribute('data-trackId');
-            backgroundPage.yandex.getTrack(trackId, function (track) {
-                backgroundPage.downloader.downloadTrack(track);
-            }, backgroundPage.logger.addMessage);
+            backgroundPage.downloader.downloadTrack(trackId);
             break;
         case 'album':
             var albumId = this.getAttribute('data-albumId');
-            backgroundPage.yandex.getAlbum(albumId, function (album) {
-                backgroundPage.downloader.downloadAlbum(album);
-            }, backgroundPage.logger.addMessage);
+            backgroundPage.downloader.downloadAlbum(albumId);
             break;
         case 'playlist':
             var username = this.getAttribute('data-username');
             var playlistId = this.getAttribute('data-playlistId');
-            backgroundPage.yandex.getPlaylist(username, playlistId, function (playlist) {
-                backgroundPage.downloader.downloadPlaylist(playlist);
-            }, backgroundPage.logger.addMessage);
+            backgroundPage.downloader.downloadPlaylist(username, playlistId);
             break;
         case 'artist':
             var artistName = this.getAttribute('data-artistName');
@@ -50,9 +44,7 @@ document.getElementById('startDownloadBtn').addEventListener('click', function (
 
             for (var i = 0; i < allElems.length; i++) {
                 if (allElems[i].checked) {
-                    backgroundPage.yandex.getAlbum(allElems[i].value, function (album) {
-                        backgroundPage.downloader.downloadAlbum(album, artistName);
-                    }, backgroundPage.logger.addMessage);
+                    backgroundPage.downloader.downloadAlbum(allElems[i].value, artistName);
                 }
             }
             break;
@@ -90,13 +82,15 @@ function generateDownloadArtist(artist) {
             albums[i].checked = toggle.checked;
         }
     });
-    document.getElementById('compilationCheckbox').addEventListener('click', function () {
-        var toggle = document.getElementById('compilationCheckbox');
-        var compilations = document.getElementsByClassName('compilation');
-        for (var i = 0; i < compilations.length; i++) {
-            compilations[i].checked = toggle.checked;
-        }
-    });
+    if (artist.alsoAlbums.length) {
+        document.getElementById('compilationCheckbox').addEventListener('click', function () {
+            var toggle = document.getElementById('compilationCheckbox');
+            var compilations = document.getElementsByClassName('compilation');
+            for (var i = 0; i < compilations.length; i++) {
+                compilations[i].checked = toggle.checked;
+            }
+        });
+    }
 }
 
 function generateDownloadTrack(track) {

@@ -106,6 +106,9 @@ downloader.download = function () {
 };
 
 downloader.add = function (type, cargo, options) {
+    if (!options) {
+        options = {};
+    }
     downloader.queue.push({
         type: type,
         cargo: cargo,
@@ -117,98 +120,74 @@ downloader.add = function (type, cargo, options) {
     }
 };
 
-downloader.downloadTrack = function (track) {
-
-    downloader.add('track', track);
+downloader.downloadTrack = function (trackId) {
+    yandex.getTrack(trackId, function (track) {
+        downloader.add('track', track);
+    }, logger.addMessage);
 };
 
-downloader.downloadAlbum = function (album, discographyArtist) {
-    if (!album.volumes.length) {
-        logger.addMessage('Пустой альбом. album.id:' + album.id);
-        return;
-    }
-    var artists = utils.parseArtists(album.artists);
-    if (album.version) {
-        album.title += ' (' + album.version + ')';
-    }
-    var saveDir = downloader.clearPath(artists + ' - ' + album.title);
-    if (discographyArtist) {
-        saveDir = downloader.clearPath(discographyArtist) + '/' + saveDir;
-    }
-    var totalSize = 0;
-    var totalDuration = 0;
-    var totalTrackCount = album.trackCount;
+downloader.downloadAlbum = function (albumId, discographyArtist) {
+    yandex.getAlbum(albumId, function (album) {
+        if (!album.volumes.length) {
+            logger.addMessage('Пустой альбом. album.id:' + album.id);
+            return;
+        }
+        var artists = utils.parseArtists(album.artists);
+        if (album.version) {
+            album.title += ' (' + album.version + ')';
+        }
+        var saveDir = downloader.clearPath(artists + ' - ' + album.title);
+        if (discographyArtist) {
+            saveDir = downloader.clearPath(discographyArtist) + '/' + saveDir;
+        }
 
-    if (storage.current.shouldDownloadCover && album.coverUri) {
-        downloader.add('cover', {
-            url: 'https://' + album.coverUri.replace('%%', storage.current.albumCoverSize),
-            filename: saveDir + '/cover.jpg'
-        });
-    }
+        if (storage.current.shouldDownloadCover && album.coverUri) {
+            downloader.add('cover', {
+                url: 'https://' + album.coverUri.replace('%%', storage.current.albumCoverSize),
+                filename: saveDir + '/cover.jpg'
+            });
+        }
 
-    var i;
-    var track;
-    if (album.volumes.length > 1) {
-        for (i = 0; i < album.volumes.length; i++) {
+        for (var i = 0; i < album.volumes.length; i++) {
             for (var j = 0; j < album.volumes[i].length; j++) {
-                track = album.volumes[i][j];
+                var track = album.volumes[i][j];
                 if (track.error) { // todo: проверить, если ли сейчас такое поле
-                    totalTrackCount--;
                     logger.addMessage('Ошибка: ' + track.error + '. trackId: ' + track.id);
                     continue;
                 }
-                totalSize += track.fileSize;
-                totalDuration += track.durationMs;
+                if (album.volumes.length > 1) {
+                    saveDir += '/CD' + (i + 1);
+                }
                 downloader.add('album_track', track, {
-                    saveDir: saveDir + '/CD' + (i + 1),
+                    saveDir: saveDir,
                     namePrefix: downloader.getPrefix(j + 1, album.volumes[i].length)
                 });
             }
         }
-    } else {
-        for (i = 0; i < album.volumes[0].length; i++) {
-            track = album.volumes[0][i];
+    }, logger.addMessage);
+};
+
+downloader.downloadPlaylist = function (username, playlistId) {
+    yandex.getPlaylist(username, playlistId, function (playlist) {
+        if (!playlist.tracks.length) {
+            var message = 'Пустой плейлист. playlist.owner.login: ';
+            message += playlist.owner.login + ', playlist.kind: ' + playlist.kind;
+            logger.addMessage(message);
+            return;
+        }
+
+        for (var i = 0; i < playlist.tracks.length; i++) {
+            var track = playlist.tracks[i];
             if (track.error) {
-                totalTrackCount--;
                 logger.addMessage('Ошибка: ' + track.error + '. trackId: ' + track.id);
                 continue;
             }
-            totalSize += track.fileSize;
-            totalDuration += track.durationMs;
-            downloader.add('album_track', track, {
-                saveDir: saveDir,
-                namePrefix: downloader.getPrefix(i + 1, album.volumes[0].length)
+            downloader.add('playlist_track', track, {
+                saveDir: downloader.clearPath(playlist.title),
+                namePrefix: downloader.getPrefix(i + 1, playlist.tracks.length)
             });
         }
-    }
-};
-
-downloader.downloadPlaylist = function (playlist) {
-    if (!playlist.tracks.length) {
-        var message = 'Пустой плейлист. playlist.owner.login: ';
-        message += playlist.owner.login + ', playlist.kind: ' + playlist.kind;
-        logger.addMessage(message);
-        return;
-    }
-    var saveDir = downloader.clearPath(playlist.title);
-    var totalSize = 0;
-    var totalDuration = 0;
-    var totalTrackCount = playlist.tracks.length;
-
-    for (var i = 0; i < playlist.tracks.length; i++) {
-        var track = playlist.tracks[i];
-        if (track.error) {
-            totalTrackCount--;
-            logger.addMessage('Ошибка: ' + track.error + '. trackId: ' + track.id);
-            continue;
-        }
-        totalSize += track.fileSize;
-        totalDuration += track.durationMs;
-        downloader.add('playlist_track', track, {
-            saveDir: saveDir,
-            namePrefix: downloader.getPrefix(i + 1, playlist.tracks.length)
-        });
-    }
+    }, logger.addMessage);
 };
 
 downloader.onChange = function (delta) {

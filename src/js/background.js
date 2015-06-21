@@ -1,4 +1,4 @@
-/* global chrome, storage, utils, yandex, downloader, logger */
+/* global chrome, storage, utils, downloader */
 'use strict';
 
 storage.load();
