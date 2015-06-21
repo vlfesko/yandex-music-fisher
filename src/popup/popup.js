@@ -22,6 +22,7 @@ document.getElementById('downloadFolderBtn').addEventListener('click', function 
 
 document.getElementById('startDownloadBtn').addEventListener('click', function () {
     document.getElementById('downloadBtn').click();
+    document.getElementById('addBtn').classList.add('disabled');
     var downloadType = this.getAttribute('data-type');
     switch (downloadType) {
         case 'track':
