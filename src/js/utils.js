@@ -96,38 +96,39 @@ utils.addId3Tag = function (oldArrayBuffer, frames) {
     }
     var tagSize = frameSize + 10; // 10 на заголовок
     var arrayBuffer = new ArrayBuffer(oldArrayBuffer.byteLength + tagSize);
+    var bufferWriter = new Uint8Array(arrayBuffer);
 
     var writeBytes = utils.stringToWin1251Array('ID3'); // тег
     writeBytes.push(3); // версия
 
-    new Uint8Array(arrayBuffer).set(writeBytes, offset);
+    bufferWriter.set(writeBytes, offset);
     offset += writeBytes.length;
 
     offset++; // ревизия версии
     offset++; // флаги
 
     writeBytes = uint32ToUint8Array(tagSize); // размер тега
-    new Uint8Array(arrayBuffer).set(writeBytes, offset);
+    bufferWriter.set(writeBytes, offset);
     offset += writeBytes.length;
 
     for (frame in frames) {
         writeBytes = utils.stringToWin1251Array(frame); // название фрейма
-        new Uint8Array(arrayBuffer).set(writeBytes, offset);
+        bufferWriter.set(writeBytes, offset);
         offset += writeBytes.length;
 
         writeBytes = uint32ToUint8Array(frames[frame].toString().length + 1); // размер фрейма
-        new Uint8Array(arrayBuffer).set(writeBytes, offset);
+        bufferWriter.set(writeBytes, offset);
         offset += writeBytes.length;
 
         offset += 2; // флаги
         offset++; // кодировка
 
         writeBytes = utils.stringToWin1251Array(frames[frame].toString()); // значение фрейма
-        new Uint8Array(arrayBuffer).set(writeBytes, offset);
+        bufferWriter.set(writeBytes, offset);
         offset += writeBytes.length;
     }
 
-    new Uint8Array(arrayBuffer).set(new Uint8Array(oldArrayBuffer), offset);
+    bufferWriter.set(new Uint8Array(oldArrayBuffer), offset);
     var blob = new Blob([arrayBuffer], {type: 'audio/mpeg'});
     return window.URL.createObjectURL(blob);
 };
