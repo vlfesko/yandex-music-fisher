@@ -12,71 +12,68 @@ downloader.download = function () {
     if (!entity) { // в очереди нет загрузок
         return;
     }
-    switch (entity.type) {
-        case 'track':
-        case 'album_track':
-        case 'playlist_track':
-            downloader.activeThreadCount++;
-            var track = entity.cargo;
-            var trackNameMask = storage.current.trackNameMask;
-            var artists = utils.parseArtists(track.artists);
-            if (track.version) {
-                track.title += ' (' + track.version + ')';
-            }
-            var savePath = trackNameMask.replace('#НАЗВАНИЕ#', track.title);
-            savePath = savePath.replace('#ИСПОЛНИТЕЛИ#', artists);
-            if (storage.current.shouldNumberLists && entity.options.namePrefix) {
-                savePath = entity.options.namePrefix + ' ' + savePath;
-            }
-            savePath = utils.clearPath(savePath) + '.mp3';
-            if (entity.options.saveDir) {
-                savePath = entity.options.saveDir + '/' + savePath;
-            }
-            yandex.getTrackUrl(track.storageDir, function (url) {
+    var trackTypes = ['track', 'album_track', 'playlist_track'];
+    var isTrack = (trackTypes.indexOf(entity.type) > -1);
+    if (isTrack) {
+        downloader.activeThreadCount++;
+        var track = entity.cargo;
+        var trackNameMask = storage.current.trackNameMask;
+        var artists = utils.parseArtists(track.artists);
+        if (track.version) {
+            track.title += ' (' + track.version + ')';
+        }
+        var savePath = trackNameMask.replace('#НАЗВАНИЕ#', track.title);
+        savePath = savePath.replace('#ИСПОЛНИТЕЛИ#', artists);
+        if (storage.current.shouldNumberLists && entity.options.namePrefix) {
+            savePath = entity.options.namePrefix + ' ' + savePath;
+        }
+        savePath = utils.clearPath(savePath) + '.mp3';
+        if (entity.options.saveDir) {
+            savePath = entity.options.saveDir + '/' + savePath;
+        }
+        yandex.getTrackUrl(track.storageDir, function (url) {
 
-                utils.ajax(url, 'arraybuffer', function (arrayBuffer) {
-                    var frames = {
-                        TIT2: track.title, // Title/songname/content description
-                        TPE1: artists, // Lead performer(s)/Soloist(s)
-                        TALB: track.albums[0].title, // Album/Movie/Show title
-                        TYER: track.albums[0].year, // Year
-                        TCON: track.albums[0].genre // Content type
-                    };
-                    if (entity.type === 'album_track') {
-                        // todo: ставить не порядковый номер, а из альбома
-                        frames.TRCK = entity.options.namePrefix; // Track number/Position in set
-                    }
-                    var localUrl = utils.addId3Tag(arrayBuffer, frames);
+            utils.ajax(url, 'arraybuffer', function (arrayBuffer) {
+                var frames = {
+                    TIT2: track.title, // Title/songname/content description
+                    TPE1: artists, // Lead performer(s)/Soloist(s)
+                    TALB: track.albums[0].title, // Album/Movie/Show title
+                    TYER: track.albums[0].year, // Year
+                    TCON: track.albums[0].genre // Content type
+                };
+                if (entity.type === 'album_track') {
+                    // todo: ставить не порядковый номер, а из альбома
+                    frames.TRCK = entity.options.namePrefix; // Track number/Position in set
+                }
+                var localUrl = utils.addId3Tag(arrayBuffer, frames);
 
-                    chrome.downloads.download({
-                        url: localUrl,
-                        filename: savePath,
-                        saveAs: false
-                    }, function (downloadId) {
-                        downloader.downloads[downloadId] = entity;
-                    });
-                }, function (error) {
-                    logger.addMessage(error);
-                }, function (event) {
-                    console.info(event.loaded + ' / ' + event.total);
+                chrome.downloads.download({
+                    url: localUrl,
+                    filename: savePath,
+                    saveAs: false
+                }, function (downloadId) {
+                    downloader.downloads[downloadId] = entity;
                 });
-
             }, function (error) {
                 logger.addMessage(error);
-                downloader.activeThreadCount--;
-                downloader.download();
+            }, function (event) {
+                console.info(event.loaded + ' / ' + event.total);
             });
-            break;
-        case 'cover':
-            downloader.activeThreadCount++;
-            chrome.downloads.download({
-                url: entity.cargo.url,
-                filename: entity.cargo.filename,
-                saveAs: false
-            }, function (downloadId) {
-                downloader.downloads[downloadId] = entity;
-            });
-            break;
+
+        }, function (error) {
+            logger.addMessage(error);
+            downloader.activeThreadCount--;
+            downloader.download();
+        });
+    } else if (entity.type === 'cover') {
+        downloader.activeThreadCount++;
+        chrome.downloads.download({
+            url: entity.cargo.url,
+            filename: entity.cargo.filename,
+            saveAs: false
+        }, function (downloadId) {
+            downloader.downloads[downloadId] = entity;
+        });
     }
 };
 
