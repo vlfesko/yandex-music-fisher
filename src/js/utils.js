@@ -202,8 +202,15 @@ utils.bytesToStr = function (bytes) {
     }
 };
 
-utils.leadZero = function (val) {
-    return (val < 10) ? '0' + val : '' + val;
+utils.addExtraZeros = function (val, max) {
+    var valLength = val.toString().length;
+    var maxLength = max.toString().length;
+    var diff = maxLength - valLength;
+    var zeros = '';
+    for (var i = 0; i < diff; i++) {
+        zeros += '0';
+    }
+    return zeros + val;
 };
 
 utils.durationToStr = function (duration) {
@@ -212,7 +219,13 @@ utils.durationToStr = function (duration) {
     seconds -= minutes * 60;
     var hours = Math.floor(minutes / 60);
     minutes -= hours * 60;
-    return hours + ':' + utils.leadZero(minutes) + ':' + utils.leadZero(seconds);
+    return hours + ':' + utils.addExtraZeros(minutes, 10) + ':' + utils.addExtraZeros(seconds, 10);
+};
+
+utils.clearPath = function (path) {
+    // пример: https://music.yandex.ru/album/1404751/track/12931197
+    var clearedPath = path.replace(/[\\/:*?"<>|]/g, '_'); // Windows path illegals
+    return clearedPath.replace(/\.$/, '_'); // точка в конце
 };
 
 // источник: http://jquerymy.com/js/md5.js

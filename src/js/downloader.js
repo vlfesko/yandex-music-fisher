@@ -7,31 +7,6 @@ var downloader = {
     activeThreadCount: 0
 };
 
-downloader.clearPath = function (path) {
-    var clearedPath = path.replace(/[\\/:*?"<>|]/g, '_'); // Windows path illegals
-    clearedPath = clearedPath.replace(/\.$/, '_'); // точка в конце
-    return clearedPath;
-};
-
-downloader.getPrefix = function (i, max) {
-    var prefix = '';
-    max = max.toString();
-    switch (max.length) {
-        case 2:
-            prefix = (i < 10) ? '0' + i : i;
-            break;
-        case 3:
-            prefix = (i < 10) ? '00' + i : ((i < 100) ? '0' + i : i);
-            break;
-        case 4:
-            prefix = (i < 10) ? '000' + i : ((i < 100) ? '00' + i : ((i < 1000) ? '0' + i : i));
-            break;
-        default:
-            prefix = i;
-    }
-    return prefix;
-};
-
 downloader.download = function () {
     var entity = downloader.queue.shift();
     if (!entity) { // в очереди нет загрузок
@@ -53,7 +28,7 @@ downloader.download = function () {
             if (storage.current.shouldNumberLists && entity.options.namePrefix) {
                 savePath = entity.options.namePrefix + ' ' + savePath;
             }
-            savePath = downloader.clearPath(savePath) + '.mp3';
+            savePath = utils.clearPath(savePath) + '.mp3';
             if (entity.options.saveDir) {
                 savePath = entity.options.saveDir + '/' + savePath;
             }
@@ -136,9 +111,9 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
         if (album.version) {
             album.title += ' (' + album.version + ')';
         }
-        var saveDir = downloader.clearPath(artists + ' - ' + album.title);
+        var saveDir = utils.clearPath(artists + ' - ' + album.title);
         if (discographyArtist) {
-            saveDir = downloader.clearPath(discographyArtist) + '/' + saveDir;
+            saveDir = utils.clearPath(discographyArtist) + '/' + saveDir;
         }
 
         if (storage.current.shouldDownloadCover && album.coverUri) {
@@ -157,7 +132,7 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
                 }
                 var options = {
                     saveDir: saveDir,
-                    namePrefix: downloader.getPrefix(j + 1, album.volumes[i].length)
+                    namePrefix: utils.addExtraZeros(j + 1, album.volumes[i].length)
                 };
                 if (album.volumes.length > 1) {
                     // пример: https://music.yandex.ru/album/2490723
@@ -185,8 +160,8 @@ downloader.downloadPlaylist = function (username, playlistId) {
                 continue;
             }
             downloader.add('playlist_track', track, {
-                saveDir: downloader.clearPath(playlist.title),
-                namePrefix: downloader.getPrefix(i + 1, playlist.tracks.length)
+                saveDir: utils.clearPath(playlist.title),
+                namePrefix: utils.addExtraZeros(i + 1, playlist.tracks.length)
             });
         }
     }, logger.addMessage);
