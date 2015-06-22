@@ -30,6 +30,6 @@ chrome.downloads.onChanged.addListener(function (delta) {
     });
 });
 
-chrome.runtime.onInstalled.addListener(function (details) {
+chrome.runtime.onInstalled.addListener(function () {
     storage.init();
 });

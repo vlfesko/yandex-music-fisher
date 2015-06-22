@@ -1,23 +1,29 @@
 body {
     width: 268px;
 }
+
 label {
     display: inline;
     font-weight: normal;
     cursor: pointer;
 }
+
 input[type=checkbox] {
     margin-right: 5px;
 }
+
 #preloader > img {
     margin: 25px 102px;
 }
+
 #addContainer {
     padding: 10px 8px 0;
 }
+
 #albums, #compilations {
     margin-top: 10px;
 }
+
 #downloadContainer {
     padding: 10px;
 }

@@ -80,11 +80,7 @@ document.getElementById('download-thread-count').onchange = function () {
 
 document.getElementById('should-download-cover').onchange = function () {
     var albumCoverSizeElement = document.getElementById('album-cover-size');
-    if (this.value) {
-        albumCoverSizeElement.disabled = false;
-    } else {
-        albumCoverSizeElement.disabled = true;
-    }
+    albumCoverSizeElement.disabled = !this.value;
     chrome.storage.local.set({
         shouldDownloadCover: !!this.value
     }, backgroundPage.storage.load);

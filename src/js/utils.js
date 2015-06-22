@@ -28,11 +28,11 @@ utils.getUrlInfo = function (url) {
     var parts = url.replace(/\?.*/, '').split('/');
     //["http:", "", "music.yandex.ru", "users", "furfurmusic", "playlists", "1000"]
     info.isYandexMusic = (
-            parts[2] === 'music.yandex.ru' ||
-            parts[2] === 'music.yandex.ua' ||
-            parts[2] === 'music.yandex.kz' ||
-            parts[2] === 'music.yandex.by'
-            );
+        parts[2] === 'music.yandex.ru' ||
+        parts[2] === 'music.yandex.ua' ||
+        parts[2] === 'music.yandex.kz' ||
+        parts[2] === 'music.yandex.by'
+    );
     if (info.isYandexMusic) {
         storage.current.domain = parts[2].split('.')[2];
     } else {
@@ -301,22 +301,28 @@ utils.md5 = (function () {
         e[2] = m(a, e[2]);
         e[3] = m(f, e[3]);
     }
+
     function t(e, t, n, r, i, s) {
         t = m(m(t, e), m(r, s));
         return m(t << i | t >>> 32 - i, n);
     }
+
     function n(e, n, r, i, s, o, u) {
         return t(n & r | ~n & i, e, n, s, o, u);
     }
+
     function r(e, n, r, i, s, o, u) {
         return t(n & i | r & ~i, e, n, s, o, u);
     }
+
     function i(e, n, r, i, s, o, u) {
         return t(n ^ r ^ i, e, n, s, o, u);
     }
+
     function s(e, n, r, i, s, o, u) {
         return t(r ^ (n | ~i), e, n, s, o, u);
     }
+
     function o(t) {
         var n = t.length, r = [1732584193, -271733879, -1732584194, 271733878], i;
         for (i = 64; i <= t.length; i += 64) {
@@ -336,6 +342,7 @@ utils.md5 = (function () {
         e(r, s);
         return r;
     }
+
     function u(e) {
         var t = [], n;
         for (n = 0; n < 64; n += 4) {
@@ -343,24 +350,29 @@ utils.md5 = (function () {
         }
         return t;
     }
+
     function c(e) {
         var t = "", n = 0;
         for (; n < 4; n++)
             t += a[e >> n * 8 + 4 & 15] + a[e >> n * 8 & 15];
         return t;
     }
+
     function h(e) {
         for (var t = 0; t < e.length; t++)
             e[t] = c(e[t]);
         return e.join("");
     }
+
     function d(e) {
 //        return h(o(unescape(encodeURIComponent(e))));
         return h(o(e));
     }
+
     function m(e, t) {
         return e + t & 4294967295;
     }
+
     var a = "0123456789abcdef".split("");
     return d;
 })();
