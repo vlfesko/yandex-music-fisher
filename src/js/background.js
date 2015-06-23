@@ -1,4 +1,4 @@
-/* global chrome, storage, utils, downloader */
+/* global chrome, storage, utils, downloader, logger */
 'use strict';
 
 storage.load();
@@ -20,13 +20,26 @@ chrome.downloads.onChanged.addListener(function (delta) {
         id: delta.id
     }, function (downloads) {
         if (!downloads.length) {
-            // загрузка пропала из памяти, например из-за chrome.downloads.erase
-            return;
+            return; // загрузка пропала из памяти, например из-за chrome.downloads.erase
         }
         var name = downloads[0].byExtensionName;
-        if (name && name === 'Yandex Music Fisher') {
-            downloader.onChange(delta);
+        if (!name || name !== 'Yandex Music Fisher') {
+            return; // загрузка не принадлежит нашему расширению
         }
+        var entity = downloader.downloads[delta.id];
+        if (!entity) {
+            logger.addMessage('Загруженного файла нет в downloader.downloads');
+            return;
+        }
+        if (!delta.state) {
+            return; // todo: выяснить, когда так происходит (передвинуть до вызова chrome.downloads.search?)
+        }
+        downloader.activeThreadCount--;
+        delete(downloader.downloads[delta.id]);
+        chrome.downloads.erase({
+            id: delta.id
+        });
+        downloader.download();
     });
 });
 

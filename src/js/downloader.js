@@ -8,15 +8,19 @@ var downloader = {
 };
 
 downloader.download = function () {
+    if (storage.current.downloadThreadCount === downloader.activeThreadCount) {
+        return; // достигнуто максимальное количество потоков загрузки
+    }
     var entity = downloader.queue.shift();
     if (!entity) { // в очереди нет загрузок
         return;
     }
     var trackTypes = ['track', 'album_track', 'playlist_track'];
     var isTrack = (trackTypes.indexOf(entity.type) > -1);
+    var isCover = (entity.type === 'cover');
     if (isTrack) {
         downloader.activeThreadCount++;
-        var track = entity.cargo;
+        var track = entity.track;
         var trackNameMask = storage.current.trackNameMask;
         var artists = utils.parseArtists(track.artists);
         if (track.version) {
@@ -24,15 +28,14 @@ downloader.download = function () {
         }
         var savePath = trackNameMask.replace('#НАЗВАНИЕ#', track.title);
         savePath = savePath.replace('#ИСПОЛНИТЕЛИ#', artists);
-        if (storage.current.shouldNumberLists && entity.options.namePrefix) {
-            savePath = entity.options.namePrefix + ' ' + savePath;
+        if (storage.current.shouldNumberLists && entity.namePrefix) {
+            savePath = entity.namePrefix + ' ' + savePath;
         }
         savePath = utils.clearPath(savePath) + '.mp3';
-        if (entity.options.saveDir) {
-            savePath = entity.options.saveDir + '/' + savePath;
+        if (entity.saveDir) {
+            savePath = entity.saveDir + '/' + savePath;
         }
         yandex.getTrackUrl(track.storageDir, function (url) {
-
             utils.ajax(url, 'arraybuffer', function (arrayBuffer) {
                 var frames = {
                     TIT2: track.title, // Title/songname/content description
@@ -43,7 +46,7 @@ downloader.download = function () {
                 };
                 if (entity.type === 'album_track') {
                     // todo: ставить не порядковый номер, а из альбома
-                    frames.TRCK = entity.options.namePrefix; // Track number/Position in set
+                    frames.TRCK = entity.namePrefix; // Track number/Position in set
                 }
                 var localUrl = utils.addId3Tag(arrayBuffer, frames);
 
@@ -59,17 +62,16 @@ downloader.download = function () {
             }, function (event) {
                 console.info(event.loaded + ' / ' + event.total);
             });
-
         }, function (error) {
             logger.addMessage(error);
             downloader.activeThreadCount--;
             downloader.download();
         });
-    } else if (entity.type === 'cover') {
+    } else if (isCover) {
         downloader.activeThreadCount++;
         chrome.downloads.download({
-            url: entity.cargo.url,
-            filename: entity.cargo.filename,
+            url: entity.url,
+            filename: entity.filename,
             saveAs: false
         }, function (downloadId) {
             downloader.downloads[downloadId] = entity;
@@ -77,24 +79,13 @@ downloader.download = function () {
     }
 };
 
-downloader.add = function (type, cargo, options) {
-    if (!options) {
-        options = {};
-    }
-    downloader.queue.push({
-        type: type,
-        cargo: cargo,
-        options: options
-    });
-    var newThreadCount = storage.current.downloadThreadCount - downloader.activeThreadCount;
-    for (var i = 0; i < newThreadCount; i++) {
-        downloader.download();
-    }
-};
-
 downloader.downloadTrack = function (trackId) {
     yandex.getTrack(trackId, function (track) {
-        downloader.add('track', track);
+        downloader.queue.push({
+            type: 'track',
+            track: track
+        });
+        downloader.download();
     }, logger.addMessage);
 };
 
@@ -114,10 +105,12 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
         }
 
         if (storage.current.shouldDownloadCover && album.coverUri) {
-            downloader.add('cover', {
+            downloader.queue.push({
+                type: 'cover',
                 url: 'https://' + album.coverUri.replace('%%', storage.current.albumCoverSize),
                 filename: saveDir + '/cover.jpg'
             });
+            downloader.download();
         }
 
         for (var i = 0; i < album.volumes.length; i++) {
@@ -127,15 +120,18 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
                     logger.addMessage('Ошибка: ' + track.error + '. trackId: ' + track.id);
                     continue;
                 }
-                var options = {
-                    saveDir: saveDir,
-                    namePrefix: utils.addExtraZeros(j + 1, album.volumes[i].length)
-                };
+                var saveCdDir = saveDir;
                 if (album.volumes.length > 1) {
                     // пример: https://music.yandex.ru/album/2490723
-                    options.saveDir += '/CD' + (i + 1);
+                    saveCdDir += '/CD' + (i + 1);
                 }
-                downloader.add('album_track', track, options);
+                downloader.queue.push({
+                    type: 'album_track',
+                    track: track,
+                    saveDir: saveCdDir,
+                    namePrefix: utils.addExtraZeros(j + 1, album.volumes[i].length)
+                });
+                downloader.download();
             }
         }
     }, logger.addMessage);
@@ -156,27 +152,13 @@ downloader.downloadPlaylist = function (username, playlistId) {
                 logger.addMessage('Ошибка: ' + track.error + '. trackId: ' + track.id);
                 continue;
             }
-            downloader.add('playlist_track', track, {
+            downloader.queue.push({
+                type: 'playlist_track',
+                track: track,
                 saveDir: utils.clearPath(playlist.title),
                 namePrefix: utils.addExtraZeros(i + 1, playlist.tracks.length)
             });
+            downloader.download();
         }
     }, logger.addMessage);
-};
-
-downloader.onChange = function (delta) {
-    var entity = downloader.downloads[delta.id];
-    if (!entity || !entity.type) {
-        logger.addMessage('Загруженного файла нет в downloader.downloads');
-        return;
-    }
-    if (!delta.state) {
-        return;
-    }
-    downloader.activeThreadCount--;
-    delete(downloader.downloads[delta.id]);
-    chrome.downloads.erase({
-        id: delta.id
-    });
-    downloader.download();
 };
