@@ -1,6 +1,8 @@
 /* global chrome */
 'use strict';
 
+var backgroundPage;
+
 String.prototype.insert = function (index, string) {
     if (index > 0) {
         return this.substring(0, index) + string + this.substring(index, this.length);
@@ -144,5 +146,3 @@ document.getElementById('btn-reset').onclick = function () {
         });
     }
 };
-
-var backgroundPage;

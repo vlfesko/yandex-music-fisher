@@ -15,9 +15,9 @@ var storage = {
 storage.init = function () {
     var keys = Object.keys(storage.defaults);
     chrome.storage.local.get(keys, function (items) {
-        for (var key in storage.defaults) {
-            if (items[key] === undefined) {
-                storage.reset(key);
+        for (var i = 0; i < keys.length; i++) {
+            if (items[keys[i]] === undefined) {
+                storage.reset(keys[i]);
             }
         }
     });

@@ -2,6 +2,8 @@
 
 'use strict';
 
+var backgroundPage;
+
 document.getElementById('addBtn').addEventListener('click', function () {
     document.getElementById('downloadBtn').classList.remove('active');
     this.classList.add('active');
@@ -174,5 +176,3 @@ chrome.tabs.query({
         }
     });
 });
-
-var backgroundPage;

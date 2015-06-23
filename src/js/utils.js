@@ -88,11 +88,13 @@ utils.addId3Tag = function (oldArrayBuffer, frames) {
             uint32 & 0xff
         ];
     };
+    var i;
     var offset = 0;
-    var frame;
     var frameSize = 0;
-    for (frame in frames) {
-        frameSize += frames[frame].toString().length + 11; // 10 на заголовок + 1 на кодировку
+    var frameIterator = Object.keys(frames);
+    for (i = 0; i < frameIterator.length; i++) {
+        frames[frameIterator[i]] = frames[frameIterator[i]].toString();
+        frameSize += frames[frameIterator[i]].length + 11; // 10 на заголовок + 1 на кодировку
     }
     var tagSize = frameSize + 10; // 10 на заголовок
     var arrayBuffer = new ArrayBuffer(oldArrayBuffer.byteLength + tagSize);
@@ -111,19 +113,19 @@ utils.addId3Tag = function (oldArrayBuffer, frames) {
     bufferWriter.set(writeBytes, offset);
     offset += writeBytes.length;
 
-    for (frame in frames) {
-        writeBytes = utils.stringToWin1251Array(frame); // название фрейма
+    for (i = 0; i < frameIterator.length; i++) {
+        writeBytes = utils.stringToWin1251Array(frameIterator[i]); // название фрейма
         bufferWriter.set(writeBytes, offset);
         offset += writeBytes.length;
 
-        writeBytes = uint32ToUint8Array(frames[frame].toString().length + 1); // размер фрейма
+        writeBytes = uint32ToUint8Array(frames[frameIterator[i]].length + 1); // размер фрейма
         bufferWriter.set(writeBytes, offset);
         offset += writeBytes.length;
 
         offset += 2; // флаги
         offset++; // кодировка
 
-        writeBytes = utils.stringToWin1251Array(frames[frame].toString()); // значение фрейма
+        writeBytes = utils.stringToWin1251Array(frames[frameIterator[i]]); // значение фрейма
         bufferWriter.set(writeBytes, offset);
         offset += writeBytes.length;
     }
@@ -330,13 +332,15 @@ utils.md5 = (function () {
         }
         t = t.substring(i - 64);
         var s = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        for (i = 0; i < t.length; i++)
+        for (i = 0; i < t.length; i++) {
             s[i >> 2] |= t.charCodeAt(i) << (i % 4 << 3);
+        }
         s[i >> 2] |= 128 << (i % 4 << 3);
         if (i > 55) {
             e(r, s);
-            for (i = 0; i < 16; i++)
+            for (i = 0; i < 16; i++) {
                 s[i] = 0;
+            }
         }
         s[14] = n * 8;
         e(r, s);
@@ -353,14 +357,16 @@ utils.md5 = (function () {
 
     function c(e) {
         var t = "", n = 0;
-        for (; n < 4; n++)
+        for (; n < 4; n++) {
             t += a[e >> n * 8 + 4 & 15] + a[e >> n * 8 & 15];
+        }
         return t;
     }
 
     function h(e) {
-        for (var t = 0; t < e.length; t++)
+        for (var t = 0; t < e.length; t++) {
             e[t] = c(e[t]);
+        }
         return e.join("");
     }
 
