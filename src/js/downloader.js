@@ -11,7 +11,8 @@ var downloader = {
     STATUS: Object.freeze({
         WAITING: 'waiting',
         LOADING: 'loading',
-        FINISHED: 'finished'
+        FINISHED: 'finished',
+        INTERRUPTED: 'interrupted'
     }),
     downloads: [],
     activeThreadCount: 0
@@ -75,12 +76,14 @@ downloader.download = function () {
                     entity.browserDownloadId = downloadId;
                 });
             }, function (error) {
+                entity.status = downloader.STATUS.INTERRUPTED;
                 logger.addMessage(error);
             }, function (event) {
                 entity.loadedBytes = event.loaded;
                 entity.totalBytes = event.total;
             });
         }, function (error) {
+            entity.status = downloader.STATUS.INTERRUPTED;
             logger.addMessage(error);
             downloader.activeThreadCount--;
             downloader.download();

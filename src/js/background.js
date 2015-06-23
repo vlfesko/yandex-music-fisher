@@ -16,12 +16,12 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
 });
 
 chrome.downloads.onChanged.addListener(function (delta) {
+    if (!delta.state) {
+        return; // состояние не изменилось (начало загрузки)
+    }
     chrome.downloads.search({
         id: delta.id
     }, function (downloads) {
-        if (!downloads.length) {
-            return; // загрузка пропала из памяти, например из-за chrome.downloads.erase
-        }
         var name = downloads[0].byExtensionName;
         if (!name || name !== 'Yandex Music Fisher') {
             return; // загрузка не принадлежит нашему расширению
@@ -30,7 +30,11 @@ chrome.downloads.onChanged.addListener(function (delta) {
         for (var i = 0; i < downloader.downloads.length; i++) {
             if (delta.id === downloader.downloads[i].browserDownloadId) {
                 entity = downloader.downloads[i];
-                entity.status = downloader.STATUS.FINISHED;
+                if (delta.state.current === 'complete') {
+                    entity.status = downloader.STATUS.FINISHED;
+                } else if (delta.state.current === 'interrupted') {
+                    entity.status = downloader.STATUS.INTERRUPTED;
+                }
                 break;
             }
         }
@@ -38,13 +42,10 @@ chrome.downloads.onChanged.addListener(function (delta) {
             logger.addMessage('Загруженного файла нет в downloader.downloads');
             return;
         }
-        if (!delta.state) {
-            return; // todo: выяснить, когда так происходит (передвинуть до вызова chrome.downloads.search?)
-        }
-        downloader.activeThreadCount--;
         chrome.downloads.erase({
             id: delta.id
         });
+        downloader.activeThreadCount--;
         downloader.download();
     });
 });
