@@ -26,7 +26,14 @@ chrome.downloads.onChanged.addListener(function (delta) {
         if (!name || name !== 'Yandex Music Fisher') {
             return; // загрузка не принадлежит нашему расширению
         }
-        var entity = downloader.downloads[delta.id];
+        var entity;
+        for (var i = 0; i < downloader.downloads.length; i++) {
+            if (delta.id === downloader.downloads[i].browserDownloadId) {
+                entity = downloader.downloads[i];
+                entity.status = downloader.STATUS.FINISHED;
+                break;
+            }
+        }
         if (!entity) {
             logger.addMessage('Загруженного файла нет в downloader.downloads');
             return;
@@ -35,7 +42,6 @@ chrome.downloads.onChanged.addListener(function (delta) {
             return; // todo: выяснить, когда так происходит (передвинуть до вызова chrome.downloads.search?)
         }
         downloader.activeThreadCount--;
-        delete(downloader.downloads[delta.id]);
         chrome.downloads.erase({
             id: delta.id
         });

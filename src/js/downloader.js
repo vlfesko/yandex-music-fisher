@@ -2,7 +2,17 @@
 'use strict';
 
 var downloader = {
-    queue: [],
+    TYPE: Object.freeze({
+        TRACK: 'track',
+        ALBUM_TRACK: 'album_track',
+        PLAYLIST_TRACK: 'playlist_track',
+        COVER: 'cover'
+    }),
+    STATUS: Object.freeze({
+        WAITING: 'waiting',
+        LOADING: 'loading',
+        FINISHED: 'finished'
+    }),
     downloads: [],
     activeThreadCount: 0
 };
@@ -11,13 +21,20 @@ downloader.download = function () {
     if (storage.current.downloadThreadCount === downloader.activeThreadCount) {
         return; // достигнуто максимальное количество потоков загрузки
     }
-    var entity = downloader.queue.shift();
+    var entity;
+    for (var i = 0; i < downloader.downloads.length; i++) {
+        if (downloader.STATUS.WAITING === downloader.downloads[i].status) {
+            entity = downloader.downloads[i];
+            entity.status = downloader.STATUS.LOADING;
+            break;
+        }
+    }
     if (!entity) { // в очереди нет загрузок
         return;
     }
-    var trackTypes = ['track', 'album_track', 'playlist_track'];
+    var trackTypes = [downloader.TYPE.TRACK, downloader.TYPE.ALBUM_TRACK, downloader.TYPE.PLAYLIST_TRACK];
     var isTrack = (trackTypes.indexOf(entity.type) > -1);
-    var isCover = (entity.type === 'cover');
+    var isCover = (entity.type === downloader.TYPE.COVER);
     if (isTrack) {
         downloader.activeThreadCount++;
         var track = entity.track;
@@ -44,7 +61,7 @@ downloader.download = function () {
                     TYER: track.albums[0].year, // Year
                     TCON: track.albums[0].genre // Content type
                 };
-                if (entity.type === 'album_track') {
+                if (entity.type === downloader.TYPE.ALBUM_TRACK) {
                     // todo: ставить не порядковый номер, а из альбома
                     frames.TRCK = entity.namePrefix; // Track number/Position in set
                 }
@@ -55,12 +72,13 @@ downloader.download = function () {
                     filename: savePath,
                     saveAs: false
                 }, function (downloadId) {
-                    downloader.downloads[downloadId] = entity;
+                    entity.browserDownloadId = downloadId;
                 });
             }, function (error) {
                 logger.addMessage(error);
             }, function (event) {
-                console.info(event.loaded + ' / ' + event.total);
+                entity.loadedBytes = event.loaded;
+                entity.totalBytes = event.total;
             });
         }, function (error) {
             logger.addMessage(error);
@@ -74,15 +92,16 @@ downloader.download = function () {
             filename: entity.filename,
             saveAs: false
         }, function (downloadId) {
-            downloader.downloads[downloadId] = entity;
+            entity.browserDownloadId = downloadId;
         });
     }
 };
 
 downloader.downloadTrack = function (trackId) {
     yandex.getTrack(trackId, function (track) {
-        downloader.queue.push({
-            type: 'track',
+        downloader.downloads.push({
+            type: downloader.TYPE.TRACK,
+            status: downloader.STATUS.WAITING,
             track: track
         });
         downloader.download();
@@ -105,8 +124,9 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
         }
 
         if (storage.current.shouldDownloadCover && album.coverUri) {
-            downloader.queue.push({
-                type: 'cover',
+            downloader.downloads.push({
+                type: downloader.TYPE.COVER,
+                status: downloader.STATUS.WAITING,
                 url: 'https://' + album.coverUri.replace('%%', storage.current.albumCoverSize),
                 filename: saveDir + '/cover.jpg'
             });
@@ -125,8 +145,9 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
                     // пример: https://music.yandex.ru/album/2490723
                     saveCdDir += '/CD' + (i + 1);
                 }
-                downloader.queue.push({
-                    type: 'album_track',
+                downloader.downloads.push({
+                    type: downloader.TYPE.ALBUM_TRACK,
+                    status: downloader.STATUS.WAITING,
                     track: track,
                     saveDir: saveCdDir,
                     namePrefix: utils.addExtraZeros(j + 1, album.volumes[i].length)
@@ -152,8 +173,9 @@ downloader.downloadPlaylist = function (username, playlistId) {
                 logger.addMessage('Ошибка: ' + track.error + '. trackId: ' + track.id);
                 continue;
             }
-            downloader.queue.push({
-                type: 'playlist_track',
+            downloader.downloads.push({
+                type: downloader.TYPE.PLAYLIST_TRACK,
+                status: downloader.STATUS.WAITING,
                 track: track,
                 saveDir: utils.clearPath(playlist.title),
                 namePrefix: utils.addExtraZeros(i + 1, playlist.tracks.length)
