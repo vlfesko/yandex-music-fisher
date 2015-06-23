@@ -2,7 +2,7 @@
 
 'use strict';
 
-var backgroundPage;
+var backgroundPage, updateIntervalId;
 
 document.getElementById('addBtn').addEventListener('click', function () {
     document.getElementById('downloadBtn').classList.remove('active');
@@ -16,6 +16,7 @@ document.getElementById('downloadBtn').addEventListener('click', function () {
     this.classList.add('active');
     document.getElementById('addContainer').classList.add('hide');
     document.getElementById('downloadContainer').classList.remove('hide');
+    updateDownloader();
 });
 
 document.getElementById('downloadFolderBtn').addEventListener('click', function () {
@@ -53,7 +54,33 @@ document.getElementById('startDownloadBtn').addEventListener('click', function (
             }
             break;
     }
+    updateDownloader();
 });
+
+function updateDownloader() {
+    if (!updateIntervalId) {
+        updateIntervalId = setInterval(function () {
+            var downloads = backgroundPage.downloader.downloads;
+            var content = '';
+            if (!downloads.length) {
+                content += 'Загрузок нет.';
+            }
+            for (var i = 0; i < downloads.length; i++) {
+                var entity = downloads[i];
+                var track = entity.track;
+                if (!track) {
+                    continue; // обложка альбома
+                }
+                content += track.title;
+                if (entity.loadedBytes) {
+                    content += ' (' + entity.loadedBytes + ')';
+                }
+                content += '<br>';
+            }
+            document.getElementById('downloadContainer').innerHTML = content;
+        }, 100);
+    }
+}
 
 function hidePreloader() {
     document.getElementById('preloader').classList.add('hide');
