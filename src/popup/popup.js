@@ -58,28 +58,30 @@ document.getElementById('startDownloadBtn').addEventListener('click', function (
 });
 
 function updateDownloader() {
-    if (!updateIntervalId) {
-        updateIntervalId = setInterval(function () {
-            var downloads = backgroundPage.downloader.downloads;
-            var content = '';
-            if (!downloads.length) {
-                content += 'Загрузок нет.';
-            }
-            for (var i = 0; i < downloads.length; i++) {
-                var entity = downloads[i];
-                var track = entity.track;
-                if (!track) {
-                    continue; // обложка альбома
-                }
-                content += track.title;
-                if (entity.loadedBytes) {
-                    content += ' (' + entity.loadedBytes + ')';
-                }
-                content += '<br>';
-            }
-            document.getElementById('downloadContainer').innerHTML = content;
-        }, 100);
+    if (updateIntervalId) {
+        return; // уже запущено обновление загрузчика
     }
+    updateIntervalId = setInterval(function () {
+        var downloads = backgroundPage.downloader.downloads;
+        var content = '';
+        if (!downloads.length) {
+            content += 'Загрузок нет.<br>';
+            content += 'Перейдите на страницу трека, альбома, плейлиста или исполнителя на сервисе Яндекс.Музыка';
+        }
+        for (var i = 0; i < downloads.length; i++) {
+            var entity = downloads[i];
+            var track = entity.track;
+            if (!track) {
+                continue; // обложка альбома
+            }
+            content += track.title;
+            if (entity.loadedBytes) {
+                content += ' (' + entity.loadedBytes + ')';
+            }
+            content += '<br>';
+        }
+        document.getElementById('downloadContainer').innerHTML = content;
+    }, 100);
 }
 
 function hidePreloader() {
