@@ -1,4 +1,4 @@
-/* global chrome, storage, utils, downloader, logger */
+/* global chrome, storage, utils, downloader */
 'use strict';
 
 storage.load();
@@ -39,7 +39,7 @@ chrome.downloads.onChanged.addListener(function (delta) {
             }
         }
         if (!entity) {
-            logger.addMessage('Загруженного файла нет в downloader.downloads');
+            console.error('Загруженного файла нет в downloader.downloads');
             return;
         }
         chrome.downloads.erase({

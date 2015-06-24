@@ -1,4 +1,4 @@
-/* global storage, yandex, chrome, logger, utils */
+/* global storage, yandex, chrome, utils */
 'use strict';
 
 var downloader = {
@@ -77,14 +77,16 @@ downloader.download = function () {
                 });
             }, function (error) {
                 entity.status = downloader.STATUS.INTERRUPTED;
-                logger.addMessage(error);
+                console.error(error);
+                downloader.activeThreadCount--;
+                downloader.download();
             }, function (event) {
                 entity.loadedBytes = event.loaded;
                 entity.totalBytes = event.total;
             });
         }, function (error) {
             entity.status = downloader.STATUS.INTERRUPTED;
-            logger.addMessage(error);
+            console.error(error);
             downloader.activeThreadCount--;
             downloader.download();
         });
@@ -108,13 +110,15 @@ downloader.downloadTrack = function (trackId) {
             track: track
         });
         downloader.download();
-    }, logger.addMessage);
+    }, function (error) {
+        console.error(error);
+    });
 };
 
 downloader.downloadAlbum = function (albumId, discographyArtist) {
     yandex.getAlbum(albumId, function (album) {
         if (!album.volumes.length) {
-            logger.addMessage('Пустой альбом. album.id:' + album.id);
+            console.error('Пустой альбом. album.id:' + album.id);
             return;
         }
         var artists = utils.parseArtists(album.artists);
@@ -140,7 +144,7 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
             for (var j = 0; j < album.volumes[i].length; j++) {
                 var track = album.volumes[i][j];
                 if (track.error) { // todo: проверить, если ли сейчас такое поле
-                    logger.addMessage('Ошибка: ' + track.error + '. trackId: ' + track.id);
+                    console.error('Ошибка: ' + track.error + '. trackId: ' + track.id);
                     continue;
                 }
                 var saveCdDir = saveDir;
@@ -158,22 +162,22 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
                 downloader.download();
             }
         }
-    }, logger.addMessage);
+    }, function (error) {
+        console.error(error);
+    });
 };
 
 downloader.downloadPlaylist = function (username, playlistId) {
     yandex.getPlaylist(username, playlistId, function (playlist) {
         if (!playlist.tracks.length) {
-            var message = 'Пустой плейлист. playlist.owner.login: ';
-            message += playlist.owner.login + ', playlist.kind: ' + playlist.kind;
-            logger.addMessage(message);
+            console.error('Пустой плейлист. username: '+ username + ', playlistId: ' + playlistId);
             return;
         }
 
         for (var i = 0; i < playlist.tracks.length; i++) {
             var track = playlist.tracks[i];
             if (track.error) {
-                logger.addMessage('Ошибка: ' + track.error + '. trackId: ' + track.id);
+                console.error('Ошибка: ' + track.error + '. trackId: ' + track.id);
                 continue;
             }
             downloader.downloads.push({
@@ -185,5 +189,7 @@ downloader.downloadPlaylist = function (username, playlistId) {
             });
             downloader.download();
         }
-    }, logger.addMessage);
+    }, function (error) {
+        console.error(error);
+    });
 };
