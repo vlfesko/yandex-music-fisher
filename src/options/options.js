@@ -70,13 +70,14 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 document.getElementById('download-thread-count').onchange = function () {
-    if (this.value > 10) {
-        this.value = 10;
-    } else if (this.value < 1) {
-        this.value = 1;
+    var downloadThreadCount = parseInt(this.value);
+    if (downloadThreadCount > 10) {
+        downloadThreadCount = 10;
+    } else if (downloadThreadCount < 1) {
+        downloadThreadCount = 1;
     }
     chrome.storage.local.set({
-        downloadThreadCount: this.value
+        downloadThreadCount: downloadThreadCount
     }, backgroundPage.storage.load);
 };
 
