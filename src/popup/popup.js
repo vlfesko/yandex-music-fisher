@@ -169,7 +169,7 @@ chrome.tabs.query({
                 downloadBtn.setAttribute('data-username', page.username);
                 downloadBtn.setAttribute('data-playlistId', page.playlistId);
             }, function (error) {
-                bp.logger.addMessage(error);
+                bp.console.error(error);
             });
         } else if (page.isTrack) {
             bp.yandex.getTrack(page.trackId, function (track) {
@@ -178,7 +178,7 @@ chrome.tabs.query({
                 downloadBtn.setAttribute('data-type', 'track');
                 downloadBtn.setAttribute('data-trackId', page.trackId);
             }, function (error) {
-                bp.logger.addMessage(error);
+                bp.console.error(error);
             });
         } else if (page.isAlbum) {
             bp.yandex.getAlbum(page.albumId, function (album) {
@@ -187,7 +187,7 @@ chrome.tabs.query({
                 downloadBtn.setAttribute('data-type', 'album');
                 downloadBtn.setAttribute('data-albumId', page.albumId);
             }, function (error) {
-                bp.logger.addMessage(error);
+                bp.console.error(error);
             });
         } else if (page.isArtist) {
             bp.yandex.getArtist(page.artistId, function (artist) {
@@ -196,7 +196,7 @@ chrome.tabs.query({
                 downloadBtn.setAttribute('data-type', 'artist');
                 downloadBtn.setAttribute('data-artistName', artist.artist.name);
             }, function (error) {
-                bp.logger.addMessage(error);
+                bp.console.error(error);
             });
         } else {
             hidePreloader();
