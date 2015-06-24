@@ -24,6 +24,12 @@ document.getElementById('downloadFolderBtn').addEventListener('click', function 
     chrome.downloads.showDefaultFolder();
 });
 
+document.getElementById('settingsBtn').addEventListener('click', function () {
+    chrome.tabs.create({
+        url: '/options/options.html'
+    });
+});
+
 document.getElementById('startDownloadBtn').addEventListener('click', function () {
     document.getElementById('downloadBtn').click();
     document.getElementById('addBtn').classList.add('disabled');

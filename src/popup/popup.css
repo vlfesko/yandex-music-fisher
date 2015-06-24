@@ -1,5 +1,5 @@
 body {
-    width: 268px;
+    width: 308px;
 }
 
 label {
@@ -13,7 +13,7 @@ input[type=checkbox] {
 }
 
 #preloader > img {
-    margin: 25px 102px;
+    margin: 25px 122px;
 }
 
 #addContainer {
