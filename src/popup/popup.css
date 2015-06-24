@@ -24,6 +24,6 @@ input[type=checkbox] {
     margin-top: 10px;
 }
 
-#downloadContainer {
+#errorContainer, #downloadContainer {
     padding: 10px;
 }

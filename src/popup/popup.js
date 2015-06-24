@@ -16,6 +16,7 @@ document.getElementById('downloadBtn').addEventListener('click', function () {
     this.classList.add('active');
     document.getElementById('addContainer').classList.add('hide');
     document.getElementById('downloadContainer').classList.remove('hide');
+    document.getElementById('errorContainer').classList.add('hide');
     updateDownloader();
 });
 
@@ -152,6 +153,12 @@ function generateDownloadPlaylist(playlist) {
     document.getElementById('info').innerHTML = 'Плейлист / треков: ' + playlist.trackCount;
 }
 
+function generateError() {
+    document.getElementById('addBtn').classList.add('disabled');
+    document.getElementById('preloader').classList.add('hide');
+    document.getElementById('errorContainer').classList.remove('hide');
+}
+
 chrome.tabs.query({
     active: true,
     currentWindow: true
@@ -170,6 +177,7 @@ chrome.tabs.query({
                 downloadBtn.setAttribute('data-playlistId', page.playlistId);
             }, function (error) {
                 bp.console.error(error);
+                generateError();
             });
         } else if (page.isTrack) {
             bp.yandex.getTrack(page.trackId, function (track) {
@@ -179,6 +187,7 @@ chrome.tabs.query({
                 downloadBtn.setAttribute('data-trackId', page.trackId);
             }, function (error) {
                 bp.console.error(error);
+                generateError();
             });
         } else if (page.isAlbum) {
             bp.yandex.getAlbum(page.albumId, function (album) {
@@ -188,6 +197,7 @@ chrome.tabs.query({
                 downloadBtn.setAttribute('data-albumId', page.albumId);
             }, function (error) {
                 bp.console.error(error);
+                generateError();
             });
         } else if (page.isArtist) {
             bp.yandex.getArtist(page.artistId, function (artist) {
@@ -197,6 +207,7 @@ chrome.tabs.query({
                 downloadBtn.setAttribute('data-artistName', artist.artist.name);
             }, function (error) {
                 bp.console.error(error);
+                generateError();
             });
         } else {
             hidePreloader();
