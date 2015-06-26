@@ -12,6 +12,23 @@ input[type=checkbox] {
     margin-right: 5px;
 }
 
+.btn-xs {
+    padding: 0 5px 0;
+    font-size: 11px;
+}
+
+.panel {
+   border: none;
+}
+
+.panel-heading {
+    padding: 3px 10px;
+}
+
+.panel-body {
+    padding: 5px 10px;
+}
+
 #preloader > img {
     margin: 25px 122px;
 }
@@ -26,4 +43,9 @@ input[type=checkbox] {
 
 #errorContainer, #downloadContainer {
     padding: 10px;
+}
+
+#downloadContainer {
+    padding-top: 20px;
+    font-size: 12px;
 }

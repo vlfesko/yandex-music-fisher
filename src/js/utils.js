@@ -188,19 +188,18 @@ utils.stringToWin1251Array = function (string) {
     return win1251Array;
 };
 
-utils.round = function (num, places) {
-    return +(Math.round(num + 'e+' + places) + 'e-' + places);
-};
-
 utils.bytesToStr = function (bytes) {
-    if (bytes < 1024) {
+    var KiB = 1024;
+    var MiB = 1024 * KiB;
+    var GiB = 1024 * MiB;
+    if (bytes < KiB) {
         return bytes + ' Б';
-    } else if (bytes < 1024 * 1024) {
-        return utils.round(bytes / 1024, 2) + ' КиБ';
-    } else if (bytes < 1024 * 1024 * 1024) {
-        return utils.round(bytes / (1024 * 1024), 2) + ' МиБ';
+    } else if (bytes < MiB) {
+        return (bytes / KiB).toFixed(2) + ' КиБ';
+    } else if (bytes < GiB) {
+        return (bytes / MiB).toFixed(2) + ' МиБ';
     } else {
-        return utils.round(bytes / (1024 * 1024 * 1024), 2) + ' ГиБ';
+        return (bytes / GiB).toFixed(2) + ' ГиБ';
     }
 };
 

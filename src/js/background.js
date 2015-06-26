@@ -15,6 +15,27 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
     });
 });
 
+function getEntityByBrowserDownloadId(browserDownloadId) {
+    for (var i = 0; i < downloader.downloads.length; i++) {
+        var entity = downloader.downloads[i];
+        if (!entity) {
+            continue; // эту загрузку удалили
+        }
+        if (entity.type === downloader.TYPE.ALBUM || entity.type === downloader.TYPE.PLAYLIST) {
+            for (var j = 0; j < entity.tracks.length; j++) {
+                if (entity.tracks[j].browserDownloadId === browserDownloadId) {
+                    return entity.tracks[j];
+                }
+            }
+        } else if (entity.type === downloader.TYPE.TRACK || entity.type === downloader.TYPE.COVER) {
+            if (entity.browserDownloadId === browserDownloadId) {
+                return entity;
+            }
+        }
+    }
+    return undefined;
+}
+
 chrome.downloads.onChanged.addListener(function (delta) {
     if (!delta.state) {
         return; // состояние не изменилось (начало загрузки)
@@ -26,21 +47,16 @@ chrome.downloads.onChanged.addListener(function (delta) {
         if (!name || name !== 'Yandex Music Fisher') {
             return; // загрузка не принадлежит нашему расширению
         }
-        var entity;
-        for (var i = 0; i < downloader.downloads.length; i++) {
-            if (delta.id === downloader.downloads[i].browserDownloadId) {
-                entity = downloader.downloads[i];
-                if (delta.state.current === 'complete') {
-                    entity.status = downloader.STATUS.FINISHED;
-                } else if (delta.state.current === 'interrupted') {
-                    entity.status = downloader.STATUS.INTERRUPTED;
-                }
-                break;
+        var entity = getEntityByBrowserDownloadId(delta.id);
+        if (entity) {
+            if (delta.state.current === 'complete') {
+                entity.status = downloader.STATUS.FINISHED;
+            } else if (delta.state.current === 'interrupted') {
+                entity.status = downloader.STATUS.INTERRUPTED;
             }
-        }
-        if (!entity) {
-            console.error('Загруженного файла нет в downloader.downloads');
-            return;
+            if (entity.type === downloader.TYPE.COVER) {
+                delete(downloader.downloads[entity.index]);
+            }
         }
         chrome.downloads.erase({
             id: delta.id

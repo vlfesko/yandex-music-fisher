@@ -17,7 +17,7 @@ document.getElementById('downloadBtn').addEventListener('click', function () {
     document.getElementById('addContainer').classList.add('hide');
     document.getElementById('downloadContainer').classList.remove('hide');
     document.getElementById('errorContainer').classList.add('hide');
-    updateDownloader();
+    startUpdater();
 });
 
 document.getElementById('downloadFolderBtn').addEventListener('click', function () {
@@ -28,6 +28,14 @@ document.getElementById('settingsBtn').addEventListener('click', function () {
     chrome.tabs.create({
         url: '/options/options.html'
     });
+});
+
+document.getElementById('downloadContainer').addEventListener('mousedown', function (e) {
+    if (!e.target.classList.contains('remove-btn')) {
+        return; // кликнули в другом месте
+    }
+    var downloadId = e.target.getAttribute('data-id');
+    delete(backgroundPage.downloader.downloads[downloadId]);
 });
 
 document.getElementById('startDownloadBtn').addEventListener('click', function () {
@@ -61,34 +69,129 @@ document.getElementById('startDownloadBtn').addEventListener('click', function (
             }
             break;
     }
-    updateDownloader();
+    startUpdater();
 });
 
-function updateDownloader() {
+function startUpdater() {
     if (updateIntervalId) {
         return; // уже запущено обновление загрузчика
     }
-    updateIntervalId = setInterval(function () {
-        var downloads = backgroundPage.downloader.downloads;
-        var content = '';
-        if (!downloads.length) {
-            content += 'Загрузок нет.<br>';
-            content += 'Перейдите на страницу трека, альбома, плейлиста или исполнителя на сервисе Яндекс.Музыка';
+    updateDownloader();
+    updateIntervalId = setInterval(updateDownloader, 250);
+}
+
+function updateDownloader() {
+    var downloads = backgroundPage.downloader.downloads;
+    var downloadsLength = downloads.reduce(function (count) {
+        return ++count; // отбрасываются загрузки, которые удалили
+    }, 0);
+    var content = '';
+    if (!downloadsLength) {
+        content += 'Загрузок нет.<br><br>';
+        content += 'Для добавления перейдите на страницу трека, альбома, плейлиста или исполнителя на сервисе Яндекс.Музыка';
+    }
+    for (var i = 0; i < downloads.length; i++) {
+        var entity = downloads[i];
+        if (!entity) {
+            continue; // эту загрузку удалили
         }
-        for (var i = 0; i < downloads.length; i++) {
-            var entity = downloads[i];
-            var track = entity.track;
-            if (!track) {
-                continue; // обложка альбома
-            }
-            content += track.title;
-            if (entity.loadedBytes) {
-                content += ' (' + entity.loadedBytes + ')';
-            }
-            content += '<br>';
+        switch (entity.type) {
+            case backgroundPage.downloader.TYPE.TRACK:
+                content = generateTrackView(entity) + content;
+                break;
+            case backgroundPage.downloader.TYPE.ALBUM:
+            case backgroundPage.downloader.TYPE.PLAYLIST:
+                content = generateListView(entity) + content;
+                break;
         }
-        document.getElementById('downloadContainer').innerHTML = content;
-    }, 100);
+    }
+    document.getElementById('downloadContainer').innerHTML = content;
+}
+
+function generateTrackView(entity) {
+    var loadedSize = backgroundPage.utils.bytesToStr(entity.loadedBytes);
+    var totalSize = backgroundPage.utils.bytesToStr(entity.track.fileSize);
+    var status;
+    switch (entity.status) {
+        case backgroundPage.downloader.STATUS.WAITING:
+            status = '<span class="text-muted">В очереди</span>';
+            break;
+        case backgroundPage.downloader.STATUS.LOADING:
+            status = '<span class="text-primary">Загрузка [' + loadedSize + ' из ' + totalSize + ']</span>';
+            break;
+        case backgroundPage.downloader.STATUS.FINISHED:
+            status = '<span class="text-success">Сохранён</span>';
+            break;
+        case backgroundPage.downloader.STATUS.INTERRUPTED:
+            status = '<span class="text-danger">Ошибка</span>';
+            break;
+    }
+
+    var view = '<div class="panel panel-default">';
+    view += '<div class="panel-heading">';
+    view += 'Трек <strong>' + entity.artists + ' - ' + entity.title + '</strong>';
+    view += '</div>';
+    view += '<div class="panel-body">';
+    view += status;
+    view += ' <button type="button" class="btn btn-info btn-xs hide"><i class="glyphicon glyphicon-repeat"></i></button> ';
+    view += '<button type="button" class="btn btn-danger btn-xs remove-btn" data-id="' + entity.index + '">';
+    view += '<i class="glyphicon glyphicon-remove remove-btn" data-id="' + entity.index + '"></i></button>';
+    view += '</div>';
+    view += '</div>';
+    return view;
+}
+
+function generateListView(entity) {
+    var loadedSize = 0;
+    var loadedCount = 0;
+    var totalSize = backgroundPage.utils.bytesToStr(entity.size);
+    var totalCount = entity.tracks.length;
+    var totalStatus = {
+        waiting: 0,
+        loading: 0,
+        finished: 0,
+        interrupted: 0
+    };
+    for (var i = 0; i < totalCount; i++) {
+        loadedSize += entity.tracks[i].loadedBytes;
+        totalStatus[entity.tracks[i].status]++;
+        if (entity.tracks[i].status === backgroundPage.downloader.STATUS.FINISHED) {
+            loadedCount++;
+        }
+    }
+    var loadedSizePercent = Math.floor(loadedSize / entity.size * 100);
+    loadedSize = backgroundPage.utils.bytesToStr(loadedSize);
+    var name = '';
+    if (entity.type === backgroundPage.downloader.TYPE.ALBUM) {
+        name = 'Альбом <strong>' + entity.artists + ' - ' + entity.title + '</strong>';
+    } else if (entity.type === backgroundPage.downloader.TYPE.PLAYLIST) {
+        name = 'Плейлист <strong>' + entity.title + '</strong>';
+    }
+
+    var status;
+    if (totalStatus.waiting === entity.tracks.length) {
+        status = '<span class="text-muted">В очереди</span>';
+    } else if (totalStatus.finished === entity.tracks.length) {
+        status = '<span class="text-success">Сохранён</span>';
+    } else if (totalStatus.loading > 0) {
+        status = '<span class="text-primary">Загрузка [' + loadedSize + ' из ' + totalSize + ']</span>';
+    } else if (totalStatus.interrupted > 0) {
+        status = '<span class="text-danger">Ошибка</span>';
+    }
+
+    var view = '<div class="panel panel-default">';
+    view += '<div class="panel-heading">';
+    view += name + '<br>';
+    view += 'Скачено треков ' + loadedCount + ' из ' + totalCount + ' (' + loadedSizePercent + '%)';
+    view += '</div>';
+    view += '<div class="panel-body">';
+    view += status;
+    view += ' <button type="button" class="btn btn-info btn-xs hide"><i class="glyphicon glyphicon-repeat"></i></button> ';
+    view += '<button type="button" class="btn btn-danger btn-xs remove-btn" data-id="' + entity.index + '">';
+    view += '<i class="glyphicon glyphicon-remove remove-btn" data-id="' + entity.index + '"></i></button>';
+    view += '</div>';
+    view += '</div>';
+    return view;
 }
 
 function hidePreloader() {
@@ -97,23 +200,31 @@ function hidePreloader() {
 }
 
 function generateDownloadArtist(artist) {
-    // todo: добавить размер и продолжительность треков
     var i;
+    var title;
     var albumContent = '';
     var compilationContent = '';
     albumContent += '<label><input type="checkbox" id="albumCheckbox" checked><b>Альбомы (';
     albumContent += artist.albums.length + ')</b></label><br>';
     for (i = 0; i < artist.albums.length; i++) {
+        title = artist.albums[i].title;
+        if (artist.albums[i].version) {
+            title += ' (' + artist.albums[i].version + ')';
+        }
         albumContent += '<label><input type="checkbox" class="album" checked value="';
-        albumContent += artist.albums[i].id + '">' + artist.albums[i].title + '</label><br>';
+        albumContent += artist.albums[i].id + '">' + title + '</label><br>';
     }
     if (artist.alsoAlbums.length) {
         compilationContent += '<label><input type="checkbox" id="compilationCheckbox"><b>Сборники (';
         compilationContent += artist.alsoAlbums.length + ')</b></label><br>';
     }
     for (i = 0; i < artist.alsoAlbums.length; i++) {
+        title = artist.alsoAlbums[i].title;
+        if (artist.alsoAlbums[i].version) {
+            title += ' (' + artist.alsoAlbums[i].version + ')';
+        }
         compilationContent += '<label><input type="checkbox" class="compilation" value="';
-        compilationContent += artist.alsoAlbums[i].id + '">' + artist.alsoAlbums[i].title + '</label><br>';
+        compilationContent += artist.alsoAlbums[i].id + '">' + title + '</label><br>';
     }
     document.getElementById('name').innerHTML = artist.artist.name;
     document.getElementById('info').innerHTML = 'Дискография';
@@ -147,16 +258,38 @@ function generateDownloadTrack(track) {
 }
 
 function generateDownloadAlbum(album) {
-    // todo: добавить размер и продолжительность треков
+    var size = 0;
+    var duration = 0;
+    for (var i = 0; i < album.volumes.length; i++) {
+        for (var j = 0; j < album.volumes[i].length; j++) {
+            var track = album.volumes[i][j];
+            if (!track.error) {
+                size += track.fileSize;
+                duration += track.durationMs;
+            }
+        }
+    }
+    size = backgroundPage.utils.bytesToStr(size);
+    duration = backgroundPage.utils.durationToStr(duration);
     var artists = backgroundPage.utils.parseArtists(album.artists);
     document.getElementById('name').innerHTML = artists + ' - ' + album.title;
-    document.getElementById('info').innerHTML = 'Альбом / треков: ' + album.trackCount;
+    document.getElementById('info').innerHTML = 'Альбом (' + album.trackCount + ') / ' + size + ' / ' + duration;
 }
 
 function generateDownloadPlaylist(playlist) {
-    // todo: добавить размер и продолжительность треков
+    var size = 0;
+    var duration = 0;
+    for (var i = 0; i < playlist.tracks.length; i++) {
+        var track = playlist.tracks[i];
+        if (!track.error) {
+            size += track.fileSize;
+            duration += track.durationMs;
+        }
+    }
+    size = backgroundPage.utils.bytesToStr(size);
+    duration = backgroundPage.utils.durationToStr(duration);
     document.getElementById('name').innerHTML = playlist.title;
-    document.getElementById('info').innerHTML = 'Плейлист / треков: ' + playlist.trackCount;
+    document.getElementById('info').innerHTML = 'Плейлист (' + playlist.trackCount + ') / ' + size + ' / ' + duration;
 }
 
 function generateError() {
