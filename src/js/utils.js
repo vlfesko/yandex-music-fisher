@@ -21,6 +21,7 @@ utils.ajax = function (url, type, onSuccess, onFail, onProgress) {
         xhr.onprogress = onProgress;
     }
     xhr.send();
+    return xhr;
 };
 
 utils.getUrlInfo = function (url) {

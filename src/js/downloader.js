@@ -69,7 +69,7 @@ downloader.download = function () {
         }
 
         yandex.getTrackUrl(track.storageDir, function (url) {
-            utils.ajax(url, 'arraybuffer', function (arrayBuffer) {
+            var xhr = utils.ajax(url, 'arraybuffer', function (arrayBuffer) {
                 var frames = {
                     TIT2: entity.title, // Title/songname/content description
                     TPE1: entity.artists, // Lead performer(s)/Soloist(s)
@@ -98,6 +98,7 @@ downloader.download = function () {
             }, function (event) {
                 entity.loadedBytes = event.loaded;
             });
+            entity.xhr = xhr;
         }, function (error) {
             entity.status = downloader.STATUS.INTERRUPTED;
             console.error(error);

@@ -35,7 +35,26 @@ document.getElementById('downloadContainer').addEventListener('mousedown', funct
         return; // кликнули в другом месте
     }
     var downloadId = e.target.getAttribute('data-id');
+    var entity = backgroundPage.downloader.downloads[downloadId];
+    switch (entity.type) {
+        case backgroundPage.downloader.TYPE.TRACK:
+            if (entity.status === backgroundPage.downloader.STATUS.LOADING) {
+                entity.xhr.abort();
+                backgroundPage.downloader.activeThreadCount--;
+            }
+            break;
+        case backgroundPage.downloader.TYPE.ALBUM:
+        case backgroundPage.downloader.TYPE.PLAYLIST:
+            for (var i = 0; i < entity.tracks.length; i++) {
+                if (entity.tracks[i].status === backgroundPage.downloader.STATUS.LOADING) {
+                    entity.tracks[i].xhr.abort();
+                    backgroundPage.downloader.activeThreadCount--;
+                }
+            }
+            break;
+    }
     delete(backgroundPage.downloader.downloads[downloadId]);
+    backgroundPage.downloader.runAllThreads();
 });
 
 document.getElementById('startDownloadBtn').addEventListener('click', function () {
