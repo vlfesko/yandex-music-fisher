@@ -31,30 +31,49 @@ document.getElementById('settingsBtn').addEventListener('click', function () {
 });
 
 document.getElementById('downloadContainer').addEventListener('mousedown', function (e) {
-    if (!e.target.classList.contains('remove-btn')) {
-        return; // кликнули в другом месте
-    }
+    var isRemoveBtnClick = e.target.classList.contains('remove-btn');
+    var isRestoreBtnClick = e.target.classList.contains('restore-btn');
     var downloadId = e.target.getAttribute('data-id');
     var entity = backgroundPage.downloader.downloads[downloadId];
-    switch (entity.type) {
-        case backgroundPage.downloader.TYPE.TRACK:
-            if (entity.status === backgroundPage.downloader.STATUS.LOADING) {
-                entity.xhr.abort();
-                backgroundPage.downloader.activeThreadCount--;
-            }
-            break;
-        case backgroundPage.downloader.TYPE.ALBUM:
-        case backgroundPage.downloader.TYPE.PLAYLIST:
-            for (var i = 0; i < entity.tracks.length; i++) {
-                if (entity.tracks[i].status === backgroundPage.downloader.STATUS.LOADING) {
-                    entity.tracks[i].xhr.abort();
+    var i;
+
+    if (isRemoveBtnClick) {
+        switch (entity.type) {
+            case backgroundPage.downloader.TYPE.TRACK:
+                if (entity.status === backgroundPage.downloader.STATUS.LOADING) {
+                    entity.xhr.abort();
                     backgroundPage.downloader.activeThreadCount--;
                 }
-            }
-            break;
+                break;
+            case backgroundPage.downloader.TYPE.ALBUM:
+            case backgroundPage.downloader.TYPE.PLAYLIST:
+                for (i = 0; i < entity.tracks.length; i++) {
+                    if (entity.tracks[i].status === backgroundPage.downloader.STATUS.LOADING) {
+                        entity.tracks[i].xhr.abort();
+                        backgroundPage.downloader.activeThreadCount--;
+                    }
+                }
+                break;
+        }
+        delete(backgroundPage.downloader.downloads[downloadId]);
+        backgroundPage.downloader.runAllThreads();
+    } else if (isRestoreBtnClick) {
+        switch (entity.type) {
+            case backgroundPage.downloader.TYPE.TRACK:
+                entity.status = backgroundPage.downloader.STATUS.WAITING;
+                backgroundPage.downloader.download();
+                break;
+            case backgroundPage.downloader.TYPE.ALBUM:
+            case backgroundPage.downloader.TYPE.PLAYLIST:
+                for (i = 0; i < entity.tracks.length; i++) {
+                    if (entity.tracks[i].status === backgroundPage.downloader.STATUS.INTERRUPTED) {
+                        entity.tracks[i].status = backgroundPage.downloader.STATUS.WAITING;
+                        backgroundPage.downloader.download();
+                    }
+                }
+                break;
+        }
     }
-    delete(backgroundPage.downloader.downloads[downloadId]);
-    backgroundPage.downloader.runAllThreads();
 });
 
 document.getElementById('startDownloadBtn').addEventListener('click', function () {
@@ -142,7 +161,9 @@ function generateTrackView(entity) {
             status = '<span class="text-success">Сохранён</span>';
             break;
         case backgroundPage.downloader.STATUS.INTERRUPTED:
-            status = '<span class="text-danger">Ошибка</span>';
+            status = '<span class="text-danger">Ошибка</span>&nbsp;';
+            status += '<button type="button" class="btn btn-info btn-xs restore-btn" data-id="' + entity.index + '">';
+            status += '<i class="glyphicon glyphicon-repeat restore-btn" data-id="' + entity.index + '"></i></button>';
             break;
     }
 
@@ -152,8 +173,7 @@ function generateTrackView(entity) {
     view += '</div>';
     view += '<div class="panel-body">';
     view += status;
-    view += ' <button type="button" class="btn btn-info btn-xs hide"><i class="glyphicon glyphicon-repeat"></i></button> ';
-    view += '<button type="button" class="btn btn-danger btn-xs remove-btn" data-id="' + entity.index + '">';
+    view += '&nbsp;<button type="button" class="btn btn-danger btn-xs remove-btn" data-id="' + entity.index + '">';
     view += '<i class="glyphicon glyphicon-remove remove-btn" data-id="' + entity.index + '"></i></button>';
     view += '</div>';
     view += '</div>';
@@ -195,7 +215,9 @@ function generateListView(entity) {
     } else if (totalStatus.loading > 0) {
         status = '<span class="text-primary">Загрузка [' + loadedSize + ' из ' + totalSize + ']</span>';
     } else if (totalStatus.interrupted > 0) {
-        status = '<span class="text-danger">Ошибка</span>';
+        status = '<span class="text-danger">Ошибка</span>&nbsp;';
+        status += '<button type="button" class="btn btn-info btn-xs restore-btn" data-id="' + entity.index + '">';
+        status += '<i class="glyphicon glyphicon-repeat restore-btn" data-id="' + entity.index + '"></i></button>';
     }
 
     var view = '<div class="panel panel-default">';
@@ -205,8 +227,7 @@ function generateListView(entity) {
     view += '</div>';
     view += '<div class="panel-body">';
     view += status;
-    view += ' <button type="button" class="btn btn-info btn-xs hide"><i class="glyphicon glyphicon-repeat"></i></button> ';
-    view += '<button type="button" class="btn btn-danger btn-xs remove-btn" data-id="' + entity.index + '">';
+    view += '&nbsp;<button type="button" class="btn btn-danger btn-xs remove-btn" data-id="' + entity.index + '">';
     view += '<i class="glyphicon glyphicon-remove remove-btn" data-id="' + entity.index + '"></i></button>';
     view += '</div>';
     view += '</div>';

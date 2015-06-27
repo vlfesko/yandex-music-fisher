@@ -45,6 +45,14 @@ downloader.runAllThreads = function () {
     }
 };
 
+downloader.handleEntityInterruption = function (entity, error) {
+    entity.status = downloader.STATUS.INTERRUPTED;
+    entity.loadedBytes = 0;
+    console.error(error);
+    downloader.activeThreadCount--;
+    downloader.download();
+};
+
 downloader.download = function () {
     if (downloader.activeThreadCount >= storage.current.downloadThreadCount) {
         return; // достигнуто максимальное количество потоков загрузки
@@ -69,7 +77,7 @@ downloader.download = function () {
         }
 
         yandex.getTrackUrl(track.storageDir, function (url) {
-            var xhr = utils.ajax(url, 'arraybuffer', function (arrayBuffer) {
+            entity.xhr = utils.ajax(url, 'arraybuffer', function (arrayBuffer) {
                 var frames = {
                     TIT2: entity.title, // Title/songname/content description
                     TPE1: entity.artists, // Lead performer(s)/Soloist(s)
@@ -88,22 +96,19 @@ downloader.download = function () {
                     filename: savePath,
                     saveAs: false
                 }, function (downloadId) {
-                    entity.browserDownloadId = downloadId;
+                    if (chrome.runtime.lastError) {
+                        downloader.handleEntityInterruption(entity, chrome.runtime.lastError.message);
+                    } else {
+                        entity.browserDownloadId = downloadId;
+                    }
                 });
             }, function (error) {
-                entity.status = downloader.STATUS.INTERRUPTED;
-                console.error(error);
-                downloader.activeThreadCount--;
-                downloader.download();
+                downloader.handleEntityInterruption(entity, error);
             }, function (event) {
                 entity.loadedBytes = event.loaded;
             });
-            entity.xhr = xhr;
         }, function (error) {
-            entity.status = downloader.STATUS.INTERRUPTED;
-            console.error(error);
-            downloader.activeThreadCount--;
-            downloader.download();
+            downloader.handleEntityInterruption(entity, error);
         });
     } else if (entity.type === downloader.TYPE.COVER) {
         chrome.downloads.download({
@@ -111,7 +116,11 @@ downloader.download = function () {
             filename: entity.filename,
             saveAs: false
         }, function (downloadId) {
-            entity.browserDownloadId = downloadId;
+            if (chrome.runtime.lastError) {
+                downloader.handleEntityInterruption(entity, chrome.runtime.lastError.message);
+            } else {
+                entity.browserDownloadId = downloadId;
+            }
         });
     }
 };

@@ -53,6 +53,7 @@ chrome.downloads.onChanged.addListener(function (delta) {
                 entity.status = downloader.STATUS.FINISHED;
             } else if (delta.state.current === 'interrupted') {
                 entity.status = downloader.STATUS.INTERRUPTED;
+                entity.loadedBytes = 0;
             }
             if (entity.type === downloader.TYPE.COVER) {
                 delete(downloader.downloads[entity.index]);
