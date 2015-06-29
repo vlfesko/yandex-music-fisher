@@ -90,6 +90,15 @@ utils.addId3Tag = function (oldArrayBuffer, framesObject) {
         ];
     }
 
+    function uint28ToUint7Array(uint28) {
+        return [
+            uint28 >>> 21,
+            (uint28 >>> 14) & 0x7f,
+            (uint28 >>> 7) & 0x7f,
+            uint28 & 0x7f
+        ];
+    }
+
     function framesObjectToArray(framesObject) {
         var frames = [];
         var frameIterator = Object.keys(framesObject);
@@ -107,13 +116,22 @@ utils.addId3Tag = function (oldArrayBuffer, framesObject) {
                     value: frameValue,
                     size: 10 + (frameValue.length * 2) + 1 + 2 // заголовок + фрейм * 2 байта + кодировка + BOM
                 });
+            } else if (frameIterator[i] === 'APIC') {
+                var mimeType = 'image/jpeg';
+                frames.push({
+                    name: frameIterator[i],
+                    value: frameValue,
+                    mimeType: mimeType,
+                    size: 10 + 1 + mimeType.length + 1 + 1 + 1 + frameValue.byteLength
+                    // заголовок + кодировка + MIME type + 0 + тип картинки + 0 + картинка
+                });
             }
         }
         return frames;
     }
 
     var offset = 0;
-    var padding = 8192;
+    var padding = 4096;
     var frames = framesObjectToArray(framesObject);
     var totalFrameSize = frames.reduce(function (totalSize, frame) {
         return totalSize + frame.size;
@@ -131,7 +149,7 @@ utils.addId3Tag = function (oldArrayBuffer, framesObject) {
     offset++; // ревизия версии
     offset++; // флаги
 
-    writeBytes = uint32ToUint8Array(tagSize); // размер тега
+    writeBytes = uint28ToUint7Array(tagSize); // размер тега
     bufferWriter.set(writeBytes, offset);
     offset += writeBytes.length;
 
@@ -160,6 +178,19 @@ utils.addId3Tag = function (oldArrayBuffer, framesObject) {
             writeBytes = coder16.encode(frame.value); // значение фрейма
             bufferWriter.set(writeBytes, offset);
             offset += writeBytes.length;
+        } else if (frame.name === 'APIC') {
+            offset++; // кодировка
+
+            writeBytes = coder8.encode(frame.mimeType); // MIME type
+            bufferWriter.set(writeBytes, offset);
+            offset += writeBytes.length;
+
+            writeBytes = [0x00, 0x03, 0x00]; // разделитель, тип картинки, разделитель
+            bufferWriter.set(writeBytes, offset);
+            offset += writeBytes.length;
+
+            bufferWriter.set(new Uint8Array(frame.value), offset); // картинка
+            offset += frame.value.byteLength;
         }
     });
 
@@ -173,11 +204,7 @@ utils.bytesToStr = function (bytes) {
     var KiB = 1024;
     var MiB = 1024 * KiB;
     var GiB = 1024 * MiB;
-    if (bytes < KiB) {
-        return bytes + ' Б';
-    } else if (bytes < MiB) {
-        return (bytes / KiB).toFixed(2) + ' КиБ';
-    } else if (bytes < GiB) {
+    if (bytes < GiB) {
         return (bytes / MiB).toFixed(2) + ' МиБ';
     } else {
         return (bytes / GiB).toFixed(2) + ' ГиБ';
