@@ -46,6 +46,24 @@ downloader.download = function () {
         return undefined;
     }
 
+    function getTrackPositionInAlbum() {
+        if (trackAlbum.volumes.length === 1 && trackAlbum.volumes[0].length === 1) {
+            return undefined; // частый случай оборачивания треков в альбомы, игнорируем это
+        }
+        for (var i = 0; i < trackAlbum.volumes.length; i++) {
+            for (var j = 0; j < trackAlbum.volumes[i].length; j++) {
+                if (track.id === trackAlbum.volumes[i][j].id) {
+                    return {
+                        track: j + 1,
+                        album: i + 1,
+                        albumCount: trackAlbum.volumes.length
+                    };
+                }
+            }
+        }
+        return undefined;
+    }
+
     function onInterruptEntity(error) {
         entity.status = downloader.STATUS.INTERRUPTED;
         entity.loadedBytes = 0;
@@ -73,10 +91,11 @@ downloader.download = function () {
 
     function handleAlbum(album) {
         trackAlbum = album;
-        if (track.albums[0].coverUri) {
-            var coverUrl = 'https://' + track.albums[0].coverUri.replace('%%', '400x400');
+        if (album.coverUri) {
+            var coverUrl = 'https://' + album.coverUri.replace('%%', '400x400');
             utils.ajax(coverUrl, 'arraybuffer', handleCover, onInterruptEntity);
         } else {
+            // пример: https://music.yandex.ru/album/2236232/track/23652415
             entity.xhr = utils.ajax(trackUrl, 'arraybuffer', saveTrack, onInterruptEntity, onProgress);
         }
     }
@@ -90,20 +109,22 @@ downloader.download = function () {
         var frames = {
             TIT2: entity.title, // Название
             TPE1: entity.artists, // Исполнители
-            TALB: track.albums[0].title, // Альбом
-            TYER: track.albums[0].year // Год
+            TALB: trackAlbum.title // Альбом
         };
-        var genre = track.albums[0].genre;
-        var trackPostition = downloader.getTrackPositionInAlbum(track.id, trackAlbum);
+        if (trackAlbum.year) {
+            frames.TYER = trackAlbum.year; // Год
+        }
+        var trackPostition = getTrackPositionInAlbum();
         if (trackPostition) {
             frames.TRCK = trackPostition.track; // Номер в альбоме
             if (trackPostition.albumCount > 1) {
                 frames.TPOS = trackPostition.album; // Номер диска
             }
         }
-        if (track.albums[0].artists[0].name !== 'сборник') {
-            frames.TPE2 = track.albums[0].artists[0].name; // Исполнитель альбома
+        if (trackAlbum.artists[0].name !== 'сборник') {
+            frames.TPE2 = trackAlbum.artists[0].name; // Исполнитель альбома
         }
+        var genre = trackAlbum.genre;
         if (genre) {
             frames.TCON = genre[0].toUpperCase() + genre.substr(1); // Жанр
         }
@@ -153,25 +174,6 @@ downloader.download = function () {
             saveAs: false
         }, onChromeDownloadStart);
     }
-};
-
-downloader.getTrackPositionInAlbum = function (trackId, album) {
-    if (album.volumes.length === 1 && album.volumes[0].length === 1) {
-        return undefined; // частый случай оборачивания треков в альбомы, игнорируем это
-    }
-    for (var i = 0; i < album.volumes.length; i++) {
-        for (var j = 0; j < album.volumes[i].length; j++) {
-            var track = album.volumes[i][j];
-            if (track.id === trackId) {
-                return {
-                    track: j + 1,
-                    album: i + 1,
-                    albumCount: album.volumes.length
-                };
-            }
-        }
-    }
-    return undefined;
 };
 
 downloader.downloadTrack = function (trackId) {
