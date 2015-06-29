@@ -18,51 +18,120 @@ var downloader = {
     activeThreadCount: 0
 };
 
-downloader.getWaitingEntity = function () {
-    for (var i = 0; i < downloader.downloads.length; i++) {
-        var entity = downloader.downloads[i];
-        if (!entity) {
-            continue; // эту загрузку удалили
-        }
-        if (entity.type === downloader.TYPE.ALBUM || entity.type === downloader.TYPE.PLAYLIST) {
-            for (var j = 0; j < entity.tracks.length; j++) {
-                if (entity.tracks[j].status === downloader.STATUS.WAITING) {
-                    return entity.tracks[j];
-                }
-            }
-        } else if (entity.type === downloader.TYPE.TRACK || entity.type === downloader.TYPE.COVER) {
-            if (entity.status === downloader.STATUS.WAITING) {
-                return entity;
-            }
-        }
-    }
-    return undefined;
-};
-
 downloader.runAllThreads = function () {
     for (var i = 0; i < storage.current.downloadThreadCount; i++) {
         downloader.download();
     }
 };
 
-downloader.handleEntityInterruption = function (entity, error) {
-    entity.status = downloader.STATUS.INTERRUPTED;
-    entity.loadedBytes = 0;
-    console.error(error);
-    downloader.activeThreadCount--;
-    downloader.download();
-};
-
 downloader.download = function () {
+    function getWaitingEntity() {
+        for (var i = 0; i < downloader.downloads.length; i++) {
+            var entity = downloader.downloads[i];
+            if (!entity) {
+                continue; // эту загрузку удалили
+            }
+            if (entity.type === downloader.TYPE.ALBUM || entity.type === downloader.TYPE.PLAYLIST) {
+                for (var j = 0; j < entity.tracks.length; j++) {
+                    if (entity.tracks[j].status === downloader.STATUS.WAITING) {
+                        return entity.tracks[j];
+                    }
+                }
+            } else if (entity.type === downloader.TYPE.TRACK || entity.type === downloader.TYPE.COVER) {
+                if (entity.status === downloader.STATUS.WAITING) {
+                    return entity;
+                }
+            }
+        }
+        return undefined;
+    }
+
+    function onInterruptEntity(error) {
+        entity.status = downloader.STATUS.INTERRUPTED;
+        entity.loadedBytes = 0;
+        console.error(error);
+        downloader.activeThreadCount--;
+        downloader.download();
+    }
+
+    function onChromeDownloadStart(downloadId) {
+        if (chrome.runtime.lastError) {
+            onInterruptEntity(chrome.runtime.lastError.message);
+        } else {
+            entity.browserDownloadId = downloadId;
+        }
+    }
+
+    function onProgress(event) {
+        entity.loadedBytes = event.loaded;
+    }
+
+    function handleTrackUrl(url) {
+        trackUrl = url;
+        yandex.getAlbum(track.albums[0].id, handleAlbum, onInterruptEntity);
+    }
+
+    function handleAlbum(album) {
+        trackAlbum = album;
+        if (track.albums[0].coverUri) {
+            var coverUrl = 'https://' + track.albums[0].coverUri.replace('%%', '400x400');
+            utils.ajax(coverUrl, 'arraybuffer', handleCover, onInterruptEntity);
+        } else {
+            entity.xhr = utils.ajax(trackUrl, 'arraybuffer', saveTrack, onInterruptEntity, onProgress);
+        }
+    }
+
+    function handleCover(arrayBuffer) {
+        coverArrayBuffer = arrayBuffer;
+        entity.xhr = utils.ajax(trackUrl, 'arraybuffer', saveTrack, onInterruptEntity, onProgress);
+    }
+
+    function saveTrack(trackArrayBuffer) {
+        var frames = {
+            TIT2: entity.title, // Название
+            TPE1: entity.artists, // Исполнители
+            TALB: track.albums[0].title, // Альбом
+            TYER: track.albums[0].year // Год
+        };
+        var genre = track.albums[0].genre;
+        var trackPostition = downloader.getTrackPositionInAlbum(track.id, trackAlbum);
+        if (trackPostition) {
+            frames.TRCK = trackPostition.track; // Номер в альбоме
+            if (trackPostition.albumCount > 1) {
+                frames.TPOS = trackPostition.album; // Номер диска
+            }
+        }
+        if (track.albums[0].artists[0].name !== 'сборник') {
+            frames.TPE2 = track.albums[0].artists[0].name; // Исполнитель альбома
+        }
+        if (genre) {
+            frames.TCON = genre[0].toUpperCase() + genre.substr(1); // Жанр
+        }
+        if (coverArrayBuffer) {
+            frames.APIC = coverArrayBuffer; // Обложка
+        }
+
+        var localUrl = utils.addId3Tag(trackArrayBuffer, frames);
+
+        chrome.downloads.download({
+            url: localUrl,
+            filename: savePath,
+            saveAs: false
+        }, onChromeDownloadStart);
+    }
+
     if (downloader.activeThreadCount >= storage.current.downloadThreadCount) {
         return; // достигнуто максимальное количество потоков загрузки
     }
-    var entity = downloader.getWaitingEntity();
+    var entity = getWaitingEntity();
     if (!entity) { // в очереди нет загрузок
         return;
     }
     entity.status = downloader.STATUS.LOADING;
     downloader.activeThreadCount++;
+    var coverArrayBuffer;
+    var trackAlbum;
+    var trackUrl;
 
     if (entity.type === downloader.TYPE.TRACK) {
         var track = entity.track;
@@ -76,75 +145,13 @@ downloader.download = function () {
             savePath = entity.saveDir + '/' + savePath;
         }
 
-        yandex.getTrackUrl(track.storageDir, function (url) {
-            yandex.getAlbum(track.albums[0].id, function (album) {
-                var coverUri = 'https://avatars.yandex.net/get-music-content/8579b435.a.2770824-1/400x400';
-                if (track.albums[0].coverUri) {
-                    coverUri = 'https://' + track.albums[0].coverUri.replace('%%', '400x400');
-                } // todo: ковера может не быть, тогда не надо его грузить
-                utils.ajax(coverUri, 'arraybuffer', function (coverArrayBuffer) {
-                    entity.xhr = utils.ajax(url, 'arraybuffer', function (trackArrayBuffer) {
-                        var frames = {
-                            TIT2: entity.title, // Название
-                            TPE1: entity.artists, // Исполнители
-                            TALB: track.albums[0].title, // Альбом
-                            TYER: track.albums[0].year // Год
-                        };
-                        var genre = track.albums[0].genre;
-                        var trackPostition = downloader.getTrackPositionInAlbum(track.id, album);
-                        if (trackPostition) {
-                            frames.TRCK = trackPostition.track; // Номер в альбоме
-                            if (trackPostition.albumCount > 1) {
-                                frames.TPOS = trackPostition.album; // Номер диска
-                            }
-                        }
-                        if (track.albums[0].artists[0].name !== 'сборник') {
-                            frames.TPE2 = track.albums[0].artists[0].name; // Исполнитель альбома
-                        }
-                        if (genre) {
-                            frames.TCON = genre[0].toUpperCase() + genre.substr(1); // Жанр
-                        }
-                        frames.APIC = coverArrayBuffer; // Обложка
-
-                        var localUrl = utils.addId3Tag(trackArrayBuffer, frames);
-
-                        chrome.downloads.download({
-                            url: localUrl,
-                            filename: savePath,
-                            saveAs: false
-                        }, function (downloadId) {
-                            if (chrome.runtime.lastError) {
-                                downloader.handleEntityInterruption(entity, chrome.runtime.lastError.message);
-                            } else {
-                                entity.browserDownloadId = downloadId;
-                            }
-                        });
-                    }, function (error) {
-                        downloader.handleEntityInterruption(entity, error);
-                    }, function (event) {
-                        entity.loadedBytes = event.loaded;
-                    });
-                }, function (error) {
-                    downloader.handleEntityInterruption(entity, error);
-                });
-            }, function (error) {
-                downloader.handleEntityInterruption(entity, error);
-            });
-        }, function (error) {
-            downloader.handleEntityInterruption(entity, error);
-        });
+        yandex.getTrackUrl(track.storageDir, handleTrackUrl, onInterruptEntity);
     } else if (entity.type === downloader.TYPE.COVER) {
         chrome.downloads.download({
             url: entity.url,
             filename: entity.filename,
             saveAs: false
-        }, function (downloadId) {
-            if (chrome.runtime.lastError) {
-                downloader.handleEntityInterruption(entity, chrome.runtime.lastError.message);
-            } else {
-                entity.browserDownloadId = downloadId;
-            }
-        });
+        }, onChromeDownloadStart);
     }
 };
 
