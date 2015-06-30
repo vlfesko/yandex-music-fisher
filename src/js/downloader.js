@@ -92,7 +92,7 @@ downloader.download = function () {
     function handleAlbum(album) {
         trackAlbum = album;
         if (album.coverUri) {
-            var coverUrl = 'https://' + album.coverUri.replace('%%', '400x400');
+            var coverUrl = 'https://' + album.coverUri.replace('%%', storage.current.albumCoverSize);
             utils.ajax(coverUrl, 'arraybuffer', handleCover, onInterruptEntity);
         } else {
             // пример: https://music.yandex.ru/album/2236232/track/23652415
@@ -235,7 +235,7 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
         for (var i = 0; i < album.volumes.length; i++) {
             for (var j = 0; j < album.volumes[i].length; j++) {
                 var track = album.volumes[i][j];
-                if (track.error) { // todo: проверить, если ли сейчас такое поле
+                if (track.error) {
                     console.error('Ошибка: ' + track.error + '. trackId: ' + track.id);
                     continue;
                 }

@@ -5,7 +5,7 @@ var storage = {
     defaults: {
         downloadThreadCount: 4,
         shouldDownloadCover: true,
-        albumCoverSize: '460x460',
+        albumCoverSize: '400x400',
         shouldNumberLists: true,
         trackNameMask: '#ИСПОЛНИТЕЛИ# - #НАЗВАНИЕ#'
     },

@@ -25,7 +25,7 @@
         </thead>
         <tbody>
         <tr>
-            <td>Количество потоков загрузки</td>
+            <td>Количество одновременных загрузок <small>(чем больше скорость доступа, тем большее значение следует ставить)</small></td>
             <td>
                 <div class="row">
                     <div class="col-sm-4">
@@ -35,7 +35,7 @@
             </td>
         </tr>
         <tr>
-            <td>Загружать обложку альбомов</td>
+            <td>Сохранять обложку в папку с альбомами <small>(для ID3 тега обложка загрузится в любом случае)</small></td>
             <td>
                 <div class="row">
                     <div class="col-sm-4">
@@ -48,14 +48,17 @@
             </td>
         </tr>
         <tr>
-            <td>Размер обложки альбомов</td>
+            <td>Размер обложки <small>(в пикселях)</small></td>
             <td>
                 <div class="row">
                     <div class="col-sm-4">
                         <select id="album-cover-size" class="form-control input-sm">
                             <option value="200x200">200x200</option>
                             <option value="300x300">300x300</option>
+                            <option value="400x400">400x400</option>
                             <option value="460x460">460x460</option>
+                            <option value="600x600">600x600</option>
+                            <option value="700x700">700x700</option>
                             <option value="1000x1000">1000x1000</option>
                         </select>
                     </div>
