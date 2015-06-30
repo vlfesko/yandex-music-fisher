@@ -43,7 +43,8 @@ chrome.downloads.onChanged.addListener(function (delta) {
     chrome.downloads.search({
         id: delta.id
     }, function (downloads) {
-        var name = downloads[0].byExtensionName;
+        var download = downloads[0];
+        var name = download.byExtensionName;
         if (!name || name !== 'Yandex Music Fisher') {
             return; // загрузка не принадлежит нашему расширению
         }
@@ -57,6 +58,9 @@ chrome.downloads.onChanged.addListener(function (delta) {
             }
             if (entity.type === downloader.TYPE.COVER) {
                 delete(downloader.downloads[entity.index]);
+            } else if (entity.type === downloader.TYPE.TRACK) {
+                entity.xhr = null;
+                window.URL.revokeObjectURL(download.url);
             }
         }
         chrome.downloads.erase({
