@@ -59,7 +59,6 @@ chrome.downloads.onChanged.addListener(function (delta) {
             if (entity.type === downloader.TYPE.COVER) {
                 delete(downloader.downloads[entity.index]);
             } else if (entity.type === downloader.TYPE.TRACK) {
-                entity.xhr = null;
                 window.URL.revokeObjectURL(download.url);
             }
         }

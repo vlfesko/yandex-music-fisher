@@ -106,6 +106,7 @@ downloader.download = function () {
     }
 
     function saveTrack(trackArrayBuffer) {
+        entity.xhr = null;
         var frames = {
             TIT2: entity.title, // Название
             TPE1: entity.artists, // Исполнители

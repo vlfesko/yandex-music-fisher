@@ -41,7 +41,9 @@ document.getElementById('downloadContainer').addEventListener('mousedown', funct
         switch (entity.type) {
             case backgroundPage.downloader.TYPE.TRACK:
                 if (entity.status === backgroundPage.downloader.STATUS.LOADING) {
-                    entity.xhr.abort();
+                    if (entity.xhr) {
+                        entity.xhr.abort();
+                    }
                     backgroundPage.downloader.activeThreadCount--;
                 }
                 break;
@@ -49,7 +51,9 @@ document.getElementById('downloadContainer').addEventListener('mousedown', funct
             case backgroundPage.downloader.TYPE.PLAYLIST:
                 for (i = 0; i < entity.tracks.length; i++) {
                     if (entity.tracks[i].status === backgroundPage.downloader.STATUS.LOADING) {
-                        entity.tracks[i].xhr.abort();
+                        if (entity.tracks[i].xhr) {
+                            entity.tracks[i].xhr.abort();
+                        }
                         backgroundPage.downloader.activeThreadCount--;
                     }
                 }
