@@ -1,5 +1,5 @@
 body {
-    width: 308px;
+    width: 348px;
 }
 
 label {
@@ -18,7 +18,7 @@ input[type=checkbox] {
 }
 
 .panel {
-   border: none;
+    border: none;
 }
 
 .panel-heading {
@@ -29,12 +29,16 @@ input[type=checkbox] {
     padding: 5px 10px;
 }
 
+.btn-toolbar > .btn-group.controls {
+    margin-left: 44px;
+}
+
 #preloader > img {
-    margin: 25px 122px;
+    margin: 25px 142px;
 }
 
 #addContainer {
-    padding: 10px 8px 0;
+    padding: 10px 8px;
 }
 
 #albums, #compilations {
@@ -48,4 +52,9 @@ input[type=checkbox] {
 #downloadContainer {
     padding-top: 20px;
     font-size: 12px;
+}
+
+#startDownloadBtn {
+    display: block;
+    margin: 0 auto;
 }

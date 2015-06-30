@@ -12,7 +12,8 @@
         "https://music.yandex.kz/",
         "https://music.yandex.by/",
         "https://avatars.yandex.net/",
-        "https://storage.mds.yandex.net/"
+        "https://storage.mds.yandex.net/",
+        "https://raw.githubusercontent.com/"
     ],
     "minimum_chrome_version": "31.0",
     "background": {
