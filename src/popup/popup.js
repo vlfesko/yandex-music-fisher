@@ -244,8 +244,10 @@ function generateDownloadArtist(artist) {
     var title;
     var albumContent = '';
     var compilationContent = '';
-    albumContent += '<label><input type="checkbox" id="albumCheckbox" checked><b>Альбомы (';
-    albumContent += artist.albums.length + ')</b></label><br>';
+    if (artist.albums.length) {
+        albumContent += '<label><input type="checkbox" id="albumCheckbox" checked><b>Альбомы (';
+        albumContent += artist.albums.length + ')</b></label><br>';
+    }
     for (i = 0; i < artist.albums.length; i++) {
         title = artist.albums[i].title;
         if (artist.albums[i].version) {
@@ -271,13 +273,15 @@ function generateDownloadArtist(artist) {
     document.getElementById('albums').innerHTML = albumContent;
     document.getElementById('compilations').innerHTML = compilationContent;
 
-    document.getElementById('albumCheckbox').addEventListener('click', function () {
-        var toggle = document.getElementById('albumCheckbox');
-        var albums = document.getElementsByClassName('album');
-        for (var i = 0; i < albums.length; i++) {
-            albums[i].checked = toggle.checked;
-        }
-    });
+    if (artist.albums.length) {
+        document.getElementById('albumCheckbox').addEventListener('click', function () {
+            var toggle = document.getElementById('albumCheckbox');
+            var albums = document.getElementsByClassName('album');
+            for (var i = 0; i < albums.length; i++) {
+                albums[i].checked = toggle.checked;
+            }
+        });
+    }
     if (artist.alsoAlbums.length) {
         document.getElementById('compilationCheckbox').addEventListener('click', function () {
             var toggle = document.getElementById('compilationCheckbox');
