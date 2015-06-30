@@ -142,6 +142,9 @@ downloader.download = function () {
         }, onChromeDownloadStart);
     }
 
+    if (downloader.activeThreadCount < 0) {
+        downloader.activeThreadCount = 0; // выравнивание при сбоях
+    }
     if (downloader.activeThreadCount >= storage.current.downloadThreadCount) {
         return; // достигнуто максимальное количество потоков загрузки
     }
