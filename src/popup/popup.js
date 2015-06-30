@@ -342,11 +342,18 @@ function generateError() {
     document.getElementById('errorContainer').classList.remove('hide');
 }
 
+function adaptToSmallDeviceHeight(tabHeight) {
+    if (tabHeight <= 600) {
+        document.getElementsByTagName('body')[0].style.paddingBottom = '75px';
+    }
+}
+
 chrome.tabs.query({
     active: true,
     currentWindow: true
 }, function (tabs) {
     var activeTab = tabs[0];
+    adaptToSmallDeviceHeight(activeTab.height);
     chrome.runtime.getBackgroundPage(function (bp) {
         backgroundPage = bp;
         var page = bp.utils.getUrlInfo(activeTab.url);
