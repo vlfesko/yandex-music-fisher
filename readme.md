@@ -1,4 +1,4 @@
-#Yandex Music Fisher (1.0.1)
+#Yandex Music Fisher (1.0.2)
 
 Расширение для загрузки музыки с сервиса [Яндекс.Музыка](http://music.yandex.ru/).
 
@@ -7,7 +7,9 @@
 Можно скачивать как отдельные треки, так и целые плейлисты, альбомы и даже дискографию исполнителя.
 Расширение поддерживает ID3 теги (включая обложку). При прерывании загрузки есть возможность возобновить её.
 
-[Список изменений](/changes.md)
+[Список изменений](https://github.com/egoroof/yandex-music-fisher/releases)
+
+[Список изменений до версии 1.0.0](/old_changes.md)
 
 ### Требование
 
@@ -18,7 +20,7 @@
 
 ### Установка
 
-[Скачайте архив](https://github.com/egoroof/yandex-music-fisher/releases/download/v1.0.1/yandex-music-fisher_1.0.1.zip),
+[Скачайте архив](https://github.com/egoroof/yandex-music-fisher/releases/download/v1.0.2/yandex-music-fisher_1.0.2.zip),
 распакуйте, откройте страницу расширений в браузере и перенесите туда мышкой папку __yandex-music-fisher__,
 после чего там появится новое расширение:
 
