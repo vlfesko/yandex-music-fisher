@@ -212,16 +212,16 @@ function generateListView(entity) {
     }
 
     var status;
-    if (totalStatus.waiting === entity.tracks.length) {
-        status = '<span class="text-muted">В очереди</span>';
-    } else if (totalStatus.finished === entity.tracks.length) {
-        status = '<span class="text-success">Сохранён</span>';
-    } else if (totalStatus.loading > 0) {
+    if (totalStatus.loading > 0) {
         status = '<span class="text-primary">Загрузка [' + loadedSize + ' из ' + totalSize + ']</span>';
     } else if (totalStatus.interrupted > 0) {
         status = '<span class="text-danger">Ошибка</span>&nbsp;';
         status += '<button type="button" class="btn btn-info btn-xs restore-btn" data-id="' + entity.index + '">';
         status += '<i class="glyphicon glyphicon-repeat restore-btn" data-id="' + entity.index + '"></i></button>';
+    } else if (totalStatus.finished === entity.tracks.length) {
+        status = '<span class="text-success">Сохранён</span>';
+    } else if (totalStatus.waiting > 0) {
+        status = '<span class="text-muted">В очереди</span>';
     }
 
     var view = '<div class="panel panel-default">';
