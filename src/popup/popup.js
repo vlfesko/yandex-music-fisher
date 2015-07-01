@@ -412,7 +412,7 @@ chrome.tabs.query({
             document.getElementById('addBtn').classList.add('disabled');
         }
 
-        var versionUrl = 'https://raw.githubusercontent.com/egoroof/yandex-music-fisher/dev/version?r=' + Math.random();
+        var versionUrl = 'https://raw.githubusercontent.com/egoroof/yandex-music-fisher/master/version?r=' + Math.random();
         bp.utils.ajax(versionUrl, 'text', function (latestVersion) {
             var manifest = chrome.runtime.getManifest();
             var currentVersion = manifest.version.split('.');

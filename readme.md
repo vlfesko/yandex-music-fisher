@@ -19,11 +19,14 @@
 распакуйте, откройте страницу расширений в браузере и перенесите туда мышкой папку __yandex-music-fisher__,
 после чего там появится новое расширение:
 
-![Открытие страницы расширений](/publish/extensions.png)
+В Chrome:
+![Chrome](/publish/chrome.jpg)
 
-![Добавление расширения](/publish/drag.png)
+В Opera:
+![Opera](/publish/opera.jpg)
 
-![Установленное расширение](/publish/installed.png)
+В Яндекс.Браузер:
+![Yandex](/publish/yandex.png)
 
 Обновляется расширение таким же способом.
 
