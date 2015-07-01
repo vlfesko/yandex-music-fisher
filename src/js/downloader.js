@@ -75,6 +75,9 @@ downloader.download = function () {
     function onChromeDownloadStart(downloadId) {
         if (chrome.runtime.lastError) {
             onInterruptEntity(chrome.runtime.lastError.message);
+            if (entity.type === downloader.TYPE.COVER) {
+                delete(downloader.downloads[entity.index]);
+            }
         } else {
             entity.browserDownloadId = downloadId;
         }
