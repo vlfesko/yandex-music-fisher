@@ -156,16 +156,16 @@ function generateTrackView(entity) {
     var status;
     switch (entity.status) {
         case backgroundPage.downloader.STATUS.WAITING:
-            status = '<span class="text-muted">В очереди</span>';
+            status = '<span class="text-muted">В очереди [' + totalSize + ']</span>';
             break;
         case backgroundPage.downloader.STATUS.LOADING:
             status = '<span class="text-primary">Загрузка [' + loadedSize + ' из ' + totalSize + ']</span>';
             break;
         case backgroundPage.downloader.STATUS.FINISHED:
-            status = '<span class="text-success">Сохранён</span>';
+            status = '<span class="text-success">Сохранён [' + totalSize + ']</span>';
             break;
         case backgroundPage.downloader.STATUS.INTERRUPTED:
-            status = '<span class="text-danger">Ошибка</span>&nbsp;';
+            status = '<span class="text-danger">Ошибка [' + totalSize + ']</span>&nbsp;';
             status += '<button type="button" class="btn btn-info btn-xs restore-btn" data-id="' + entity.index + '">';
             status += '<i class="glyphicon glyphicon-repeat restore-btn" data-id="' + entity.index + '"></i></button>';
             break;
@@ -215,13 +215,13 @@ function generateListView(entity) {
     if (totalStatus.loading > 0) {
         status = '<span class="text-primary">Загрузка [' + loadedSize + ' из ' + totalSize + ']</span>';
     } else if (totalStatus.interrupted > 0) {
-        status = '<span class="text-danger">Ошибка</span>&nbsp;';
+        status = '<span class="text-danger">Ошибка [' + totalSize + ']</span>&nbsp;';
         status += '<button type="button" class="btn btn-info btn-xs restore-btn" data-id="' + entity.index + '">';
         status += '<i class="glyphicon glyphicon-repeat restore-btn" data-id="' + entity.index + '"></i></button>';
     } else if (totalStatus.finished === entity.tracks.length) {
-        status = '<span class="text-success">Сохранён</span>';
+        status = '<span class="text-success">Сохранён [' + totalSize + ']</span>';
     } else if (totalStatus.waiting > 0) {
-        status = '<span class="text-muted">В очереди</span>';
+        status = '<span class="text-muted">В очереди [' + totalSize + ']</span>';
     }
 
     var view = '<div class="panel panel-default">';
