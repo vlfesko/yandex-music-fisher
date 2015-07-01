@@ -15,7 +15,7 @@
 
 ### Установка
 
-[Скачайте архив](https://github.com/egoroof/yandex-music-fisher/archive/master.zip),
+[Скачайте архив](https://github.com/egoroof/yandex-music-fisher/releases/download/v1.0.0/yandex-music-fisher_1.0.0.zip),
 распакуйте, откройте страницу расширений в браузере и перенесите туда мышкой папку __yandex-music-fisher__,
 после чего там появится новое расширение:
 
