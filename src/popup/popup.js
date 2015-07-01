@@ -241,6 +241,7 @@ function generateListView(entity) {
 function hidePreloader() {
     document.getElementById('preloader').classList.add('hide');
     document.getElementById('addContainer').classList.remove('hide');
+    document.getElementById('downloadBtn').classList.remove('disabled');
 }
 
 function generateDownloadArtist(artist) {
@@ -342,8 +343,9 @@ function generateDownloadPlaylist(playlist) {
 }
 
 function generateError() {
+    hidePreloader();
+    document.getElementById('addContainer').classList.add('hide');
     document.getElementById('addBtn').classList.add('disabled');
-    document.getElementById('preloader').classList.add('hide');
     document.getElementById('errorContainer').classList.remove('hide');
 }
 
