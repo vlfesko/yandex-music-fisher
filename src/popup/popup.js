@@ -411,40 +411,5 @@ chrome.tabs.query({
             document.getElementById('downloadBtn').click();
             document.getElementById('addBtn').classList.add('disabled');
         }
-
-        var versionUrl = 'https://raw.githubusercontent.com/egoroof/yandex-music-fisher/master/version?r=' + Math.random();
-        bp.utils.ajax(versionUrl, 'text', function (latestVersion) {
-            var manifest = chrome.runtime.getManifest();
-            var currentVersion = manifest.version.split('.');
-            latestVersion = latestVersion.split('.');
-
-            var isMajorUpdate = (
-                latestVersion[0] > currentVersion[0]
-            );
-            var isMinorUpdate = (
-                latestVersion[1] > currentVersion[1] &&
-                latestVersion[0] >= currentVersion[0]
-            );
-            var isPatchUpdate = (
-                latestVersion[2] > currentVersion[2] &&
-                latestVersion[1] >= currentVersion[1] &&
-                latestVersion[0] >= currentVersion[0]
-            );
-
-            if (isMajorUpdate || isMinorUpdate || isPatchUpdate) {
-                var btn = '<button type="button" class="btn btn-info" id="updateBtn" title="Доступно обновление!">';
-                btn += '<i class="glyphicon glyphicon-refresh"></i></button>';
-                var controlPanel = document.getElementsByClassName('controls')[0];
-                controlPanel.style.marginLeft = '5px';
-                controlPanel.innerHTML = btn + controlPanel.innerHTML;
-                document.getElementById('updateBtn').addEventListener('click', function () {
-                    chrome.tabs.create({
-                        url: 'https://github.com/egoroof/yandex-music-fisher/'
-                    });
-                });
-            }
-        }, function (error) {
-            bp.console.error(error);
-        });
     });
 });

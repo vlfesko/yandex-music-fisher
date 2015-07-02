@@ -42,33 +42,6 @@ function handleTrackMaskButton(button, buttonMarker) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    chrome.runtime.getBackgroundPage(function (bp) {
-        backgroundPage = bp;
-        document.getElementById('download-thread-count').value = bp.storage.current.downloadThreadCount;
-
-
-        if (bp.storage.current.shouldDownloadCover) {
-            document.getElementById('should-download-cover').value = 'true';
-        } else {
-            document.getElementById('should-download-cover').value = '';
-        }
-        document.getElementById('should-download-cover').onchange();
-
-        document.getElementById('album-cover-size').value = bp.storage.current.albumCoverSize;
-
-
-        if (bp.storage.current.shouldNumberLists) {
-            document.getElementById('should-number-lists').value = 'true';
-        } else {
-            document.getElementById('should-number-lists').value = '';
-        }
-
-        document.getElementById('track-name-mask').value = bp.storage.current.trackNameMask;
-        document.getElementById('track-name-mask').oninput();
-    });
-});
-
 document.getElementById('download-thread-count').onchange = function () {
     var downloadThreadCount = parseInt(this.value);
     if (downloadThreadCount > 10) {
@@ -131,6 +104,12 @@ document.getElementById('track-name-mask').oninput = function () {
     }
 };
 
+document.getElementById('shouldNotifyAboutUpdates').onchange = function () {
+    chrome.storage.local.set({
+        shouldNotifyAboutUpdates: !!this.value
+    }, backgroundPage.storage.load);
+};
+
 document.getElementById('btn-reset').onclick = function () {
     if (confirm('Вы уверены, что хотите сбросить все настройки?')) {
         backgroundPage.storage.resetAll(function () {
@@ -139,3 +118,32 @@ document.getElementById('btn-reset').onclick = function () {
         });
     }
 };
+
+chrome.runtime.getBackgroundPage(function (bp) {
+    backgroundPage = bp;
+    document.getElementById('download-thread-count').value = bp.storage.current.downloadThreadCount;
+
+    if (bp.storage.current.shouldDownloadCover) {
+        document.getElementById('should-download-cover').value = 'true';
+    } else {
+        document.getElementById('should-download-cover').value = '';
+    }
+    document.getElementById('should-download-cover').onchange();
+
+    document.getElementById('album-cover-size').value = bp.storage.current.albumCoverSize;
+
+    if (bp.storage.current.shouldNumberLists) {
+        document.getElementById('should-number-lists').value = 'true';
+    } else {
+        document.getElementById('should-number-lists').value = '';
+    }
+
+    if (bp.storage.current.shouldNotifyAboutUpdates) {
+        document.getElementById('shouldNotifyAboutUpdates').value = 'true';
+    } else {
+        document.getElementById('shouldNotifyAboutUpdates').value = '';
+    }
+
+    document.getElementById('track-name-mask').value = bp.storage.current.trackNameMask;
+    document.getElementById('track-name-mask').oninput();
+});

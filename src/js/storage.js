@@ -7,7 +7,8 @@ var storage = {
         shouldDownloadCover: true,
         albumCoverSize: '400x400',
         shouldNumberLists: true,
-        trackNameMask: '#ИСПОЛНИТЕЛИ# - #НАЗВАНИЕ#'
+        trackNameMask: '#ИСПОЛНИТЕЛИ# - #НАЗВАНИЕ#',
+        shouldNotifyAboutUpdates: true
     },
     current: {}
 };
@@ -23,10 +24,13 @@ storage.init = function () {
     });
 };
 
-storage.load = function () {
+storage.load = function (callback) {
     chrome.storage.local.get(function (params) {
         storage.current = params;
         storage.current.domain = 'ru';
+        if (callback) {
+            callback();
+        }
     });
 };
 
@@ -37,14 +41,14 @@ storage.reset = function (param) {
     chrome.storage.local.set(data, storage.load);
 };
 
-storage.resetAll = function (success) {
-    chrome.storage.local.clear(function () {
-        var data = {};
-        for (var param in storage.defaults) {
-            if (storage.defaults.hasOwnProperty(param)) {
-                data[param] = storage.defaults[param];
-            }
+storage.resetAll = function (callback) {
+    var data = {};
+    for (var param in storage.defaults) {
+        if (storage.defaults.hasOwnProperty(param)) {
+            data[param] = storage.defaults[param];
         }
-        chrome.storage.local.set(data, success);
+    }
+    chrome.storage.local.clear(function () {
+        chrome.storage.local.set(data, callback);
     });
 };
