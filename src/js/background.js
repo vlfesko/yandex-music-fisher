@@ -89,45 +89,46 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
 });
 
 storage.load(function () {
-    var releaseInfoUrl = 'https://api.github.com/repos/egoroof/yandex-music-fisher/releases/latest';
-    if (storage.current.shouldNotifyAboutUpdates) {
-        utils.ajax(releaseInfoUrl, 'json', function (releaseInfo) {
-            archiveUrl = releaseInfo.assets[0].browser_download_url;
-            var latestVersion = releaseInfo.tag_name.replace('v', '').split('.');
-            var manifest = chrome.runtime.getManifest();
-            var currentVersion = manifest.version.split('.');
-
-            var isMajorUpdate = (
-                latestVersion[0] > currentVersion[0]
-            );
-            var isMinorUpdate = (
-                latestVersion[1] > currentVersion[1] &&
-                latestVersion[0] >= currentVersion[0]
-            );
-            var isPatchUpdate = (
-                latestVersion[2] > currentVersion[2] &&
-                latestVersion[1] >= currentVersion[1] &&
-                latestVersion[0] >= currentVersion[0]
-            );
-
-            if (isMajorUpdate || isMinorUpdate || isPatchUpdate) {
-                chrome.notifications.create('yandex-music-fisher-update', {
-                    type: 'basic',
-                    iconUrl: '/img/icon.png',
-                    title: 'Yandex Music Fisher',
-                    message: 'Доступно обновление ' + latestVersion.join('.'),
-                    contextMessage: 'Обновления устанавливаются вручную!',
-                    buttons: [{
-                        title: 'Скачать обновление',
-                        iconUrl: '/img/download.png'
-                    }],
-                    isClickable: false
-                }, function (notificationId) {
-                    // The callback is required before Chrome 42.
-                });
-            }
-        }, function (error) {
-            console.error(error);
-        });
+    if (!storage.current.shouldNotifyAboutUpdates) {
+        return;
     }
+    var releaseInfoUrl = 'https://api.github.com/repos/egoroof/yandex-music-fisher/releases/latest';
+    utils.ajax(releaseInfoUrl, 'json', function (releaseInfo) {
+        archiveUrl = releaseInfo.assets[0].browser_download_url;
+        var latestVersion = releaseInfo.tag_name.replace('v', '').split('.');
+        var manifest = chrome.runtime.getManifest();
+        var currentVersion = manifest.version.split('.');
+
+        var isMajorUpdate = (
+            latestVersion[0] > currentVersion[0]
+        );
+        var isMinorUpdate = (
+            latestVersion[1] > currentVersion[1] &&
+            latestVersion[0] >= currentVersion[0]
+        );
+        var isPatchUpdate = (
+            latestVersion[2] > currentVersion[2] &&
+            latestVersion[1] >= currentVersion[1] &&
+            latestVersion[0] >= currentVersion[0]
+        );
+
+        if (isMajorUpdate || isMinorUpdate || isPatchUpdate) {
+            chrome.notifications.create('yandex-music-fisher-update', {
+                type: 'basic',
+                iconUrl: '/img/icon.png',
+                title: 'Yandex Music Fisher',
+                message: 'Доступно обновление ' + latestVersion.join('.'),
+                contextMessage: 'Обновления устанавливаются вручную!',
+                buttons: [{
+                    title: 'Скачать обновление',
+                    iconUrl: '/img/download.png'
+                }],
+                isClickable: false
+            }, function (notificationId) {
+                // The callback is required before Chrome 42.
+            });
+        }
+    }, function (error) {
+        console.error(error);
+    });
 });
