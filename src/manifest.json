@@ -8,13 +8,13 @@
         "storage",
         "downloads",
         "notifications",
+        "https://api.github.com/",
         "https://music.yandex.ru/",
         "https://music.yandex.ua/",
         "https://music.yandex.kz/",
         "https://music.yandex.by/",
         "https://avatars.yandex.net/",
-        "https://storage.mds.yandex.net/",
-        "https://raw.githubusercontent.com/"
+        "https://storage.mds.yandex.net/"
     ],
     "minimum_chrome_version": "31.0",
     "background": {

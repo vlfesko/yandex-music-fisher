@@ -1,7 +1,7 @@
 /* global chrome, storage, utils, downloader */
 'use strict';
 
-var latestVersion;
+var archiveUrl;
 
 chrome.runtime.onInstalled.addListener(function () { // установка или обновление расширения
     storage.init();
@@ -82,9 +82,6 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
     chrome.notifications.clear(notificationId, function (wasCleared) {
         // The callback is required before Chrome 42.
     });
-    var version = latestVersion.join('.');
-    var archiveUrl = 'https://github.com/egoroof/yandex-music-fisher/releases/download/v' + version;
-    archiveUrl += '/yandex-music-fisher_' + version + '.zip';
     chrome.downloads.download({
         url: archiveUrl,
         saveAs: false
@@ -92,11 +89,11 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
 });
 
 storage.load(function () {
-    var githubManifestUrl = 'https://raw.githubusercontent.com/egoroof/yandex-music-fisher';
-    githubManifestUrl += '/master/src/manifest.json?r=' + Math.random();
+    var releaseInfoUrl = 'https://api.github.com/repos/egoroof/yandex-music-fisher/releases/latest';
     if (storage.current.shouldNotifyAboutUpdates) {
-        utils.ajax(githubManifestUrl, 'json', function (githubManifest) {
-            latestVersion = githubManifest.version.split('.');
+        utils.ajax(releaseInfoUrl, 'json', function (releaseInfo) {
+            archiveUrl = releaseInfo.assets[0].browser_download_url;
+            var latestVersion = releaseInfo.tag_name.replace('v', '').split('.');
             var manifest = chrome.runtime.getManifest();
             var currentVersion = manifest.version.split('.');
 
