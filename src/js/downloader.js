@@ -31,16 +31,25 @@ downloader.download = function () {
             if (!entity) {
                 continue; // эту загрузку удалили
             }
-            if (entity.type === downloader.TYPE.ALBUM || entity.type === downloader.TYPE.PLAYLIST) {
-                for (var j = 0; j < entity.tracks.length; j++) {
-                    if (entity.tracks[j].status === downloader.STATUS.WAITING) {
-                        return entity.tracks[j];
+            if (entity.type === downloader.TYPE.ALBUM &&
+                entity.cover && entity.cover.status === downloader.STATUS.WAITING) {
+
+                return entity.cover;
+            }
+            switch (entity.type) {
+                case downloader.TYPE.ALBUM:
+                case downloader.TYPE.PLAYLIST:
+                    for (var j = 0; j < entity.tracks.length; j++) {
+                        if (entity.tracks[j].status === downloader.STATUS.WAITING) {
+                            return entity.tracks[j];
+                        }
                     }
-                }
-            } else if (entity.type === downloader.TYPE.TRACK || entity.type === downloader.TYPE.COVER) {
-                if (entity.status === downloader.STATUS.WAITING) {
-                    return entity;
-                }
+                    break;
+                case downloader.TYPE.TRACK:
+                    if (entity.status === downloader.STATUS.WAITING) {
+                        return entity;
+                    }
+                    break;
             }
         }
         return undefined;
@@ -75,9 +84,6 @@ downloader.download = function () {
     function onChromeDownloadStart(downloadId) {
         if (chrome.runtime.lastError) {
             onInterruptEntity(chrome.runtime.lastError.message);
-            if (entity.type === downloader.TYPE.COVER) {
-                delete(downloader.downloads[entity.index]);
-            }
         } else {
             entity.browserDownloadId = downloadId;
         }
@@ -161,25 +167,28 @@ downloader.download = function () {
     var trackAlbum;
     var trackUrl;
 
-    if (entity.type === downloader.TYPE.TRACK) {
-        var track = entity.track;
-        var savePath = storage.current.trackNameMask.replace('#НАЗВАНИЕ#', entity.title);
-        savePath = savePath.replace('#ИСПОЛНИТЕЛИ#', entity.artists);
-        if (storage.current.shouldNumberLists && entity.namePrefix) {
-            savePath = entity.namePrefix + ' ' + savePath;
-        }
-        savePath = utils.clearPath(savePath) + '.mp3';
-        if (entity.saveDir) {
-            savePath = entity.saveDir + '/' + savePath;
-        }
+    switch (entity.type) {
+        case downloader.TYPE.TRACK:
+            var track = entity.track;
+            var savePath = storage.current.trackNameMask.replace('#НАЗВАНИЕ#', entity.title);
+            savePath = savePath.replace('#ИСПОЛНИТЕЛИ#', entity.artists);
+            if (storage.current.shouldNumberLists && entity.namePrefix) {
+                savePath = entity.namePrefix + ' ' + savePath;
+            }
+            savePath = utils.clearPath(savePath) + '.mp3';
+            if (entity.saveDir) {
+                savePath = entity.saveDir + '/' + savePath;
+            }
 
-        yandex.getTrackUrl(track.storageDir, handleTrackUrl, onInterruptEntity);
-    } else if (entity.type === downloader.TYPE.COVER) {
-        chrome.downloads.download({
-            url: entity.url,
-            filename: entity.filename,
-            saveAs: false
-        }, onChromeDownloadStart);
+            yandex.getTrackUrl(track.storageDir, handleTrackUrl, onInterruptEntity);
+            break;
+        case downloader.TYPE.COVER:
+            chrome.downloads.download({
+                url: entity.url,
+                filename: entity.filename,
+                saveAs: false
+            }, onChromeDownloadStart);
+            break;
     }
 };
 
@@ -212,6 +221,7 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
         }
         var albumEntity = {
             type: downloader.TYPE.ALBUM,
+            index: downloader.downloads.length,
             duration: 0,
             size: 0,
             artists: utils.parseArtists(album.artists),
@@ -228,16 +238,13 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
         }
 
         if (storage.current.shouldDownloadCover && album.coverUri) {
-            downloader.downloads.push({
+            albumEntity.cover = {
                 type: downloader.TYPE.COVER,
                 status: downloader.STATUS.WAITING,
-                index: downloader.downloads.length,
                 url: 'https://' + album.coverUri.replace('%%', storage.current.albumCoverSize),
                 filename: saveDir + '/cover.jpg'
-            });
-            downloader.download();
+            };
         }
-        albumEntity.index = downloader.downloads.length;
 
         for (var i = 0; i < album.volumes.length; i++) {
             for (var j = 0; j < album.volumes[i].length; j++) {

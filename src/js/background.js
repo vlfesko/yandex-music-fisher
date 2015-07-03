@@ -32,16 +32,25 @@ chrome.downloads.onChanged.addListener(function (delta) {
                 if (!entity) {
                     continue; // эту загрузку удалили
                 }
-                if (entity.type === downloader.TYPE.ALBUM || entity.type === downloader.TYPE.PLAYLIST) {
-                    for (var j = 0; j < entity.tracks.length; j++) {
-                        if (entity.tracks[j].browserDownloadId === browserDownloadId) {
-                            return entity.tracks[j];
+                if (entity.type === downloader.TYPE.ALBUM &&
+                    entity.cover && entity.cover.browserDownloadId === browserDownloadId) {
+
+                    return entity.cover;
+                }
+                switch (entity.type) {
+                    case downloader.TYPE.ALBUM:
+                    case downloader.TYPE.PLAYLIST:
+                        for (var j = 0; j < entity.tracks.length; j++) {
+                            if (entity.tracks[j].browserDownloadId === browserDownloadId) {
+                                return entity.tracks[j];
+                            }
                         }
-                    }
-                } else if (entity.type === downloader.TYPE.TRACK || entity.type === downloader.TYPE.COVER) {
-                    if (entity.browserDownloadId === browserDownloadId) {
-                        return entity;
-                    }
+                        break;
+                    case downloader.TYPE.TRACK:
+                        if (entity.browserDownloadId === browserDownloadId) {
+                            return entity;
+                        }
+                        break;
                 }
             }
             return undefined;
@@ -53,19 +62,18 @@ chrome.downloads.onChanged.addListener(function (delta) {
             return; // загрузка не принадлежит нашему расширению
         }
         var entity = getEntityByBrowserDownloadId(delta.id);
-        if (!entity) { // архив с обновлением
-            return;
-        }
-        if (delta.state.current === 'complete') {
-            entity.status = downloader.STATUS.FINISHED;
-        } else if (delta.state.current === 'interrupted') {
-            entity.status = downloader.STATUS.INTERRUPTED;
-            entity.loadedBytes = 0;
-        }
-        if (entity.type === downloader.TYPE.COVER) {
-            delete(downloader.downloads[entity.index]);
-        } else if (entity.type === downloader.TYPE.TRACK) {
-            window.URL.revokeObjectURL(download.url);
+        if (entity) {
+            // не попадут: архив с обновлением, обложка после удаления её сущности - альбома,
+            // трек при удалённой сущности в процессе сохранения BLOB (теоретически, но маловероятно)
+            if (delta.state.current === 'complete') {
+                entity.status = downloader.STATUS.FINISHED;
+            } else if (delta.state.current === 'interrupted') {
+                entity.status = downloader.STATUS.INTERRUPTED;
+                entity.loadedBytes = 0;
+            }
+            if (entity.type === downloader.TYPE.TRACK) {
+                window.URL.revokeObjectURL(download.url);
+            }
         }
         chrome.downloads.erase({
             id: delta.id
@@ -79,6 +87,7 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
     if (notificationId !== 'yandex-music-fisher-update' || buttonIndex !== 0) {
         return;
     }
+    chrome.downloads.showDefaultFolder();
     chrome.notifications.clear(notificationId, function (wasCleared) {
         // The callback is required before Chrome 42.
     });

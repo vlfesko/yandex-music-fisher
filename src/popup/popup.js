@@ -62,6 +62,12 @@ document.getElementById('downloadContainer').addEventListener('mousedown', funct
         delete(backgroundPage.downloader.downloads[downloadId]);
         backgroundPage.downloader.runAllThreads();
     } else if (isRestoreBtnClick) {
+        if (entity.type === backgroundPage.downloader.TYPE.ALBUM &&
+            entity.cover && entity.cover.status === backgroundPage.downloader.STATUS.INTERRUPTED) {
+
+            entity.cover.status = backgroundPage.downloader.STATUS.WAITING;
+            backgroundPage.downloader.download();
+        }
         switch (entity.type) {
             case backgroundPage.downloader.TYPE.TRACK:
                 entity.status = backgroundPage.downloader.STATUS.WAITING;
@@ -153,7 +159,7 @@ function updateDownloader() {
 function generateTrackView(entity) {
     var loadedSize = backgroundPage.utils.bytesToStr(entity.loadedBytes);
     var totalSize = backgroundPage.utils.bytesToStr(entity.track.fileSize);
-    var status;
+    var status = '';
     switch (entity.status) {
         case backgroundPage.downloader.STATUS.WAITING:
             status = '<span class="text-muted">В очереди [' + totalSize + ']</span>';
@@ -185,49 +191,54 @@ function generateTrackView(entity) {
 }
 
 function generateListView(entity) {
-    var loadedSize = 0;
-    var loadedCount = 0;
-    var totalSize = backgroundPage.utils.bytesToStr(entity.size);
-    var totalCount = entity.tracks.length;
+    var loadedTrackSize = 0;
+    var loadedTrackCount = 0;
+    var totalTrackSize = backgroundPage.utils.bytesToStr(entity.size);
+    var totalTrackCount = entity.tracks.length;
+    var totalCount = totalTrackCount; // учитывает наличие обложки для альбома
     var totalStatus = {
         waiting: 0,
         loading: 0,
         finished: 0,
         interrupted: 0
     };
-    for (var i = 0; i < totalCount; i++) {
-        loadedSize += entity.tracks[i].loadedBytes;
+    for (var i = 0; i < totalTrackCount; i++) {
+        loadedTrackSize += entity.tracks[i].loadedBytes;
         totalStatus[entity.tracks[i].status]++;
         if (entity.tracks[i].status === backgroundPage.downloader.STATUS.FINISHED) {
-            loadedCount++;
+            loadedTrackCount++;
         }
     }
-    var loadedSizePercent = Math.floor(loadedSize / entity.size * 100);
-    loadedSize = backgroundPage.utils.bytesToStr(loadedSize);
+    var loadedSizePercent = Math.floor(loadedTrackSize / entity.size * 100);
+    loadedTrackSize = backgroundPage.utils.bytesToStr(loadedTrackSize);
     var name = '';
     if (entity.type === backgroundPage.downloader.TYPE.ALBUM) {
         name = 'Альбом <strong>' + entity.artists + ' - ' + entity.title + '</strong>';
+        if (entity.cover) {
+            totalStatus[entity.cover.status]++;
+            totalCount++;
+        }
     } else if (entity.type === backgroundPage.downloader.TYPE.PLAYLIST) {
         name = 'Плейлист <strong>' + entity.title + '</strong>';
     }
 
-    var status;
+    var status = '';
     if (totalStatus.loading > 0) {
-        status = '<span class="text-primary">Загрузка [' + loadedSize + ' из ' + totalSize + ']</span>';
+        status = '<span class="text-primary">Загрузка [' + loadedTrackSize + ' из ' + totalTrackSize + ']</span>';
     } else if (totalStatus.interrupted > 0) {
-        status = '<span class="text-danger">Ошибка [' + totalSize + ']</span>&nbsp;';
+        status = '<span class="text-danger">Ошибка [' + totalTrackSize + ']</span>&nbsp;';
         status += '<button type="button" class="btn btn-info btn-xs restore-btn" data-id="' + entity.index + '">';
         status += '<i class="glyphicon glyphicon-repeat restore-btn" data-id="' + entity.index + '"></i></button>';
-    } else if (totalStatus.finished === entity.tracks.length) {
-        status = '<span class="text-success">Сохранён [' + totalSize + ']</span>';
+    } else if (totalStatus.finished === totalCount) {
+        status = '<span class="text-success">Сохранён [' + totalTrackSize + ']</span>';
     } else if (totalStatus.waiting > 0) {
-        status = '<span class="text-muted">В очереди [' + totalSize + ']</span>';
+        status = '<span class="text-muted">В очереди [' + totalTrackSize + ']</span>';
     }
 
     var view = '<div class="panel panel-default">';
     view += '<div class="panel-heading">';
     view += name + '<br>';
-    view += 'Скачено треков ' + loadedCount + ' из ' + totalCount + ' (' + loadedSizePercent + '%)';
+    view += 'Скачено треков ' + loadedTrackCount + ' из ' + totalTrackCount + ' (' + loadedSizePercent + '%)';
     view += '</div>';
     view += '<div class="panel-body">';
     view += status;
