@@ -11,11 +11,11 @@ utils.ajax = function (url, type, onSuccess, onFail, onProgress) {
         if (xhr.status === 200) {
             onSuccess(xhr.response);
         } else {
-            onFail('HTTP код: ' + xhr.status + '. URL: ' + url);
+            onFail(xhr.statusText + ' (' + xhr.status + ') ' + url);
         }
     };
-    xhr.onerror = function (e) {
-        onFail('Ошибка AJAX. HTTP код: ' + e.target.status + ', URL: ' + url);
+    xhr.onerror = function () {
+        onFail('Ошибка при запросе ' + url);
     };
     if (onProgress) {
         xhr.onprogress = onProgress;
