@@ -56,10 +56,10 @@ utils.getUrlInfo = function (url) {
     return info;
 };
 
-utils.parseArtists = function (artists) {
+utils.parseArtists = function (artists, separator) {
     return artists.map(function (artist) {
         return artist.name;
-    }).join(', ');
+    }).join(separator);
 };
 
 utils.updateTabIcon = function (tab) {
