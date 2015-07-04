@@ -27,23 +27,34 @@
         <tr>
             <td>
                 Количество одновременных загрузок
-                <small>(чем больше скорость доступа, тем большее значение следует ставить)</small>.
+                <small>(чем больше скорость доступа, тем большее значение следует ставить).</small>
                 Напрямую влияет на размер памяти, потребляемой расширением.
             </td>
             <td>
                 <div class="row">
                     <div class="col-sm-4">
-                        <input type="number" id="download-thread-count" class="form-control input-sm" min="1" max="10">
+                        <select id="downloadThreadCount" class="form-control input-sm">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                        </select>
                     </div>
                 </div>
             </td>
         </tr>
         <tr>
-            <td>Сохранять обложку в папку с альбомами <small>(для ID3 тега обложка загрузится в любом случае)</small></td>
+            <td>Сохранять обложку в папку с альбомами
+                <small>(для ID3 тега обложка загрузится в любом случае)</small>
+            </td>
             <td>
                 <div class="row">
                     <div class="col-sm-4">
-                        <select id="should-download-cover" class="form-control input-sm">
+                        <select id="shouldDownloadCover" class="form-control input-sm">
                             <option value="true">Да</option>
                             <option value="">Нет</option>
                         </select>
@@ -52,11 +63,13 @@
             </td>
         </tr>
         <tr>
-            <td>Размер обложки <small>(в пикселях)</small></td>
+            <td>Размер обложки
+                <small>(в пикселях)</small>
+            </td>
             <td>
                 <div class="row">
                     <div class="col-sm-4">
-                        <select id="album-cover-size" class="form-control input-sm">
+                        <select id="albumCoverSize" class="form-control input-sm">
                             <option value="200x200">200x200</option>
                             <option value="300x300">300x300</option>
                             <option value="400x400">400x400</option>
@@ -74,7 +87,7 @@
             <td>
                 <div class="row">
                     <div class="col-sm-4">
-                        <select id="should-number-lists" class="form-control input-sm">
+                        <select id="shouldNumberLists" class="form-control input-sm">
                             <option value="true">Да</option>
                             <option value="">Нет</option>
                         </select>
@@ -87,17 +100,17 @@
             <td>
                 <div class="form-group">
                     <div class="btn-group btn-group-sm">
-                        <button type="button" id="track-name-mask-btn-artists" class="btn btn-default"
+                        <button type="button" id="trackNameMaskBtnArtists" class="btn btn-default"
                                 title="Исполнители трека">
                             <i class="glyphicon glyphicon-user"></i> Исполнители
                         </button>
-                        <button type="button" id="track-name-mask-btn-name" class="btn btn-default"
+                        <button type="button" id="trackNameMaskBtnName" class="btn btn-default"
                                 title="Название трека">
                             <i class="glyphicon glyphicon-music"></i> Название трека
                         </button>
                     </div>
                 </div>
-                <input type="text" id="track-name-mask" class="form-control input-sm" placeholder="Введите маску">
+                <input type="text" id="trackNameMask" class="form-control input-sm" placeholder="Введите маску">
             </td>
         </tr>
         <tr>
@@ -117,7 +130,7 @@
     </table>
 
     <div class="btn-group">
-        <button class="btn btn-default" id="btn-reset">
+        <button class="btn btn-default" id="btnReset">
             <i class="glyphicon glyphicon-floppy-open"></i> Сбросить настройки
         </button>
     </div>

@@ -12,7 +12,7 @@ String.prototype.insert = function (index, string) {
 };
 
 function handleTrackMaskButton(button, buttonMarker) {
-    var maskElement = document.getElementById('track-name-mask');
+    var maskElement = document.getElementById('trackNameMask');
     var maskElementSelectionStart = maskElement.selectionStart;
     var isButtonActive = button.classList.contains('active');
     var markerPositionStart = maskElement.value.indexOf(buttonMarker);
@@ -42,51 +42,45 @@ function handleTrackMaskButton(button, buttonMarker) {
     }
 }
 
-document.getElementById('download-thread-count').onchange = function () {
-    var downloadThreadCount = parseInt(this.value);
-    if (downloadThreadCount > 10) {
-        downloadThreadCount = 10;
-    } else if (downloadThreadCount < 1) {
-        downloadThreadCount = 1;
-    }
+document.getElementById('downloadThreadCount').onchange = function () {
     chrome.storage.local.set({
-        downloadThreadCount: downloadThreadCount
+        downloadThreadCount: parseInt(this.value)
     }, backgroundPage.storage.load);
 };
 
-document.getElementById('should-download-cover').onchange = function () {
+document.getElementById('shouldDownloadCover').onchange = function () {
     chrome.storage.local.set({
         shouldDownloadCover: !!this.value
     }, backgroundPage.storage.load);
 };
 
-document.getElementById('album-cover-size').onchange = function () {
+document.getElementById('albumCoverSize').onchange = function () {
     chrome.storage.local.set({
         albumCoverSize: this.value
     }, backgroundPage.storage.load);
 };
 
-document.getElementById('should-number-lists').onchange = function () {
+document.getElementById('shouldNumberLists').onchange = function () {
     chrome.storage.local.set({
         shouldNumberLists: !!this.value
     }, backgroundPage.storage.load);
 };
 
-document.getElementById('track-name-mask-btn-artists').onclick = function () {
+document.getElementById('trackNameMaskBtnArtists').onclick = function () {
     handleTrackMaskButton(this, '#ИСПОЛНИТЕЛИ#');
-    document.getElementById('track-name-mask').oninput();
+    document.getElementById('trackNameMask').oninput();
 };
 
-document.getElementById('track-name-mask-btn-name').onclick = function () {
+document.getElementById('trackNameMaskBtnName').onclick = function () {
     handleTrackMaskButton(this, '#НАЗВАНИЕ#');
-    document.getElementById('track-name-mask').oninput();
+    document.getElementById('trackNameMask').oninput();
 };
 
-document.getElementById('track-name-mask').oninput = function () {
+document.getElementById('trackNameMask').oninput = function () {
     var issetNameMarker = (this.value.indexOf('#НАЗВАНИЕ#') > -1);
     var issetArtistsMarker = (this.value.indexOf('#ИСПОЛНИТЕЛИ#') > -1);
-    var buttonName = document.getElementById('track-name-mask-btn-name');
-    var buttonArtists = document.getElementById('track-name-mask-btn-artists');
+    var buttonName = document.getElementById('trackNameMaskBtnName');
+    var buttonArtists = document.getElementById('trackNameMaskBtnArtists');
     if (issetNameMarker) {
         buttonName.classList.add('active');
     } else {
@@ -110,7 +104,7 @@ document.getElementById('shouldNotifyAboutUpdates').onchange = function () {
     }, backgroundPage.storage.load);
 };
 
-document.getElementById('btn-reset').onclick = function () {
+document.getElementById('btnReset').onclick = function () {
     if (confirm('Вы уверены, что хотите сбросить все настройки?')) {
         backgroundPage.storage.resetAll(function () {
             backgroundPage.storage.load();
@@ -121,21 +115,21 @@ document.getElementById('btn-reset').onclick = function () {
 
 chrome.runtime.getBackgroundPage(function (bp) {
     backgroundPage = bp;
-    document.getElementById('download-thread-count').value = bp.storage.current.downloadThreadCount;
+    document.getElementById('downloadThreadCount').value = bp.storage.current.downloadThreadCount;
 
     if (bp.storage.current.shouldDownloadCover) {
-        document.getElementById('should-download-cover').value = 'true';
+        document.getElementById('shouldDownloadCover').value = 'true';
     } else {
-        document.getElementById('should-download-cover').value = '';
+        document.getElementById('shouldDownloadCover').value = '';
     }
-    document.getElementById('should-download-cover').onchange();
+    document.getElementById('shouldDownloadCover').onchange();
 
-    document.getElementById('album-cover-size').value = bp.storage.current.albumCoverSize;
+    document.getElementById('albumCoverSize').value = bp.storage.current.albumCoverSize;
 
     if (bp.storage.current.shouldNumberLists) {
-        document.getElementById('should-number-lists').value = 'true';
+        document.getElementById('shouldNumberLists').value = 'true';
     } else {
-        document.getElementById('should-number-lists').value = '';
+        document.getElementById('shouldNumberLists').value = '';
     }
 
     if (bp.storage.current.shouldNotifyAboutUpdates) {
@@ -144,6 +138,6 @@ chrome.runtime.getBackgroundPage(function (bp) {
         document.getElementById('shouldNotifyAboutUpdates').value = '';
     }
 
-    document.getElementById('track-name-mask').value = bp.storage.current.trackNameMask;
-    document.getElementById('track-name-mask').oninput();
+    document.getElementById('trackNameMask').value = bp.storage.current.trackNameMask;
+    document.getElementById('trackNameMask').oninput();
 });
