@@ -233,6 +233,9 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
             albumEntity.title += ' (' + album.version + ')';
         }
         var saveDir = utils.clearPath(albumEntity.artists + ' - ' + albumEntity.title);
+        if (album.year) {
+            saveDir = album.year + ' - ' + saveDir;
+        }
         if (discographyArtist) {
             saveDir = utils.clearPath(discographyArtist) + '/' + saveDir;
         }
