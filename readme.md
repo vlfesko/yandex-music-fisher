@@ -9,8 +9,6 @@
 
 [Список изменений](https://github.com/egoroof/yandex-music-fisher/releases)
 
-[Список изменений до версии 1.0.0](/old_changes.md)
-
 ### Требование
 
 Необходим браузер на базе Chromium:

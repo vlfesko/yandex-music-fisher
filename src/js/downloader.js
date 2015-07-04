@@ -101,7 +101,7 @@ downloader.download = function () {
     function handleAlbum(album) {
         trackAlbum = album;
         if (album.coverUri) {
-            var coverUrl = 'https://' + album.coverUri.replace('%%', storage.current.albumCoverSize);
+            var coverUrl = 'https://' + album.coverUri.replace('%%', storage.current.albumCoverSizeId3);
             utils.ajax(coverUrl, 'arraybuffer', handleCover, onInterruptEntity);
         } else {
             // пример: https://music.yandex.ru/album/2236232/track/23652415

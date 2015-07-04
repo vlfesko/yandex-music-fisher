@@ -60,6 +60,12 @@ document.getElementById('albumCoverSize').onchange = function () {
     }, backgroundPage.storage.load);
 };
 
+document.getElementById('albumCoverSizeId3').onchange = function () {
+    chrome.storage.local.set({
+        albumCoverSizeId3: this.value
+    }, backgroundPage.storage.load);
+};
+
 document.getElementById('shouldNumberLists').onchange = function () {
     chrome.storage.local.set({
         shouldNumberLists: !!this.value
@@ -125,6 +131,7 @@ chrome.runtime.getBackgroundPage(function (bp) {
     document.getElementById('shouldDownloadCover').onchange();
 
     document.getElementById('albumCoverSize').value = bp.storage.current.albumCoverSize;
+    document.getElementById('albumCoverSizeId3').value = bp.storage.current.albumCoverSizeId3;
 
     if (bp.storage.current.shouldNumberLists) {
         document.getElementById('shouldNumberLists').value = 'true';

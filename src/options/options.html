@@ -25,7 +25,7 @@
         </thead>
         <tbody>
         <tr>
-            <td>
+            <td style="width: 50%;">
                 Количество одновременных загрузок
                 <small>(чем больше скорость доступа, тем большее значение следует ставить).</small>
                 Напрямую влияет на размер памяти, потребляемой расширением.
@@ -63,13 +63,33 @@
             </td>
         </tr>
         <tr>
-            <td>Размер обложки
+            <td>Размер обложки, скачиваемой в папку с альбомами
                 <small>(в пикселях)</small>
             </td>
             <td>
                 <div class="row">
                     <div class="col-sm-4">
                         <select id="albumCoverSize" class="form-control input-sm">
+                            <option value="200x200">200x200</option>
+                            <option value="300x300">300x300</option>
+                            <option value="400x400">400x400</option>
+                            <option value="460x460">460x460</option>
+                            <option value="600x600">600x600</option>
+                            <option value="700x700">700x700</option>
+                            <option value="1000x1000">1000x1000</option>
+                        </select>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>Размер обложки, прикрепляемой к каждому треку в ID3 теге
+                <small>(в пикселях)</small>
+            </td>
+            <td>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <select id="albumCoverSizeId3" class="form-control input-sm">
                             <option value="200x200">200x200</option>
                             <option value="300x300">300x300</option>
                             <option value="400x400">400x400</option>
