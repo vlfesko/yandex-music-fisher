@@ -12,7 +12,7 @@
 ### Требование
 
 Необходим браузер на базе Chromium:
-[Chrome](https://www.google.com/chrome) (31+),
+[Chrome](https://www.google.com/chrome),
 [Яндекс.Браузер](https://browser.yandex.ru),
 [Opera](http://www.opera.com/) или подобный
 

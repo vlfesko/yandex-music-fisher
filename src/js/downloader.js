@@ -119,7 +119,8 @@ downloader.download = function () {
         var frames = {
             TIT2: entity.title, // Название
             TPE1: utils.parseArtists(track.artists, '/'), // Исполнители
-            TALB: trackAlbum.title // Альбом
+            TALB: trackAlbum.title, // Альбом
+            TLEN: track.durationMs // Продолжительность
         };
         if (trackAlbum.year) {
             frames.TYER = trackAlbum.year; // Год
