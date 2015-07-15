@@ -311,7 +311,7 @@ function generateDownloadArtist(artist) {
 }
 
 function generateDownloadTrack(track) {
-    var artists = backgroundPage.utils.parseArtists(track.artists, ', ');
+    var artists = backgroundPage.utils.parseArtists(track.artists, ', ').artists;
     var size = backgroundPage.utils.bytesToStr(track.fileSize);
     var duration = backgroundPage.utils.durationToStr(track.durationMs);
     document.getElementById('name').innerHTML = artists + ' - ' + track.title;
@@ -332,7 +332,7 @@ function generateDownloadAlbum(album) {
     }
     size = backgroundPage.utils.bytesToStr(size);
     duration = backgroundPage.utils.durationToStr(duration);
-    var artists = backgroundPage.utils.parseArtists(album.artists, ', ');
+    var artists = backgroundPage.utils.parseArtists(album.artists, ', ').artists;
     document.getElementById('name').innerHTML = artists + ' - ' + album.title;
     document.getElementById('info').innerHTML = 'Альбом (' + album.trackCount + ') / ' + size + ' / ' + duration;
 }

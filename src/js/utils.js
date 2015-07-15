@@ -56,10 +56,20 @@ utils.getUrlInfo = function (url) {
     return info;
 };
 
-utils.parseArtists = function (artists, separator) {
-    return artists.map(function (artist) {
-        return artist.name;
-    }).join(separator);
+utils.parseArtists = function (allArtists, separator) {
+    var artists = [];
+    var composers = [];
+    allArtists.forEach(function (artist) {
+        if (artist.composer) { // пример https://music.yandex.ru/album/717747/track/6672611
+            composers.push(artist.name);
+        } else {
+            artists.push(artist.name);
+        }
+    });
+    return {
+        artists: artists.join(separator) || composers.join(separator),
+        composers: composers.join(separator)
+    };
 };
 
 utils.updateTabIcon = function (tab) {

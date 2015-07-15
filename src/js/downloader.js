@@ -116,14 +116,18 @@ downloader.download = function () {
 
     function saveTrack(trackArrayBuffer) {
         entity.xhr = null;
+        var artists = utils.parseArtists(track.artists, '/');
         var frames = {
             TIT2: entity.title, // Название
-            TPE1: utils.parseArtists(track.artists, '/'), // Исполнители
+            TPE1: artists.artists, // Исполнители
             TALB: trackAlbum.title, // Альбом
             TLEN: track.durationMs // Продолжительность
         };
         if (trackAlbum.year) {
             frames.TYER = trackAlbum.year; // Год
+        }
+        if (artists.composers) {
+            frames.TCOM = artists.composers; // Композиторы
         }
         var trackPostition = getTrackPositionInAlbum();
         if (trackPostition) {
@@ -200,7 +204,7 @@ downloader.downloadTrack = function (trackId) {
             status: downloader.STATUS.WAITING,
             index: downloader.downloads.length,
             track: track,
-            artists: utils.parseArtists(track.artists, ', '),
+            artists: utils.parseArtists(track.artists, ', ').artists,
             title: track.title,
             loadedBytes: 0
         };
@@ -225,7 +229,7 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
             index: downloader.downloads.length,
             duration: 0,
             size: 0,
-            artists: utils.parseArtists(album.artists, ', '),
+            artists: utils.parseArtists(album.artists, ', ').artists,
             title: album.title,
             tracks: []
         };
@@ -268,7 +272,7 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
                     type: downloader.TYPE.TRACK,
                     status: downloader.STATUS.WAITING,
                     track: track,
-                    artists: utils.parseArtists(track.artists, ', '),
+                    artists: utils.parseArtists(track.artists, ', ').artists,
                     title: track.title,
                     loadedBytes: 0,
                     saveDir: saveCdDir,
@@ -314,7 +318,7 @@ downloader.downloadPlaylist = function (username, playlistId) {
                 type: downloader.TYPE.TRACK,
                 status: downloader.STATUS.WAITING,
                 track: track,
-                artists: utils.parseArtists(track.artists, ', '),
+                artists: utils.parseArtists(track.artists, ', ').artists,
                 title: track.title,
                 loadedBytes: 0,
                 saveDir: utils.clearPath(playlist.title),
