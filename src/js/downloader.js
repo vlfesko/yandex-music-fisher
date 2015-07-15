@@ -56,9 +56,6 @@ downloader.download = function () {
     }
 
     function getTrackPositionInAlbum() {
-        if (trackAlbum.volumes.length === 1 && trackAlbum.volumes[0].length === 1) {
-            return undefined; // частый случай оборачивания треков в альбомы, игнорируем это
-        }
         for (var i = 0; i < trackAlbum.volumes.length; i++) {
             for (var j = 0; j < trackAlbum.volumes[i].length; j++) {
                 if (track.id === trackAlbum.volumes[i][j].id) {
