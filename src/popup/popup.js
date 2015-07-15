@@ -171,7 +171,7 @@ function generateTrackView(entity) {
             status = '<span class="text-success">Сохранён [' + totalSize + ']</span>';
             break;
         case backgroundPage.downloader.STATUS.INTERRUPTED:
-            status = '<span class="text-danger">Ошибка [' + totalSize + ']</span>&nbsp;';
+            status = '<span class="text-danger">Ошибка [скачено ' + loadedSize + ' из ' + totalSize + ']</span>&nbsp;';
             status += '<button type="button" class="btn btn-info btn-xs restore-btn" data-id="' + entity.index + '">';
             status += '<i class="glyphicon glyphicon-repeat restore-btn" data-id="' + entity.index + '"></i></button>';
             break;
@@ -226,7 +226,7 @@ function generateListView(entity) {
     if (totalStatus.loading > 0) {
         status = '<span class="text-primary">Загрузка [' + loadedTrackSize + ' из ' + totalTrackSize + ']</span>';
     } else if (totalStatus.interrupted > 0) {
-        status = '<span class="text-danger">Ошибка [' + totalTrackSize + ']</span>&nbsp;';
+        status = '<span class="text-danger">Ошибка [скачено ' + loadedTrackSize + ' из ' + totalTrackSize + ']</span>&nbsp;';
         status += '<button type="button" class="btn btn-info btn-xs restore-btn" data-id="' + entity.index + '">';
         status += '<i class="glyphicon glyphicon-repeat restore-btn" data-id="' + entity.index + '"></i></button>';
     } else if (totalStatus.finished === totalCount) {
