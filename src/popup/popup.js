@@ -333,6 +333,9 @@ function generateDownloadAlbum(album) {
     size = backgroundPage.utils.bytesToStr(size);
     duration = backgroundPage.utils.durationToStr(duration);
     var artists = backgroundPage.utils.parseArtists(album.artists, ', ').artists;
+    if (artists === 'сборник') {
+        artists = 'Various Artists';
+    }
     document.getElementById('name').innerHTML = artists + ' - ' + album.title;
     document.getElementById('info').innerHTML = 'Альбом (' + album.trackCount + ') / ' + size + ' / ' + duration;
 }

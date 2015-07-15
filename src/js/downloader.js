@@ -133,7 +133,9 @@ downloader.download = function () {
                 frames.TPOS = trackPostition.album; // Номер диска
             }
         }
-        if (trackAlbum.artists[0].name !== 'сборник') {
+        if (trackAlbum.artists[0].name === 'сборник') {
+            frames.TPE2 = 'Various Artists'; // Исполнитель альбома
+        } else {
             frames.TPE2 = trackAlbum.artists[0].name; // Исполнитель альбома
         }
         var genre = trackAlbum.genre;
@@ -233,6 +235,9 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
 
         if (album.version) {
             albumEntity.title += ' (' + album.version + ')';
+        }
+        if (albumEntity.artists === 'сборник') {
+            albumEntity.artists = 'Various Artists';
         }
         var saveDir = utils.clearPath(albumEntity.artists + ' - ' + albumEntity.title);
         if (album.year) {
