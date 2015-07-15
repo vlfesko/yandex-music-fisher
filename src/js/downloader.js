@@ -174,8 +174,7 @@ downloader.download = function () {
     switch (entity.type) {
         case downloader.TYPE.TRACK:
             var track = entity.track;
-            var savePath = storage.current.trackNameMask.replace('#НАЗВАНИЕ#', entity.title);
-            savePath = savePath.replace('#ИСПОЛНИТЕЛИ#', entity.artists);
+            var savePath = entity.artists + ' - ' + entity.title;
             if (storage.current.shouldNumberLists && entity.namePrefix) {
                 savePath = entity.namePrefix + ' ' + savePath;
             }
