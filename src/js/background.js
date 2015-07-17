@@ -84,17 +84,23 @@ chrome.downloads.onChanged.addListener(function (delta) {
 });
 
 chrome.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex) {
-    if (notificationId !== 'yandex-music-fisher-update' || buttonIndex !== 0) {
+    if (notificationId !== 'yandex-music-fisher-update') {
         return;
     }
-    chrome.downloads.showDefaultFolder();
-    chrome.notifications.clear(notificationId, function (wasCleared) {
-        // The callback is required before Chrome 42.
-    });
-    chrome.downloads.download({
-        url: archiveUrl,
-        saveAs: false
-    });
+    if (buttonIndex === 0) {
+        chrome.downloads.showDefaultFolder();
+        chrome.notifications.clear(notificationId, function (wasCleared) {
+            // The callback is required before Chrome 42.
+        });
+        chrome.downloads.download({
+            url: archiveUrl,
+            saveAs: false
+        });
+    } else if (buttonIndex === 1) {
+        chrome.tabs.create({
+            url: 'https://github.com/egoroof/yandex-music-fisher/releases'
+        });
+    }
 });
 
 storage.load(function () {
@@ -131,6 +137,8 @@ storage.load(function () {
                 buttons: [{
                     title: 'Скачать обновление',
                     iconUrl: '/img/download.png'
+                }, {
+                    title: 'Просмотреть изменения'
                 }],
                 isClickable: false
             }, function (notificationId) {
