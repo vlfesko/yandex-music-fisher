@@ -10,8 +10,15 @@ document.getElementById('downloadThreadCount').onchange = function () {
 };
 
 document.getElementById('shouldDownloadCover').onchange = function () {
+    var shouldDownloadCover = !!this.value;
+    var albumCoverSizeElem = document.getElementById('albumCoverSize');
+    if (shouldDownloadCover) {
+        albumCoverSizeElem.removeAttribute('disabled');
+    } else {
+        albumCoverSizeElem.setAttribute('disabled', 'disabled');
+    }
     chrome.storage.local.set({
-        shouldDownloadCover: !!this.value
+        shouldDownloadCover: shouldDownloadCover
     }, backgroundPage.storage.load);
 };
 
