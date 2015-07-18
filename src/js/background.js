@@ -1,10 +1,33 @@
-/* global chrome, storage, utils, downloader */
+/* global chrome, storage, utils, downloader, ga */
 'use strict';
 
 var archiveUrl;
 
-chrome.runtime.onInstalled.addListener(function () { // установка или обновление расширения
+(function (i, s, o, g, r, a, m) {
+    i.GoogleAnalyticsObject = r;
+    i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments);
+        };
+    i[r].l = 1 * new Date();
+    a = s.createElement(o);
+    m = s.getElementsByTagName(o)[0];
+    a.async = 1;
+    a.src = g;
+    m.parentNode.insertBefore(a, m);
+})(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+ga('create', 'UA-65265089-1', 'auto');
+ga('set', 'checkProtocolTask', null); // разрешает протокол "chrome-extension"
+ga('send', 'event', 'background', 'extension loaded', chrome.runtime.getManifest().version);
+
+chrome.runtime.onInstalled.addListener(function (details) { // установка или обновление расширения
     storage.init();
+    var version = chrome.runtime.getManifest().version;
+    if (details.reason === 'install') {
+        ga('send', 'event', 'background', 'extension installed', version);
+    } else if (details.reason === 'update' && details.previousVersion !== version) {
+        ga('send', 'event', 'background', 'extension updated', details.previousVersion + ' -> ' + version);
+    }
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
@@ -73,6 +96,7 @@ chrome.downloads.onChanged.addListener(function (delta) {
             }
             if (entity.type === downloader.TYPE.TRACK) {
                 window.URL.revokeObjectURL(download.url);
+                ga('send', 'event', 'background', 'track ' + entity.status, entity.track.id);
             }
         }
         chrome.downloads.erase({
@@ -145,7 +169,5 @@ storage.load(function () {
                 // The callback is required before Chrome 42.
             });
         }
-    }, function (error) {
-        console.error(error);
-    });
+    }, utils.logError);
 });

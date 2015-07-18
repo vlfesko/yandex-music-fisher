@@ -73,7 +73,7 @@ downloader.download = function () {
     function onInterruptEntity(error) {
         entity.status = downloader.STATUS.INTERRUPTED;
         entity.loadedBytes = 0;
-        console.error(error);
+        utils.logError(error);
         downloader.activeThreadCount--;
         downloader.download();
     }
@@ -211,15 +211,13 @@ downloader.downloadTrack = function (trackId) {
         }
         downloader.downloads.push(entity);
         downloader.download();
-    }, function (error) {
-        console.error(error);
-    });
+    }, utils.logError);
 };
 
 downloader.downloadAlbum = function (albumId, discographyArtist) {
     yandex.getAlbum(albumId, function (album) {
         if (!album.volumes.length) {
-            console.error('Пустой альбом. album.id:' + album.id);
+            utils.logError('Пустой альбом ' + albumId);
             return;
         }
         var albumEntity = {
@@ -259,7 +257,7 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
             for (var j = 0; j < album.volumes[i].length; j++) {
                 var track = album.volumes[i][j];
                 if (track.error) {
-                    console.error('Ошибка: ' + track.error + '. trackId: ' + track.id);
+                    utils.logError('Ошибка: ' + track.error + '. trackId: ' + track.id);
                     continue;
                 }
                 var saveCdDir = saveDir;
@@ -287,15 +285,13 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
         }
         downloader.downloads.push(albumEntity);
         downloader.runAllThreads();
-    }, function (error) {
-        console.error(error);
-    });
+    }, utils.logError);
 };
 
 downloader.downloadPlaylist = function (username, playlistId) {
     yandex.getPlaylist(username, playlistId, function (playlist) {
         if (!playlist.tracks.length) {
-            console.error('Пустой плейлист. username: ' + username + ', playlistId: ' + playlistId);
+            utils.logError('Пустой плейлист. username: ' + username + ', playlistId: ' + playlistId);
             return;
         }
         var playlistEntity = {
@@ -310,7 +306,7 @@ downloader.downloadPlaylist = function (username, playlistId) {
         for (var i = 0; i < playlist.tracks.length; i++) {
             var track = playlist.tracks[i];
             if (track.error) {
-                console.error('Ошибка: ' + track.error + '. trackId: ' + track.id);
+                utils.logError('Ошибка: ' + track.error + '. trackId: ' + track.id);
                 continue;
             }
             playlistEntity.size += track.fileSize;
@@ -332,7 +328,5 @@ downloader.downloadPlaylist = function (username, playlistId) {
         }
         downloader.downloads.push(playlistEntity);
         downloader.runAllThreads();
-    }, function (error) {
-        console.error(error);
-    });
+    }, utils.logError);
 };

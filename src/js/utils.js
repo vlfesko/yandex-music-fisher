@@ -1,4 +1,4 @@
-/* global chrome, storage */
+/* global chrome, storage, ga */
 'use strict';
 
 var utils = {};
@@ -245,4 +245,9 @@ utils.clearPath = function (path) {
     // пример: https://music.yandex.ru/album/1404751/track/12931197
     var clearedPath = path.replace(/[\\/:*?"<>|]/g, '_'); // Windows path illegals
     return clearedPath.replace(/\.$/, '_'); // точка в конце
+};
+
+utils.logError = function (error) {
+    console.error(error);
+    ga('send', 'event', 'background', 'error', error);
 };

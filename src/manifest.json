@@ -16,6 +16,7 @@
         "https://avatars.yandex.net/",
         "https://storage.mds.yandex.net/"
     ],
+    "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",
     "minimum_chrome_version": "31.0",
     "background": {
         "scripts": [
