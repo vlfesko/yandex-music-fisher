@@ -1,4 +1,4 @@
-/* global storage, yandex, chrome, utils */
+/* global storage, yandex, chrome, utils, ga */
 'use strict';
 
 var downloader = {
@@ -196,6 +196,7 @@ downloader.download = function () {
 };
 
 downloader.downloadTrack = function (trackId) {
+    ga('send', 'event', 'background', 'track', trackId);
     yandex.getTrack(trackId, function (track) {
         var entity = {
             type: downloader.TYPE.TRACK,
@@ -215,6 +216,7 @@ downloader.downloadTrack = function (trackId) {
 };
 
 downloader.downloadAlbum = function (albumId, discographyArtist) {
+    ga('send', 'event', 'background', 'album', albumId);
     yandex.getAlbum(albumId, function (album) {
         if (!album.volumes.length) {
             utils.logError('Пустой альбом ' + albumId);
@@ -289,6 +291,7 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
 };
 
 downloader.downloadPlaylist = function (username, playlistId) {
+    ga('send', 'event', 'background', 'playlist', username + '#' + playlistId);
     yandex.getPlaylist(username, playlistId, function (playlist) {
         if (!playlist.tracks.length) {
             utils.logError('Пустой плейлист. username: ' + username + ', playlistId: ' + playlistId);

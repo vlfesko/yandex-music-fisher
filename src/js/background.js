@@ -96,7 +96,6 @@ chrome.downloads.onChanged.addListener(function (delta) {
             }
             if (entity.type === downloader.TYPE.TRACK) {
                 window.URL.revokeObjectURL(download.url);
-                ga('send', 'event', 'background', 'track ' + entity.status, entity.track.id);
             }
         }
         chrome.downloads.erase({
