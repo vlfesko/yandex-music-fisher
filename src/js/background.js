@@ -86,17 +86,15 @@ chrome.downloads.onChanged.addListener(function (delta) {
         }
         var entity = getEntityByBrowserDownloadId(delta.id);
         if (entity) {
-            // не попадут: архив с обновлением, обложка после удаления её сущности - альбома,
-            // трек при удалённой сущности в процессе сохранения BLOB (теоретически, но маловероятно)
+            // не попадут: архив с обновлением,
+            // трек и обложка при удалённой сущности в процессе сохранения BLOB (теоретически, но маловероятно)
             if (delta.state.current === 'complete') {
                 entity.status = downloader.STATUS.FINISHED;
             } else if (delta.state.current === 'interrupted') {
                 entity.status = downloader.STATUS.INTERRUPTED;
                 entity.loadedBytes = 0;
             }
-            if (entity.type === downloader.TYPE.TRACK) {
-                window.URL.revokeObjectURL(download.url);
-            }
+            window.URL.revokeObjectURL(download.url);
         }
         chrome.downloads.erase({
             id: delta.id

@@ -38,6 +38,14 @@ document.getElementById('downloadContainer').addEventListener('mousedown', funct
     var i;
 
     if (isRemoveBtnClick) {
+        if (entity.type === backgroundPage.downloader.TYPE.ALBUM &&
+            entity.cover && entity.cover.status === backgroundPage.downloader.STATUS.LOADING) {
+
+            if (entity.cover.xhr) {
+                entity.cover.xhr.abort();
+            }
+            backgroundPage.downloader.activeThreadCount--;
+        }
         switch (entity.type) {
             case backgroundPage.downloader.TYPE.TRACK:
                 if (entity.status === backgroundPage.downloader.STATUS.LOADING) {
@@ -193,7 +201,7 @@ function generateTrackView(entity) {
 function generateListView(entity) {
     var loadedTrackSize = 0;
     var loadedTrackCount = 0;
-    var totalTrackSize = backgroundPage.utils.bytesToStr(entity.size);
+    var totalTrackSize = entity.size;
     var totalTrackCount = entity.tracks.length;
     var totalCount = totalTrackCount; // учитывает наличие обложки для альбома
     var totalStatus = {
@@ -209,20 +217,23 @@ function generateListView(entity) {
             loadedTrackCount++;
         }
     }
-    var loadedSizePercent = Math.floor(loadedTrackSize / entity.size * 100);
-    loadedTrackSize = backgroundPage.utils.bytesToStr(loadedTrackSize);
     var name = '';
     if (entity.type === backgroundPage.downloader.TYPE.ALBUM) {
         name = 'Альбом <strong>' + entity.artists + ' - ' + entity.title + '</strong>';
         if (entity.cover) {
             totalStatus[entity.cover.status]++;
             totalCount++;
+            loadedTrackSize += entity.cover.loadedBytes;
+            totalTrackSize += entity.cover.totalBytes;
         }
     } else if (entity.type === backgroundPage.downloader.TYPE.PLAYLIST) {
         name = 'Плейлист <strong>' + entity.title + '</strong>';
     }
 
     var status = '';
+    var loadedSizePercent = Math.floor(loadedTrackSize / entity.size * 100);
+    loadedTrackSize = backgroundPage.utils.bytesToStr(loadedTrackSize);
+    totalTrackSize = backgroundPage.utils.bytesToStr(totalTrackSize);
     if (totalStatus.loading > 0) {
         status = '<span class="text-primary">Загрузка [' + loadedTrackSize + ' из ' + totalTrackSize + ']</span>';
     } else if (totalStatus.interrupted > 0) {

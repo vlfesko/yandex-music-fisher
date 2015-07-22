@@ -88,11 +88,12 @@ downloader.download = function () {
 
     function onProgress(event) {
         entity.loadedBytes = event.loaded;
+        entity.totalBytes = event.total; // используется только для обложки
     }
 
     function handleTrackUrl(url) {
         trackUrl = url;
-        yandex.getAlbum(track.albums[0].id, handleAlbum, onInterruptEntity);
+        yandex.getAlbum(track.albums[0].id, handleAlbum, onInterruptEntity); // альбом нужен для вычисления номера трека
     }
 
     function handleAlbum(album) {
@@ -155,6 +156,17 @@ downloader.download = function () {
         }, onChromeDownloadStart);
     }
 
+    function saveCover(coverArrayBuffer) {
+        entity.xhr = null;
+        var blob = new Blob([coverArrayBuffer], {type: 'image/jpeg'});
+        var localUrl = window.URL.createObjectURL(blob);
+        chrome.downloads.download({
+            url: localUrl,
+            filename: entity.filename,
+            saveAs: false
+        }, onChromeDownloadStart);
+    }
+
     if (downloader.activeThreadCount < 0) {
         downloader.activeThreadCount = 0; // выравнивание при сбоях
     }
@@ -186,11 +198,7 @@ downloader.download = function () {
             yandex.getTrackUrl(track.storageDir, handleTrackUrl, onInterruptEntity);
             break;
         case downloader.TYPE.COVER:
-            chrome.downloads.download({
-                url: entity.url,
-                filename: entity.filename,
-                saveAs: false
-            }, onChromeDownloadStart);
+            entity.xhr = utils.ajax(entity.url, 'arraybuffer', saveCover, onInterruptEntity, onProgress);
             break;
     }
 };
@@ -251,7 +259,9 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
                 type: downloader.TYPE.COVER,
                 status: downloader.STATUS.WAITING,
                 url: 'https://' + album.coverUri.replace('%%', storage.current.albumCoverSize),
-                filename: saveDir + '/cover.jpg'
+                filename: saveDir + '/cover.jpg',
+                loadedBytes: 0,
+                totalBytes: 1 // пока не получен размер - прогресс в загрузчике не дойдёт до 100%
             };
         }
 
