@@ -73,7 +73,14 @@ downloader.download = function () {
     function onInterruptEntity(error) {
         entity.status = downloader.STATUS.INTERRUPTED;
         entity.loadedBytes = 0;
-        utils.logError(error);
+        switch (entity.type) {
+            case downloader.TYPE.TRACK:
+                utils.logError(error, track.id);
+                break;
+            case downloader.TYPE.COVER:
+                utils.logError(error, entity.url);
+                break;
+        }
         downloader.activeThreadCount--;
         downloader.download();
     }
@@ -204,7 +211,7 @@ downloader.download = function () {
 };
 
 downloader.downloadTrack = function (trackId) {
-    ga('send', 'event', 'background', 'track', trackId);
+    ga('send', 'event', 'track', trackId);
     yandex.getTrack(trackId, function (track) {
         var entity = {
             type: downloader.TYPE.TRACK,
@@ -224,10 +231,10 @@ downloader.downloadTrack = function (trackId) {
 };
 
 downloader.downloadAlbum = function (albumId, discographyArtist) {
-    ga('send', 'event', 'background', 'album', albumId);
+    ga('send', 'event', 'album', albumId);
     yandex.getAlbum(albumId, function (album) {
         if (!album.volumes.length) {
-            utils.logError('Пустой альбом ' + albumId);
+            utils.logError('Пустой альбом', albumId);
             return;
         }
         var albumEntity = {
@@ -269,7 +276,7 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
             for (var j = 0; j < album.volumes[i].length; j++) {
                 var track = album.volumes[i][j];
                 if (track.error) {
-                    utils.logError('Ошибка: ' + track.error + '. trackId: ' + track.id);
+                    utils.logError('Ошибка трека: ' + track.error, track.id);
                     continue;
                 }
                 var saveCdDir = saveDir;
@@ -301,10 +308,10 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
 };
 
 downloader.downloadPlaylist = function (username, playlistId) {
-    ga('send', 'event', 'background', 'playlist', username + '#' + playlistId);
+    ga('send', 'event', 'playlist', username + '#' + playlistId);
     yandex.getPlaylist(username, playlistId, function (playlist) {
         if (!playlist.tracks.length) {
-            utils.logError('Пустой плейлист. username: ' + username + ', playlistId: ' + playlistId);
+            utils.logError('Пустой плейлист', username + '#' + playlistId);
             return;
         }
         var playlistEntity = {
@@ -319,7 +326,7 @@ downloader.downloadPlaylist = function (username, playlistId) {
         for (var i = 0; i < playlist.tracks.length; i++) {
             var track = playlist.tracks[i];
             if (track.error) {
-                utils.logError('Ошибка: ' + track.error + '. trackId: ' + track.id);
+                utils.logError('Ошибка трека: ' + track.error, track.id);
                 continue;
             }
             playlistEntity.size += track.fileSize;

@@ -18,15 +18,15 @@ var archiveUrl;
 
 ga('create', 'UA-65265089-1', 'auto');
 ga('set', 'checkProtocolTask', null); // разрешает протокол "chrome-extension"
-ga('send', 'event', 'background', 'extension loaded', chrome.runtime.getManifest().version);
+ga('send', 'event', 'load', chrome.runtime.getManifest().version);
 
 chrome.runtime.onInstalled.addListener(function (details) { // установка или обновление расширения
     storage.init();
     var version = chrome.runtime.getManifest().version;
     if (details.reason === 'install') {
-        ga('send', 'event', 'background', 'extension installed', version);
+        ga('send', 'event', 'install', version);
     } else if (details.reason === 'update' && details.previousVersion !== version) {
-        ga('send', 'event', 'background', 'extension updated', details.previousVersion + ' -> ' + version);
+        ga('send', 'event', 'update', details.previousVersion + ' > ' + version);
     }
 });
 

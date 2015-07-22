@@ -247,7 +247,12 @@ utils.clearPath = function (path) {
     return clearedPath.replace(/\.$/, '_'); // точка в конце
 };
 
-utils.logError = function (error) {
-    console.error(error);
-    ga('send', 'event', 'background', 'error', error);
+utils.logError = function (error, details) {
+    if (details) {
+        console.error(error, details);
+        ga('send', 'event', 'error', error, details);
+    } else {
+        console.error(error);
+        ga('send', 'event', 'error', error);
+    }
 };
