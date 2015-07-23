@@ -11,11 +11,11 @@ utils.ajax = function (url, type, onSuccess, onFail, onProgress) {
         if (xhr.status === 200) {
             onSuccess(xhr.response);
         } else {
-            onFail(xhr.statusText + ' (' + xhr.status + ') ' + url);
+            onFail(xhr.statusText + ' (' + xhr.status + ')', url);
         }
     };
     xhr.onerror = function () {
-        onFail('Ошибка при запросе ' + url);
+        onFail('Ошибка при запросе', url);
     };
     if (onProgress) {
         xhr.onprogress = onProgress;
@@ -248,11 +248,6 @@ utils.clearPath = function (path) {
 };
 
 utils.logError = function (error, details) {
-    if (details) {
-        console.error(error, details);
-        ga('send', 'event', 'error', error, details);
-    } else {
-        console.error(error);
-        ga('send', 'event', 'error', error);
-    }
+    console.error(error, details);
+    ga('send', 'event', 'error', error, details);
 };

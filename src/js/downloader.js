@@ -70,24 +70,23 @@ downloader.download = function () {
         return undefined;
     }
 
-    function onInterruptEntity(error) {
+    function onInterruptEntity(error, details) {
         entity.status = downloader.STATUS.INTERRUPTED;
         entity.loadedBytes = 0;
-        switch (entity.type) {
-            case downloader.TYPE.TRACK:
-                utils.logError(error, track.id);
-                break;
-            case downloader.TYPE.COVER:
-                utils.logError(error, entity.url);
-                break;
-        }
+        utils.logError(error, details);
         downloader.activeThreadCount--;
         downloader.download();
     }
 
     function onChromeDownloadStart(downloadId) {
         if (chrome.runtime.lastError) {
-            onInterruptEntity(chrome.runtime.lastError.message);
+            var details;
+            if (entity.type === downloader.TYPE.TRACK) {
+                details = track.id;
+            } else if (entity.type === downloader.TYPE.COVER) {
+                details = entity.url;
+            }
+            onInterruptEntity(chrome.runtime.lastError.message, details);
         } else {
             entity.browserDownloadId = downloadId;
         }
