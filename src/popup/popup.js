@@ -73,11 +73,13 @@ document.getElementById('downloadContainer').addEventListener('mousedown', funct
         if (entity.type === backgroundPage.downloader.TYPE.ALBUM &&
             entity.cover && entity.cover.status === backgroundPage.downloader.STATUS.INTERRUPTED) {
 
+            entity.cover.attemptCount = 0;
             entity.cover.status = backgroundPage.downloader.STATUS.WAITING;
             backgroundPage.downloader.download();
         }
         switch (entity.type) {
             case backgroundPage.downloader.TYPE.TRACK:
+                entity.attemptCount = 0;
                 entity.status = backgroundPage.downloader.STATUS.WAITING;
                 backgroundPage.downloader.download();
                 break;
@@ -85,6 +87,7 @@ document.getElementById('downloadContainer').addEventListener('mousedown', funct
             case backgroundPage.downloader.TYPE.PLAYLIST:
                 for (i = 0; i < entity.tracks.length; i++) {
                     if (entity.tracks[i].status === backgroundPage.downloader.STATUS.INTERRUPTED) {
+                        entity.tracks[i].attemptCount = 0;
                         entity.tracks[i].status = backgroundPage.downloader.STATUS.WAITING;
                         backgroundPage.downloader.download();
                     }

@@ -71,9 +71,17 @@ downloader.download = function () {
     }
 
     function onInterruptEntity(error, details) {
-        entity.status = downloader.STATUS.INTERRUPTED;
+        entity.attemptCount++;
         entity.loadedBytes = 0;
-        utils.logError(error, details);
+        if (entity.attemptCount < 3) {
+            setTimeout(function () {
+                entity.status = downloader.STATUS.WAITING;
+                downloader.download();
+            }, 10000);
+        } else {
+            entity.status = downloader.STATUS.INTERRUPTED;
+            utils.logError(error, details);
+        }
         downloader.activeThreadCount--;
         downloader.download();
     }
@@ -219,7 +227,8 @@ downloader.downloadTrack = function (trackId) {
             track: track,
             artists: utils.parseArtists(track.artists, ', ').artists,
             title: track.title,
-            loadedBytes: 0
+            loadedBytes: 0,
+            attemptCount: 0
         };
         if (track.version) {
             entity.title += ' (' + track.version + ')';
@@ -267,7 +276,8 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
                 url: 'https://' + album.coverUri.replace('%%', storage.current.albumCoverSize),
                 filename: saveDir + '/cover.jpg',
                 loadedBytes: 0,
-                totalBytes: 1 // пока не получен размер - прогресс в загрузчике не дойдёт до 100%
+                totalBytes: 1, // пока не получен размер - прогресс в загрузчике не дойдёт до 100%
+                attemptCount: 0
             };
         }
 
@@ -292,6 +302,7 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
                     artists: utils.parseArtists(track.artists, ', ').artists,
                     title: track.title,
                     loadedBytes: 0,
+                    attemptCount: 0,
                     saveDir: saveCdDir,
                     namePrefix: utils.addExtraZeros(j + 1, album.volumes[i].length)
                 };
@@ -337,6 +348,7 @@ downloader.downloadPlaylist = function (username, playlistId) {
                 artists: utils.parseArtists(track.artists, ', ').artists,
                 title: track.title,
                 loadedBytes: 0,
+                attemptCount: 0,
                 saveDir: utils.clearPath(playlist.title),
                 namePrefix: utils.addExtraZeros(i + 1, playlist.tracks.length)
             };

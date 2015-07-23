@@ -91,8 +91,23 @@ chrome.downloads.onChanged.addListener(function (delta) {
             if (delta.state.current === 'complete') {
                 entity.status = downloader.STATUS.FINISHED;
             } else if (delta.state.current === 'interrupted') {
-                entity.status = downloader.STATUS.INTERRUPTED;
+                entity.attemptCount++;
                 entity.loadedBytes = 0;
+                if (entity.attemptCount < 3) {
+                    setTimeout(function () {
+                        entity.status = downloader.STATUS.WAITING;
+                        downloader.download();
+                    }, 10000);
+                } else {
+                    entity.status = downloader.STATUS.INTERRUPTED;
+                    var details;
+                    if (entity.type === downloader.TYPE.TRACK) {
+                        details = entity.track.id;
+                    } else if (entity.type === downloader.TYPE.COVER) {
+                        details = entity.url;
+                    }
+                    utils.logError(download.error, details);
+                }
             }
             window.URL.revokeObjectURL(download.url);
         }
