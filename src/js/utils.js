@@ -243,7 +243,7 @@ utils.durationToStr = function (duration) {
 
 utils.clearPath = function (path, isDir) {
     // пример трека https://music.yandex.ru/album/1404751/track/12931197
-    var clearedPath = path.replace(/[\\/:*?"<>|]/g, '_'); // запрещённые символы в винде
+    var clearedPath = path.replace(/[\\/:*?"<>|~]/g, '_'); // запрещённые символы в винде
     if (isDir) {
         clearedPath = clearedPath.replace(/(\.| )$/, '_'); // точка или пробел в конце
         // пример папки с точкой в конце https://music.yandex.ru/album/1288439/
