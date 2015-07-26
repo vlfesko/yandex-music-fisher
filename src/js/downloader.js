@@ -318,7 +318,7 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
 };
 
 downloader.downloadPlaylist = function (username, playlistId) {
-    ga('send', 'event', 'playlist', username + '#' + playlistId);
+    ga('send', 'event', 'playlist', username, playlistId);
     yandex.getPlaylist(username, playlistId, function (playlist) {
         if (!playlist.tracks.length) {
             utils.logError('Пустой плейлист', username + '#' + playlistId);
