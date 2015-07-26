@@ -333,6 +333,18 @@ function generateDownloadTrack(track) {
 }
 
 function generateDownloadAlbum(album) {
+    var artists = backgroundPage.utils.parseArtists(album.artists, ', ').artists;
+    if (artists === 'сборник') {
+        artists = 'Various Artists';
+    }
+    document.getElementById('name').innerHTML = artists + ' - ' + album.title;
+    if (!album.trackCount) {
+        document.getElementById('info').innerHTML = 'Пустой альбом';
+        document.getElementById('startDownloadBtn').style.display = 'none';
+        backgroundPage.utils.logError('Пустой альбом', album.id);
+        return;
+    }
+
     var size = 0;
     var duration = 0;
     for (var i = 0; i < album.volumes.length; i++) {
@@ -346,15 +358,18 @@ function generateDownloadAlbum(album) {
     }
     size = backgroundPage.utils.bytesToStr(size);
     duration = backgroundPage.utils.durationToStr(duration);
-    var artists = backgroundPage.utils.parseArtists(album.artists, ', ').artists;
-    if (artists === 'сборник') {
-        artists = 'Various Artists';
-    }
-    document.getElementById('name').innerHTML = artists + ' - ' + album.title;
     document.getElementById('info').innerHTML = 'Альбом (' + album.trackCount + ') / ' + size + ' / ' + duration;
 }
 
 function generateDownloadPlaylist(playlist) {
+    document.getElementById('name').innerHTML = playlist.title;
+    if (!playlist.trackCount) {
+        document.getElementById('info').innerHTML = 'Пустой плейлист';
+        document.getElementById('startDownloadBtn').style.display = 'none';
+        backgroundPage.utils.logError('Пустой плейлист', playlist.owner.login + '#' + playlist.kind);
+        return;
+    }
+
     var size = 0;
     var duration = 0;
     for (var i = 0; i < playlist.tracks.length; i++) {
@@ -366,7 +381,6 @@ function generateDownloadPlaylist(playlist) {
     }
     size = backgroundPage.utils.bytesToStr(size);
     duration = backgroundPage.utils.durationToStr(duration);
-    document.getElementById('name').innerHTML = playlist.title;
     document.getElementById('info').innerHTML = 'Плейлист (' + playlist.trackCount + ') / ' + size + ' / ' + duration;
 }
 

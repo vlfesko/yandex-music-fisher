@@ -241,8 +241,7 @@ downloader.downloadTrack = function (trackId) {
 downloader.downloadAlbum = function (albumId, discographyArtist) {
     ga('send', 'event', 'album', albumId);
     yandex.getAlbum(albumId, function (album) {
-        if (!album.volumes.length) {
-            utils.logError('Пустой альбом', albumId);
+        if (!album.trackCount) {
             return;
         }
         var albumEntity = {
@@ -320,8 +319,7 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
 downloader.downloadPlaylist = function (username, playlistId) {
     ga('send', 'event', 'playlist', username, playlistId);
     yandex.getPlaylist(username, playlistId, function (playlist) {
-        if (!playlist.tracks.length) {
-            utils.logError('Пустой плейлист', username + '#' + playlistId);
+        if (!playlist.trackCount) {
             return;
         }
         var playlistEntity = {
