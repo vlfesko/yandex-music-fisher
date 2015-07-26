@@ -241,10 +241,15 @@ utils.durationToStr = function (duration) {
     return hours + ':' + utils.addExtraZeros(minutes, 10) + ':' + utils.addExtraZeros(seconds, 10);
 };
 
-utils.clearPath = function (path) {
-    // пример: https://music.yandex.ru/album/1404751/track/12931197
-    var clearedPath = path.replace(/[\\/:*?"<>|]/g, '_'); // Windows path illegals
-    return clearedPath.replace(/\.$/, '_'); // точка в конце
+utils.clearPath = function (path, isDir) {
+    // пример трека https://music.yandex.ru/album/1404751/track/12931197
+    var clearedPath = path.replace(/[\\/:*?"<>|]/g, '_'); // запрещённые символы в винде
+    if (isDir) {
+        clearedPath = clearedPath.replace(/(\.| )$/, '_'); // точка или пробел в конце
+        // пример папки с точкой в конце https://music.yandex.ru/album/1288439/
+        // пример папки с пробелом в конце https://music.yandex.ru/album/62046/
+    }
+    return clearedPath;
 };
 
 utils.logError = function (error, details) {

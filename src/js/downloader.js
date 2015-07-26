@@ -204,7 +204,7 @@ downloader.download = function () {
             if (storage.current.shouldNumberLists && entity.namePrefix) {
                 savePath = entity.namePrefix + ' ' + savePath;
             }
-            savePath = utils.clearPath(savePath) + '.mp3';
+            savePath = utils.clearPath(savePath, false) + '.mp3';
             if (entity.saveDir) {
                 savePath = entity.saveDir + '/' + savePath;
             }
@@ -261,12 +261,12 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
         if (albumEntity.artists === 'сборник') {
             albumEntity.artists = 'Various Artists';
         }
-        var saveDir = utils.clearPath(albumEntity.artists + ' - ' + albumEntity.title);
+        var saveDir = utils.clearPath(albumEntity.artists + ' - ' + albumEntity.title, true);
         if (album.year) {
             saveDir = album.year + ' - ' + saveDir;
         }
         if (discographyArtist) {
-            saveDir = utils.clearPath(discographyArtist) + '/' + saveDir;
+            saveDir = utils.clearPath(discographyArtist, true) + '/' + saveDir;
         }
 
         if (storage.current.shouldDownloadCover && album.coverUri) {
@@ -349,7 +349,7 @@ downloader.downloadPlaylist = function (username, playlistId) {
                 title: track.title,
                 loadedBytes: 0,
                 attemptCount: 0,
-                saveDir: utils.clearPath(playlist.title),
+                saveDir: utils.clearPath(playlist.title, true),
                 namePrefix: utils.addExtraZeros(i + 1, playlist.tracks.length)
             };
             if (track.version) {
