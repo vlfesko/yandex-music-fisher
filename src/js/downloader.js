@@ -118,7 +118,7 @@ downloader.download = function () {
             var coverUrl = 'https://' + album.coverUri.replace('%%', storage.current.albumCoverSizeId3);
             utils.ajax(coverUrl, 'arraybuffer', handleCover, onInterruptEntity);
         } else {
-            // пример: https://music.yandex.ru/album/2236232/track/23652415
+            // пример альбома без обложки: https://music.yandex.ru/album/2236232/track/23652415
             entity.xhr = utils.ajax(trackUrl, 'arraybuffer', saveTrack, onInterruptEntity, onProgress);
         }
     }
@@ -265,6 +265,7 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
         if (album.year) {
             saveDir += album.year + ' - ';
         }
+        // пример длинного названия: https://music.yandex.ua/album/512639
         var shortAlbumArtists = albumEntity.artists.substr(0, downloader.PATH_LIMIT);
         var shortAlbumTitle = albumEntity.title.substr(0, downloader.PATH_LIMIT);
         saveDir += utils.clearPath(shortAlbumArtists + ' - ' + shortAlbumTitle, true);
@@ -309,9 +310,7 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
                     // пример: https://music.yandex.ru/album/2490723
                     savePath += 'CD' + (i + 1) + '/';
                 }
-                if (storage.current.shouldNumberLists) {
-                    savePath += utils.addExtraZeros(j + 1, album.volumes[i].length) + ' ';
-                }
+                savePath += utils.addExtraZeros(j + 1, album.volumes[i].length) + ' ';
                 var shortTrackTitle = trackEntity.title.substr(0, downloader.PATH_LIMIT);
                 trackEntity.savePath = savePath + utils.clearPath(shortTrackTitle + '.mp3', false);
 
@@ -361,10 +360,7 @@ downloader.downloadPlaylist = function (username, playlistId) {
                 trackEntity.title += ' (' + track.version + ')';
             }
 
-            var savePath = saveDir + '/';
-            if (storage.current.shouldNumberLists) {
-                savePath += utils.addExtraZeros(i + 1, playlist.tracks.length) + ' ';
-            }
+            var savePath = saveDir + '/' + utils.addExtraZeros(i + 1, playlist.tracks.length) + ' ';
             var shortTrackArtists = trackEntity.artists.substr(0, downloader.PATH_LIMIT);
             var shortTrackTitle = trackEntity.title.substr(0, downloader.PATH_LIMIT);
             trackEntity.savePath = savePath + utils.clearPath(shortTrackArtists + ' - ' + shortTrackTitle + '.mp3', false);

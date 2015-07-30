@@ -34,12 +34,6 @@ document.getElementById('albumCoverSizeId3').onchange = function () {
     }, backgroundPage.storage.load);
 };
 
-document.getElementById('shouldNumberLists').onchange = function () {
-    chrome.storage.local.set({
-        shouldNumberLists: !!this.value
-    }, backgroundPage.storage.load);
-};
-
 document.getElementById('shouldNotifyAboutUpdates').onchange = function () {
     chrome.storage.local.set({
         shouldNotifyAboutUpdates: !!this.value
@@ -68,12 +62,6 @@ chrome.runtime.getBackgroundPage(function (bp) {
 
     document.getElementById('albumCoverSize').value = bp.storage.current.albumCoverSize;
     document.getElementById('albumCoverSizeId3').value = bp.storage.current.albumCoverSizeId3;
-
-    if (bp.storage.current.shouldNumberLists) {
-        document.getElementById('shouldNumberLists').value = 'true';
-    } else {
-        document.getElementById('shouldNumberLists').value = '';
-    }
 
     if (bp.storage.current.shouldNotifyAboutUpdates) {
         document.getElementById('shouldNotifyAboutUpdates').value = 'true';
