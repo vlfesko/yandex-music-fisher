@@ -7,6 +7,8 @@ var storage = {
         shouldDownloadCover: true,
         albumCoverSize: '600x600',
         albumCoverSizeId3: '400x400',
+        enumerateAlbums: true,
+        enumeratePlaylists: false,
         shouldNotifyAboutUpdates: true
     },
     current: {}

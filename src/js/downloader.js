@@ -310,7 +310,11 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
                     // пример: https://music.yandex.ru/album/2490723
                     savePath += 'CD' + (i + 1) + '/';
                 }
-                savePath += utils.addExtraZeros(j + 1, album.volumes[i].length) + ' ';
+
+                if (storage.current.enumerateAlbums) {
+                    savePath += utils.addExtraZeros(j + 1, album.volumes[i].length) + '. ';
+                }
+
                 var shortTrackTitle = trackEntity.title.substr(0, downloader.PATH_LIMIT);
                 trackEntity.savePath = savePath + utils.clearPath(shortTrackTitle + '.mp3', false);
 
@@ -360,7 +364,11 @@ downloader.downloadPlaylist = function (username, playlistId) {
                 trackEntity.title += ' (' + track.version + ')';
             }
 
-            var savePath = saveDir + '/' + utils.addExtraZeros(i + 1, playlist.tracks.length) + ' ';
+            var savePath = saveDir + '/';
+            if (storage.current.enumeratePlaylists) {
+                savePath += utils.addExtraZeros(i + 1, playlist.tracks.length) + '. ';
+            }
+
             var shortTrackArtists = trackEntity.artists.substr(0, downloader.PATH_LIMIT);
             var shortTrackTitle = trackEntity.title.substr(0, downloader.PATH_LIMIT);
             trackEntity.savePath = savePath + utils.clearPath(shortTrackArtists + ' - ' + shortTrackTitle + '.mp3', false);

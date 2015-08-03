@@ -2,43 +2,39 @@
 'use strict';
 
 var backgroundPage;
+var checkboxes = ['shouldDownloadCover', 'enumerateAlbums', 'enumeratePlaylists', 'shouldNotifyAboutUpdates'];
+var selects = ['downloadThreadCount', 'albumCoverSize', 'albumCoverSizeId3'];
 
-document.getElementById('downloadThreadCount').onchange = function () {
-    chrome.storage.local.set({
-        downloadThreadCount: parseInt(this.value)
-    }, backgroundPage.storage.load);
-};
+checkboxes.forEach(function (checkbox) {
+    document.getElementById(checkbox).onchange = function () {
+        var value = !!this.value;
+        var options = {};
+        options[checkbox] = value;
+        chrome.storage.local.set(options, backgroundPage.storage.load);
 
-document.getElementById('shouldDownloadCover').onchange = function () {
-    var shouldDownloadCover = !!this.value;
-    var albumCoverSizeElem = document.getElementById('albumCoverSize');
-    if (shouldDownloadCover) {
-        albumCoverSizeElem.removeAttribute('disabled');
-    } else {
-        albumCoverSizeElem.setAttribute('disabled', 'disabled');
-    }
-    chrome.storage.local.set({
-        shouldDownloadCover: shouldDownloadCover
-    }, backgroundPage.storage.load);
-};
+        if (checkbox === 'shouldDownloadCover') {
+            var albumCoverSizeElem = document.getElementById('albumCoverSize');
+            if (value) {
+                albumCoverSizeElem.removeAttribute('disabled');
+            } else {
+                albumCoverSizeElem.setAttribute('disabled', 'disabled');
+            }
+        }
+    };
+});
 
-document.getElementById('albumCoverSize').onchange = function () {
-    chrome.storage.local.set({
-        albumCoverSize: this.value
-    }, backgroundPage.storage.load);
-};
-
-document.getElementById('albumCoverSizeId3').onchange = function () {
-    chrome.storage.local.set({
-        albumCoverSizeId3: this.value
-    }, backgroundPage.storage.load);
-};
-
-document.getElementById('shouldNotifyAboutUpdates').onchange = function () {
-    chrome.storage.local.set({
-        shouldNotifyAboutUpdates: !!this.value
-    }, backgroundPage.storage.load);
-};
+selects.forEach(function (select) {
+    document.getElementById(select).onchange = function () {
+        var value = this.value;
+        var options = {};
+        if (select === 'downloadThreadCount') {
+            options[select] = parseInt(value);
+        } else {
+            options[select] = value;
+        }
+        chrome.storage.local.set(options, backgroundPage.storage.load);
+    };
+});
 
 document.getElementById('btnReset').onclick = function () {
     if (confirm('Вы уверены, что хотите сбросить все настройки?')) {
@@ -51,21 +47,17 @@ document.getElementById('btnReset').onclick = function () {
 
 chrome.runtime.getBackgroundPage(function (bp) {
     backgroundPage = bp;
-    document.getElementById('downloadThreadCount').value = bp.storage.current.downloadThreadCount;
 
-    if (bp.storage.current.shouldDownloadCover) {
-        document.getElementById('shouldDownloadCover').value = 'true';
-    } else {
-        document.getElementById('shouldDownloadCover').value = '';
-    }
-    document.getElementById('shouldDownloadCover').onchange();
+    checkboxes.forEach(function (checkbox) {
+        var value = ''; // конвертируется в false
+        if (backgroundPage.storage.current[checkbox]) {
+            value = 'true';
+        }
+        document.getElementById(checkbox).value = value;
+        document.getElementById(checkbox).onchange();
+    });
 
-    document.getElementById('albumCoverSize').value = bp.storage.current.albumCoverSize;
-    document.getElementById('albumCoverSizeId3').value = bp.storage.current.albumCoverSizeId3;
-
-    if (bp.storage.current.shouldNotifyAboutUpdates) {
-        document.getElementById('shouldNotifyAboutUpdates').value = 'true';
-    } else {
-        document.getElementById('shouldNotifyAboutUpdates').value = '';
-    }
+    selects.forEach(function (select) {
+        document.getElementById(select).value = backgroundPage.storage.current[select];
+    });
 });
