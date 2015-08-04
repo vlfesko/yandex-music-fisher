@@ -18,6 +18,7 @@ var archiveUrl;
 
 ga('create', 'UA-65530110-1', 'auto');
 ga('set', 'checkProtocolTask', null); // разрешает протокол "chrome-extension"
+ga('set', 'page', '/home');
 ga('send', 'event', 'load', chrome.runtime.getManifest().version);
 
 chrome.runtime.onInstalled.addListener(function (details) { // установка или обновление расширения
