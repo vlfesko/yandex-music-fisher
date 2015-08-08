@@ -14,6 +14,7 @@
 
 Необходим браузер на базе Chromium:
 [Chrome](https://www.google.com/chrome) (рекомендуется),
+[SRWare Iron](https://www.srware.net/ru/software_srware_iron.php),
 [Яндекс.Браузер](https://browser.yandex.ru),
 [Opera](http://www.opera.com/) или подобный
 
