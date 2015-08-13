@@ -1,4 +1,4 @@
-#Yandex Music Fisher (1.2.2)
+#Yandex Music Fisher (1.2.3)
 
 Расширение для загрузки музыки с сервиса [Яндекс.Музыка](http://music.yandex.ru/).
 
@@ -21,7 +21,7 @@
 
 ### Установка
 
-[Скачайте архив по этой ссылке](https://github.com/egoroof/yandex-music-fisher/releases/download/v1.2.2/yandex-music-fisher_1.2.2.zip),
+[Скачайте архив по этой ссылке](https://github.com/egoroof/yandex-music-fisher/releases/download/v1.2.3/yandex-music-fisher_1.2.3.zip),
 извлеките в текущую папку, откройте страницу расширений в браузере и перенесите туда мышкой извлечённую папку __yandex-music-fisher__,
 после чего в браузере появится новое расширение:
 
