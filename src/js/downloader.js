@@ -150,11 +150,7 @@ downloader.download = function () {
                 frames.TPOS = trackPostition.album; // Номер диска
             }
         }
-        if (trackAlbum.artists[0].name === 'сборник') {
-            frames.TPE2 = 'Various Artists'; // Исполнитель альбома
-        } else {
-            frames.TPE2 = trackAlbum.artists[0].name; // Исполнитель альбома
-        }
+        frames.TPE2 = utils.parseArtists(trackAlbum.artists, ', ').artists; // Исполнитель альбома
         var genre = trackAlbum.genre;
         if (genre) {
             frames.TCON = genre[0].toUpperCase() + genre.substr(1); // Жанр
@@ -199,13 +195,10 @@ downloader.download = function () {
     var trackAlbum;
     var trackUrl;
 
-    switch (entity.type) {
-        case downloader.TYPE.TRACK:
-            yandex.getTrackUrl(entity.track.storageDir, handleTrackUrl, onInterruptEntity);
-            break;
-        case downloader.TYPE.COVER:
-            entity.xhr = utils.ajax(entity.url, 'arraybuffer', saveCover, onInterruptEntity, onProgress);
-            break;
+    if (entity.type === downloader.TYPE.TRACK) {
+        yandex.getTrackUrl(entity.track.storageDir, handleTrackUrl, onInterruptEntity);
+    } else if (entity.type === downloader.TYPE.COVER) {
+        entity.xhr = utils.ajax(entity.url, 'arraybuffer', saveCover, onInterruptEntity, onProgress);
     }
 };
 
@@ -253,9 +246,6 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
 
         if (album.version) {
             albumEntity.title += ' (' + album.version + ')';
-        }
-        if (albumEntity.artists === 'сборник') {
-            albumEntity.artists = 'Various Artists';
         }
         var saveDir = '';
         if (discographyArtist) {

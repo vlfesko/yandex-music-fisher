@@ -62,6 +62,8 @@ utils.parseArtists = function (allArtists, separator) {
     allArtists.forEach(function (artist) {
         if (artist.composer) { // пример https://music.yandex.ru/album/717747/track/6672611
             composers.push(artist.name);
+        } else if (artist.various) { // пример https://music.yandex.ru/album/718010/track/6570232
+            artists.push('Various Artists');
         } else {
             artists.push(artist.name);
         }
