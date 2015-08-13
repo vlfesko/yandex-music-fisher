@@ -87,6 +87,16 @@ downloader.download = function () {
         downloader.download();
     }
 
+    function onInterruptEntityExcept404(error, details) {
+        if (error === 'Not found (404)') { // обложки с выбранном размером нет - игнорируем её
+            if (entity.type === downloader.TYPE.TRACK) { // продолжаем загрузку трека без обложки
+                entity.xhr = utils.ajax(trackUrl, 'arraybuffer', saveTrack, onInterruptEntity, onProgress);
+            }
+        } else {
+            onInterruptEntity(error, details);
+        }
+    }
+
     function onChromeDownloadStart(downloadId) {
         if (chrome.runtime.lastError) {
             var details;
@@ -103,7 +113,6 @@ downloader.download = function () {
 
     function onProgress(event) {
         entity.loadedBytes = event.loaded;
-        entity.totalBytes = event.total; // используется только для обложки
     }
 
     function handleTrackUrl(url) {
@@ -116,7 +125,7 @@ downloader.download = function () {
         trackAlbum = album;
         if (album.coverUri) {
             var coverUrl = 'https://' + album.coverUri.replace('%%', storage.current.albumCoverSizeId3);
-            utils.ajax(coverUrl, 'arraybuffer', handleCover, onInterruptEntity);
+            utils.ajax(coverUrl, 'arraybuffer', handleCover, onInterruptEntityExcept404);
         } else {
             // пример альбома без обложки: https://music.yandex.ru/album/2236232/track/23652415
             entity.xhr = utils.ajax(trackUrl, 'arraybuffer', saveTrack, onInterruptEntity, onProgress);
@@ -198,7 +207,7 @@ downloader.download = function () {
     if (entity.type === downloader.TYPE.TRACK) {
         yandex.getTrackUrl(entity.track.storageDir, handleTrackUrl, onInterruptEntity);
     } else if (entity.type === downloader.TYPE.COVER) {
-        entity.xhr = utils.ajax(entity.url, 'arraybuffer', saveCover, onInterruptEntity, onProgress);
+        entity.xhr = utils.ajax(entity.url, 'arraybuffer', saveCover, onInterruptEntityExcept404, onProgress);
     }
 };
 
@@ -267,7 +276,6 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
                 url: 'https://' + album.coverUri.replace('%%', storage.current.albumCoverSize),
                 filename: saveDir + '/cover.jpg',
                 loadedBytes: 0,
-                totalBytes: 1, // пока не получен размер - прогресс в загрузчике не дойдёт до 100%
                 attemptCount: 0
             };
         }

@@ -206,7 +206,6 @@ function generateListView(entity) {
     var loadedTrackCount = 0;
     var totalTrackSize = entity.size;
     var totalTrackCount = entity.tracks.length;
-    var totalCount = totalTrackCount; // учитывает наличие обложки для альбома
     var totalStatus = {
         waiting: 0,
         loading: 0,
@@ -223,32 +222,26 @@ function generateListView(entity) {
     var name = '';
     if (entity.type === backgroundPage.downloader.TYPE.ALBUM) {
         name = 'Альбом <strong>' + entity.artists + ' - ' + entity.title + '</strong>';
-        if (entity.cover) {
-            totalStatus[entity.cover.status]++;
-            totalCount++;
-            loadedTrackSize += entity.cover.loadedBytes;
-            totalTrackSize += entity.cover.totalBytes;
-        }
     } else if (entity.type === backgroundPage.downloader.TYPE.PLAYLIST) {
         name = 'Плейлист <strong>' + entity.title + '</strong>';
     }
 
     var status = '';
-    var loadedSizePercent = Math.floor(loadedTrackSize / entity.size * 100);
-    loadedTrackSize = backgroundPage.utils.bytesToStr(loadedTrackSize);
-    totalTrackSize = backgroundPage.utils.bytesToStr(totalTrackSize);
+    var loadedTrackSizeStr = backgroundPage.utils.bytesToStr(loadedTrackSize);
+    var totalTrackSizeStr = backgroundPage.utils.bytesToStr(totalTrackSize);
     if (totalStatus.loading > 0) {
-        status = '<span class="text-primary">Загрузка [' + loadedTrackSize + ' из ' + totalTrackSize + ']</span>';
+        status = '<span class="text-primary">Загрузка [' + loadedTrackSizeStr + ' из ' + totalTrackSizeStr + ']</span>';
     } else if (totalStatus.interrupted > 0) {
-        status = '<span class="text-danger">Ошибка [скачано ' + loadedTrackSize + ' из ' + totalTrackSize + ']</span>&nbsp;';
+        status = '<span class="text-danger">Ошибка [скачано ' + loadedTrackSizeStr + ' из ' + totalTrackSizeStr + ']</span>&nbsp;';
         status += '<button type="button" class="btn btn-info btn-xs restore-btn" data-id="' + entity.index + '">';
         status += '<i class="glyphicon glyphicon-repeat restore-btn" data-id="' + entity.index + '"></i></button>';
-    } else if (totalStatus.finished === totalCount) {
-        status = '<span class="text-success">Сохранён [' + totalTrackSize + ']</span>';
+    } else if (totalStatus.finished === totalTrackCount) {
+        status = '<span class="text-success">Сохранён [' + totalTrackSizeStr + ']</span>';
     } else if (totalStatus.waiting > 0) {
-        status = '<span class="text-muted">В очереди [' + totalTrackSize + ']</span>';
+        status = '<span class="text-muted">В очереди [' + totalTrackSizeStr + ']</span>';
     }
 
+    var loadedSizePercent = Math.floor(loadedTrackSize / totalTrackSize * 100);
     var view = '<div class="panel panel-default">';
     view += '<div class="panel-heading">';
     view += name + '<br>';
