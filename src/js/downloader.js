@@ -261,13 +261,14 @@ downloader.downloadAlbum = function (albumId, discographyArtist) {
             var shortDiscographyArtist = discographyArtist.substr(0, downloader.PATH_LIMIT);
             saveDir += utils.clearPath(shortDiscographyArtist, true) + '/';
         }
-        if (album.year) {
-            saveDir += album.year + ' - ';
-        }
         // пример длинного названия: https://music.yandex.ua/album/512639
         var shortAlbumArtists = albumEntity.artists.substr(0, downloader.PATH_LIMIT);
         var shortAlbumTitle = albumEntity.title.substr(0, downloader.PATH_LIMIT);
-        saveDir += utils.clearPath(shortAlbumArtists + ' - ' + shortAlbumTitle, true);
+        if (album.year) {
+            saveDir += utils.clearPath(album.year + ' - ' + shortAlbumArtists + ' - ' + shortAlbumTitle, true);
+        } else {
+            saveDir += utils.clearPath(shortAlbumArtists + ' - ' + shortAlbumTitle, true);
+        }
 
         if (storage.current.shouldDownloadCover && album.coverUri) {
             albumEntity.cover = {

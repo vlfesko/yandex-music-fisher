@@ -244,8 +244,9 @@ utils.durationToStr = function (duration) {
 };
 
 utils.clearPath = function (path, isDir) {
+    path = path.replace(/^\./, '_'); // первый символ - точка (https://music.yandex.ru/album/2289231/track/20208868)
     path = path.replace(/"/g, "''"); // двойные кавычки в одинарные
-    path = path.replace(/\t/g, ' '); // таб в пробел (https://music.yandex.ru/album/718010/track/6570232)
+    path = path.replace(/\t/g, ' '); // табы в пробелы (https://music.yandex.ru/album/718010/track/6570232)
     path = path.replace(/[\\/:*?<>|~]/g, '_'); // запрещённые символы в винде
     if (isDir) {
         path = path.replace(/(\.| )$/, '_'); // точка или пробел в конце
