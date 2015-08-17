@@ -43,6 +43,7 @@ utils.getUrlInfo = function (url) {
     info.isTrack = (parts[3] === 'album' && parts[5] === 'track' && !!parts[6]);
     info.isAlbum = (parts[3] === 'album' && !!parts[4]);
     info.isArtist = (parts[3] === 'artist' && !!parts[4]);
+    info.isLabel = (parts[3] === 'label' && !!parts[4]);
     if (info.isPlaylist) {
         info.username = parts[4];
         info.playlistId = parts[6];
@@ -52,6 +53,8 @@ utils.getUrlInfo = function (url) {
         info.albumId = parts[4];
     } else if (info.isArtist) {
         info.artistId = parts[4];
+    } else if (info.isLabel) {
+        info.labelId = parts[4];
     }
     return info;
 };
@@ -83,7 +86,7 @@ utils.updateTabIcon = function (tab) {
         iconPath = 'img/blue.png';
     } else if (page.isAlbum) {
         iconPath = 'img/yellow.png';
-    } else if (page.isArtist) {
+    } else if (page.isArtist || page.isLabel) {
         iconPath = 'img/pink.png';
     }
     chrome.browserAction.setIcon({

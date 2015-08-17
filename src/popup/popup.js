@@ -115,15 +115,15 @@ document.getElementById('startDownloadBtn').addEventListener('click', function (
             var playlistId = this.getAttribute('data-playlistId');
             backgroundPage.downloader.downloadPlaylist(username, playlistId);
             break;
-        case 'artist':
-            var artistName = this.getAttribute('data-artistName');
+        case 'artistOrLabel':
+            var name = this.getAttribute('data-name');
             var albumElems = document.getElementsByClassName('album');
             var compilationElems = document.getElementsByClassName('compilation');
             var allElems = [].slice.call(albumElems).concat([].slice.call(compilationElems));
 
             for (var i = 0; i < allElems.length; i++) {
                 if (allElems[i].checked) {
-                    backgroundPage.downloader.downloadAlbum(allElems[i].value, artistName);
+                    backgroundPage.downloader.downloadAlbum(allElems[i].value, name);
                 }
             }
             break;
@@ -317,6 +317,39 @@ function generateDownloadArtist(artist) {
     document.getElementById('addContainer').style.fontSize = '12px';
 }
 
+function generateDownloadLabel(label) {
+    var i;
+    var title;
+    var albumContent = '';
+    if (label.albums.length) {
+        albumContent += '<label><input type="checkbox" id="albumCheckbox"><b>Альбомы (';
+        albumContent += label.albums.length + ')</b></label><br>';
+    }
+    for (i = 0; i < label.albums.length; i++) {
+        title = label.albums[i].title;
+        if (label.albums[i].version) {
+            title += ' (' + label.albums[i].version + ')';
+        }
+        albumContent += '<label><input type="checkbox" class="album" value="';
+        albumContent += label.albums[i].id + '">' + title + '</label><br>';
+    }
+
+    document.getElementById('name').innerHTML = label.label.name;
+    document.getElementById('info').innerHTML = 'Лейбл';
+    document.getElementById('albums').innerHTML = albumContent;
+
+    if (label.albums.length) {
+        document.getElementById('albumCheckbox').addEventListener('click', function () {
+            var toggle = document.getElementById('albumCheckbox');
+            var albums = document.getElementsByClassName('album');
+            for (var i = 0; i < albums.length; i++) {
+                albums[i].checked = toggle.checked;
+            }
+        });
+    }
+    document.getElementById('addContainer').style.fontSize = '12px';
+}
+
 function generateDownloadTrack(track) {
     var artists = backgroundPage.utils.parseArtists(track.artists, ', ').artists;
     var size = backgroundPage.utils.bytesToStr(track.fileSize);
@@ -432,8 +465,18 @@ chrome.tabs.query({
             bp.yandex.getArtist(page.artistId, function (artist) {
                 hidePreloader();
                 generateDownloadArtist(artist);
-                downloadBtn.setAttribute('data-type', 'artist');
-                downloadBtn.setAttribute('data-artistName', artist.artist.name);
+                downloadBtn.setAttribute('data-type', 'artistOrLabel');
+                downloadBtn.setAttribute('data-name', artist.artist.name);
+            }, function (error, details) {
+                bp.utils.logError(error, details);
+                generateError();
+            });
+        } else if (page.isLabel) {
+            bp.yandex.getLabel(page.labelId, function (label) {
+                hidePreloader();
+                generateDownloadLabel(label);
+                downloadBtn.setAttribute('data-type', 'artistOrLabel');
+                downloadBtn.setAttribute('data-name', label.label.name);
             }, function (error, details) {
                 bp.utils.logError(error, details);
                 generateError();

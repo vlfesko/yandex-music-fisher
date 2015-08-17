@@ -38,3 +38,9 @@ yandex.getPlaylist = function (username, playlistId, onSuccess, onFail) {
         onSuccess(json.playlist);
     }, onFail);
 };
+
+yandex.getLabel = function (labelId, onSuccess, onFail) {
+    var url = 'https://music.yandex.' + storage.current.domain;
+    url += '/handlers/label.jsx?sort=year&id=' + labelId;
+    utils.ajax(url, 'json', onSuccess, onFail);
+};
