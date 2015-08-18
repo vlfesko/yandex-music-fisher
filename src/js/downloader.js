@@ -281,12 +281,11 @@ downloader.downloadAlbum = function (albumId, artistOrLabelName) {
             };
         }
 
-        for (var i = 0; i < album.volumes.length; i++) {
-            for (var j = 0; j < album.volumes[i].length; j++) {
-                var track = album.volumes[i][j];
+        album.volumes.forEach(function (volume, i) {
+            volume.forEach(function (track, j) {
                 if (track.error) {
                     utils.logError('Ошибка трека: ' + track.error, track.id);
-                    continue;
+                    return;
                 }
 
                 albumEntity.size += track.fileSize;
@@ -311,15 +310,16 @@ downloader.downloadAlbum = function (albumId, artistOrLabelName) {
                 }
 
                 if (storage.current.enumerateAlbums) {
-                    savePath += utils.addExtraZeros(j + 1, album.volumes[i].length) + '. ';
+                    savePath += utils.addExtraZeros(j + 1, volume.length) + '. ';
                 }
 
                 var shortTrackTitle = trackEntity.title.substr(0, downloader.PATH_LIMIT);
                 trackEntity.savePath = savePath + utils.clearPath(shortTrackTitle + '.mp3', false);
 
                 albumEntity.tracks.push(trackEntity);
-            }
-        }
+            });
+        });
+
         downloader.downloads.push(albumEntity);
         downloader.runAllThreads();
     }, utils.logError);
@@ -342,11 +342,10 @@ downloader.downloadPlaylist = function (username, playlistId) {
         var shortPlaylistTitle = playlist.title.substr(0, downloader.PATH_LIMIT);
         var saveDir = utils.clearPath(shortPlaylistTitle, true);
 
-        for (var i = 0; i < playlist.tracks.length; i++) {
-            var track = playlist.tracks[i];
+        playlist.tracks.forEach(function (track, i) {
             if (track.error) {
                 utils.logError('Ошибка трека: ' + track.error, track.id);
-                continue;
+                return;
             }
             playlistEntity.size += track.fileSize;
             playlistEntity.duration += track.durationMs;
@@ -373,7 +372,8 @@ downloader.downloadPlaylist = function (username, playlistId) {
             trackEntity.savePath = savePath + utils.clearPath(shortTrackArtists + ' - ' + shortTrackTitle + '.mp3', false);
 
             playlistEntity.tracks.push(trackEntity);
-        }
+        });
+
         downloader.downloads.push(playlistEntity);
         downloader.runAllThreads();
     }, utils.logError);
