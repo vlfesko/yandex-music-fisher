@@ -237,7 +237,7 @@ downloader.downloadTrack = function (trackId) {
     }, utils.logError);
 };
 
-downloader.downloadAlbum = function (albumId, discographyArtistOrLabelName) {
+downloader.downloadAlbum = function (albumId, artistOrLabelName) {
     ga('send', 'event', 'album', albumId);
     yandex.getAlbum(albumId, function (album) {
         if (!album.trackCount) {
@@ -257,8 +257,8 @@ downloader.downloadAlbum = function (albumId, discographyArtistOrLabelName) {
             albumEntity.title += ' (' + album.version + ')';
         }
         var saveDir = '';
-        if (discographyArtistOrLabelName) {
-            var shortName = discographyArtistOrLabelName.substr(0, downloader.PATH_LIMIT);
+        if (artistOrLabelName) {
+            var shortName = artistOrLabelName.substr(0, downloader.PATH_LIMIT);
             saveDir += utils.clearPath(shortName, true) + '/';
         }
         // пример длинного названия: https://music.yandex.ua/album/512639

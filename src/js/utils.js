@@ -24,6 +24,73 @@ utils.ajax = function (url, type, onSuccess, onFail, onProgress) {
     return xhr;
 };
 
+utils.bytesToStr = function (bytes) {
+    var KiB = 1024;
+    var MiB = 1024 * KiB;
+    var GiB = 1024 * MiB;
+    if (bytes < GiB) {
+        return (bytes / MiB).toFixed(2) + ' МиБ';
+    } else {
+        return (bytes / GiB).toFixed(2) + ' ГиБ';
+    }
+};
+
+utils.addExtraZeros = function (val, max) {
+    var valLength = val.toString().length;
+    var maxLength = max.toString().length;
+    var diff = maxLength - valLength;
+    var zeros = '';
+    for (var i = 0; i < diff; i++) {
+        zeros += '0';
+    }
+    return zeros + val;
+};
+
+utils.durationToStr = function (duration) {
+    var seconds = Math.floor(duration / 1000);
+    var minutes = Math.floor(seconds / 60);
+    seconds -= minutes * 60;
+    var hours = Math.floor(minutes / 60);
+    minutes -= hours * 60;
+    return hours + ':' + utils.addExtraZeros(minutes, 10) + ':' + utils.addExtraZeros(seconds, 10);
+};
+
+utils.clearPath = function (path, isDir) {
+    path = path.replace(/^\./, '_'); // первый символ - точка (https://music.yandex.ru/album/2289231/track/20208868)
+    path = path.replace(/"/g, "''"); // двойные кавычки в одинарные
+    path = path.replace(/\t/g, ' '); // табы в пробелы (https://music.yandex.ru/album/718010/track/6570232)
+    path = path.replace(/[\\/:*?<>|~]/g, '_'); // запрещённые символы в винде
+    if (isDir) {
+        path = path.replace(/(\.| )$/, '_'); // точка или пробел в конце
+        // пример папки с точкой в конце https://music.yandex.ru/album/1288439/
+        // пример папки с пробелом в конце https://music.yandex.ru/album/62046/
+    }
+    return path;
+};
+
+utils.logError = function (error, details) {
+    console.error(error, details);
+    ga('send', 'event', 'error', error, details);
+};
+
+utils.parseArtists = function (allArtists, separator) {
+    var artists = [];
+    var composers = [];
+    allArtists.forEach(function (artist) {
+        if (artist.composer) { // пример https://music.yandex.ru/album/717747/track/6672611
+            composers.push(artist.name);
+        } else if (artist.various) { // пример https://music.yandex.ru/album/718010/track/6570232
+            artists.push('Various Artists');
+        } else {
+            artists.push(artist.name);
+        }
+    });
+    return {
+        artists: artists.join(separator) || composers.join(separator),
+        composers: composers.join(separator)
+    };
+};
+
 utils.getUrlInfo = function (url) {
     var info = {};
     var parts = url.replace(/\?.*/, '').split('/');
@@ -57,24 +124,6 @@ utils.getUrlInfo = function (url) {
         info.labelId = parts[4];
     }
     return info;
-};
-
-utils.parseArtists = function (allArtists, separator) {
-    var artists = [];
-    var composers = [];
-    allArtists.forEach(function (artist) {
-        if (artist.composer) { // пример https://music.yandex.ru/album/717747/track/6672611
-            composers.push(artist.name);
-        } else if (artist.various) { // пример https://music.yandex.ru/album/718010/track/6570232
-            artists.push('Various Artists');
-        } else {
-            artists.push(artist.name);
-        }
-    });
-    return {
-        artists: artists.join(separator) || composers.join(separator),
-        composers: composers.join(separator)
-    };
 };
 
 utils.updateTabIcon = function (tab) {
@@ -213,53 +262,4 @@ utils.addId3Tag = function (oldArrayBuffer, framesObject) {
     bufferWriter.set(new Uint8Array(oldArrayBuffer), offset);
     var blob = new Blob([arrayBuffer], {type: 'audio/mpeg'});
     return window.URL.createObjectURL(blob);
-};
-
-utils.bytesToStr = function (bytes) {
-    var KiB = 1024;
-    var MiB = 1024 * KiB;
-    var GiB = 1024 * MiB;
-    if (bytes < GiB) {
-        return (bytes / MiB).toFixed(2) + ' МиБ';
-    } else {
-        return (bytes / GiB).toFixed(2) + ' ГиБ';
-    }
-};
-
-utils.addExtraZeros = function (val, max) {
-    var valLength = val.toString().length;
-    var maxLength = max.toString().length;
-    var diff = maxLength - valLength;
-    var zeros = '';
-    for (var i = 0; i < diff; i++) {
-        zeros += '0';
-    }
-    return zeros + val;
-};
-
-utils.durationToStr = function (duration) {
-    var seconds = Math.floor(duration / 1000);
-    var minutes = Math.floor(seconds / 60);
-    seconds -= minutes * 60;
-    var hours = Math.floor(minutes / 60);
-    minutes -= hours * 60;
-    return hours + ':' + utils.addExtraZeros(minutes, 10) + ':' + utils.addExtraZeros(seconds, 10);
-};
-
-utils.clearPath = function (path, isDir) {
-    path = path.replace(/^\./, '_'); // первый символ - точка (https://music.yandex.ru/album/2289231/track/20208868)
-    path = path.replace(/"/g, "''"); // двойные кавычки в одинарные
-    path = path.replace(/\t/g, ' '); // табы в пробелы (https://music.yandex.ru/album/718010/track/6570232)
-    path = path.replace(/[\\/:*?<>|~]/g, '_'); // запрещённые символы в винде
-    if (isDir) {
-        path = path.replace(/(\.| )$/, '_'); // точка или пробел в конце
-        // пример папки с точкой в конце https://music.yandex.ru/album/1288439/
-        // пример папки с пробелом в конце https://music.yandex.ru/album/62046/
-    }
-    return path;
-};
-
-utils.logError = function (error, details) {
-    console.error(error, details);
-    ga('send', 'event', 'error', error, details);
 };
