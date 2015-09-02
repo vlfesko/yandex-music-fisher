@@ -12,7 +12,7 @@
 
 ### Зеркала
 
-При блокировке одного из репозитория другие продолжат работать. Сейчас доступны:
+При блокировке одного из репозиториев другие продолжат работать. Сейчас доступны:
 - [GitHub](https://github.com/egoroof/yandex-music-fisher)
 - [Bitbucket](https://bitbucket.org/egoroof/yandex-music-fisher)
 
