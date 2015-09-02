@@ -10,6 +10,12 @@
 
 [Список изменений](https://github.com/egoroof/yandex-music-fisher/releases)
 
+### Зеркала
+
+При блокировке одного из репозитория другие продолжат работать. Сейчас доступны:
+- [GitHub](https://github.com/egoroof/yandex-music-fisher)
+- [Bitbucket](https://bitbucket.org/egoroof/yandex-music-fisher)
+
 ### Требование
 
 Необходим браузер на базе Chromium:
@@ -26,12 +32,15 @@
 после чего в браузере появится новое расширение:
 
 В Chrome:
+
 ![Chrome](/publish/chrome.jpg)
 
 В Opera:
+
 ![Opera](/publish/opera.jpg)
 
 В Яндекс.Браузер:
+
 ![Yandex](/publish/yandex.png)
 
 Обновляется расширение аналогичным способом.
