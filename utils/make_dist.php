@@ -7,7 +7,7 @@ define('README_FILENAME', '../readme.md');
 define('MANIFEST_FILENAME', SRC_FOLDER . '/manifest.json');
 
 if (php_sapi_name() !== 'cli') {
-    throw new Exception('CLI mode only');
+    exit('CLI mode only');
 }
 
 if (empty($argv[1])) {
