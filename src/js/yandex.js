@@ -3,11 +3,14 @@
 
 var yandex = {};
 
-yandex.getTrackUrl = function (storageDir, onSuccess, onFail) {
-    var url = 'https://storage.mds.yandex.net/download-info/' + storageDir + '/2?format=json';
+yandex.getTrackUrl = function (trackId, onSuccess, onFail) {
+    var url = 'https://music.yandex.' + storage.current.domain;
+    url += '/api/v2.0/handlers/track/' + trackId + '/download';
     utils.ajax(url, 'json', function (json) {
-        var md5 = window.md5('XGRlBW9FXlekgbPrRHuSiA' + json.path.substr(1) + json.s);
-        onSuccess('https://' + json.host + '/get-mp3/' + md5 + '/' + json.ts + json.path);
+        utils.ajax(json.src + '&format=json', 'json', function (json) {
+            var md5 = window.md5('XGRlBW9FXlekgbPrRHuSiA' + json.path.substr(1) + json.s);
+            onSuccess('https://' + json.host + '/get-mp3/' + md5 + '/' + json.ts + json.path);
+        }, onFail);
     }, onFail);
 };
 

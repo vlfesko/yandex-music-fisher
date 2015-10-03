@@ -205,7 +205,7 @@ downloader.download = function () {
     var trackUrl;
 
     if (entity.type === downloader.TYPE.TRACK) {
-        yandex.getTrackUrl(entity.track.storageDir, handleTrackUrl, onInterruptEntity);
+        yandex.getTrackUrl(entity.track.id, handleTrackUrl, onInterruptEntity);
     } else if (entity.type === downloader.TYPE.COVER) {
         entity.xhr = utils.ajax(entity.url, 'arraybuffer', saveCover, onInterruptEntityExcept404, onProgress);
     }
