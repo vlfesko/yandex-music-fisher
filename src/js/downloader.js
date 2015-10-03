@@ -232,6 +232,13 @@ downloader.downloadTrack = function (trackId) {
         var shortTitle = entity.title.substr(0, downloader.PATH_LIMIT);
         entity.savePath = utils.clearPath(shortArtists + ' - ' + shortTitle + '.mp3', false);
 
+        if (track.error) {
+            if (track.error !== 'no-rights') {
+                utils.logError('Ошибка трека: ' + track.error, track.id);
+            }
+            return;
+        }
+
         downloader.downloads.push(entity);
         downloader.download();
     }, utils.logError);
@@ -284,7 +291,9 @@ downloader.downloadAlbum = function (albumId, artistOrLabelName) {
         album.volumes.forEach(function (volume, i) {
             volume.forEach(function (track, j) {
                 if (track.error) {
-                    utils.logError('Ошибка трека: ' + track.error, track.id);
+                    if (track.error !== 'no-rights') {
+                        utils.logError('Ошибка трека: ' + track.error, track.id);
+                    }
                     return;
                 }
 
@@ -320,6 +329,10 @@ downloader.downloadAlbum = function (albumId, artistOrLabelName) {
             });
         });
 
+        if (!albumEntity.tracks.length) {
+            return;
+        }
+
         downloader.downloads.push(albumEntity);
         downloader.runAllThreads();
     }, utils.logError);
@@ -344,7 +357,9 @@ downloader.downloadPlaylist = function (username, playlistId) {
 
         playlist.tracks.forEach(function (track, i) {
             if (track.error) {
-                utils.logError('Ошибка трека: ' + track.error, track.id);
+                if (track.error !== 'no-rights') {
+                    utils.logError('Ошибка трека: ' + track.error, track.id);
+                }
                 return;
             }
             playlistEntity.size += track.fileSize;
@@ -373,6 +388,10 @@ downloader.downloadPlaylist = function (username, playlistId) {
 
             playlistEntity.tracks.push(trackEntity);
         });
+
+        if (!playlistEntity.tracks.length) {
+            return;
+        }
 
         downloader.downloads.push(playlistEntity);
         downloader.runAllThreads();
