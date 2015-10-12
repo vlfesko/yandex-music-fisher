@@ -146,6 +146,16 @@ utils.updateTabIcon = function (tab) {
     });
 };
 
+utils.getActiveTab = function (callback) {
+    chrome.tabs.query({
+        active: true,
+        currentWindow: true
+    }, function (tabs) {
+        var activeTab = tabs[0];
+        callback(activeTab);
+    });
+};
+
 utils.addId3Tag = function (oldArrayBuffer, framesObject) {
     function uint32ToUint8Array(uint32) {
         return [

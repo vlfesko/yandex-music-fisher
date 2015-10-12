@@ -421,14 +421,10 @@ function adaptToSmallDeviceHeight(tabHeight) {
     }
 }
 
-chrome.tabs.query({
-    active: true,
-    currentWindow: true
-}, function (tabs) {
-    var activeTab = tabs[0];
-    adaptToSmallDeviceHeight(activeTab.height);
-    chrome.runtime.getBackgroundPage(function (bp) {
-        backgroundPage = bp;
+chrome.runtime.getBackgroundPage(function (bp) {
+    backgroundPage = bp;
+    bp.utils.getActiveTab(function (activeTab) {
+        adaptToSmallDeviceHeight(activeTab.height);
         var page = bp.utils.getUrlInfo(activeTab.url);
         var downloadBtn = document.getElementById('startDownloadBtn');
         if (page.isPlaylist) {
