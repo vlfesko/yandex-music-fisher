@@ -2,7 +2,7 @@
 
 'use strict';
 
-function getTrackPageURLs(trackId) {
+function getTrackPageURL(trackId) {
     yandex.getTrack(trackId, function (track) {
         var artists = utils.parseArtists(track.artists, ', ');
         console.log(artists.artists + ' - ' + track.title);
@@ -18,12 +18,4 @@ function getTrackPageURLs(trackId) {
     });
 }
 
-function getTracksPageURLs(startId, stopId) {
-    /* jshint nocomma: false */
-    for (var trackId = startId, i = 0; trackId <= stopId; trackId++, i += 1000) {
-        /*jshint validthis:true */
-        setTimeout(getTrackPageURLs.bind(this, trackId), i);
-    }
-}
-
-getTracksPageURLs(12345, 12346);
+getTrackPageURL(10750327);
