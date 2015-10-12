@@ -1,4 +1,4 @@
-/* global utils, storage */
+/* global utils, storage, ga */
 'use strict';
 
 var yandex = {};
@@ -7,6 +7,12 @@ yandex.getTrackUrl = function (trackId, onSuccess, onFail) {
     var url = 'https://music.yandex.' + storage.current.domain;
     url += '/api/v2.0/handlers/track/' + trackId + '/download';
     utils.ajax(url, 'json', function (json) {
+        if (json.codec !== 'mp3') {
+            ga('send', 'event', 'test', json.codec + ' codec', trackId);
+        }
+        if (json.gain) {
+            ga('send', 'event', 'test', 'gain', trackId);
+        }
         utils.ajax(json.src + '&format=json', 'json', function (json) {
             var md5 = window.md5('XGRlBW9FXlekgbPrRHuSiA' + json.path.substr(1) + json.s);
             onSuccess('https://' + json.host + '/get-mp3/' + md5 + '/' + json.ts + json.path);
