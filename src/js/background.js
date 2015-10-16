@@ -21,6 +21,18 @@ ga('set', 'checkProtocolTask', null); // разрешает протокол "ch
 ga('set', 'page', '/home');
 ga('send', 'event', 'load', chrome.runtime.getManifest().version);
 
+window.onerror = function (message, file, line, col, error) {
+    file = file.replace(/chrome-extension:\/\/[^\/]+/, ''); // получаем относительный путь
+    var report = message + ' (' + file + ':' + line + ':' + col + ')';
+    utils.getActiveTab(function (activeTab) {
+        if (activeTab) {
+            ga('send', 'event', 'onerror', report, activeTab.url);
+        } else {
+            ga('send', 'event', 'onerror', report);
+        }
+    });
+};
+
 chrome.runtime.onInstalled.addListener(function (details) { // установка или обновление расширения
     storage.init();
     var version = chrome.runtime.getManifest().version;

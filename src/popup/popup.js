@@ -421,9 +421,16 @@ function adaptToSmallDeviceHeight(tabHeight) {
     }
 }
 
+window.onerror = function (message, file, line, col, error) {
+    backgroundPage.onerror(message, file, line, col, error);
+};
+
 chrome.runtime.getBackgroundPage(function (bp) {
     backgroundPage = bp;
     bp.utils.getActiveTab(function (activeTab) {
+        if (!activeTab) {
+            return;
+        }
         adaptToSmallDeviceHeight(activeTab.height);
         var page = bp.utils.getUrlInfo(activeTab.url);
         var downloadBtn = document.getElementById('startDownloadBtn');
