@@ -23,7 +23,7 @@ ga('send', 'event', 'load', chrome.runtime.getManifest().version);
 
 window.onerror = function (message, file, line, col, error) {
     file = file.replace(/chrome-extension:\/\/[^\/]+/, ''); // получаем относительный путь
-    var report = message + ' (' + file + ':' + line + ':' + col + ')';
+    var report = message + ' (' + file + ':' + line + ':' + col + ':' + chrome.runtime.getManifest().version + ')';
     utils.getActiveTab(function (activeTab) {
         if (activeTab) {
             ga('send', 'event', 'onerror', report, activeTab.url);
