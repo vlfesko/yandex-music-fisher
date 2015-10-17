@@ -59,9 +59,7 @@ chrome.downloads.onChanged.addListener(function (delta) {
     if (!delta.state) {
         return; // состояние не изменилось (начало загрузки)
     }
-    chrome.downloads.search({
-        id: delta.id
-    }, function (downloads) {
+    utils.getDownload(delta.id, function (download) {
         function getEntityByBrowserDownloadId(browserDownloadId) {
             for (var i = 0; i < downloader.downloads.length; i++) {
                 var entity = downloader.downloads[i];
@@ -92,11 +90,6 @@ chrome.downloads.onChanged.addListener(function (delta) {
             return undefined;
         }
 
-        var download = downloads[0];
-        var name = download.byExtensionName;
-        if (!name || name !== 'Yandex Music Fisher') {
-            return; // загрузка не принадлежит нашему расширению
-        }
         var entity = getEntityByBrowserDownloadId(delta.id);
         if (entity) {
             // не попадут: архив с обновлением,

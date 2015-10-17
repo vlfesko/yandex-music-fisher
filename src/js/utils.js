@@ -156,6 +156,18 @@ utils.getActiveTab = function (callback) {
     });
 };
 
+utils.getDownload = function (downloadId, callback) {
+    chrome.downloads.search({
+        id: downloadId
+    }, function (downloads) {
+        var download = downloads[0];
+        var name = download.byExtensionName;
+        if (name && name === chrome.runtime.getManifest().name) {
+            callback(download);
+        }
+    });
+};
+
 utils.addId3Tag = function (oldArrayBuffer, framesObject) {
     function uint32ToUint8Array(uint32) {
         return [
