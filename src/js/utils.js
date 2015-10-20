@@ -60,11 +60,11 @@ utils.durationToStr = function (duration) {
 };
 
 utils.clearPath = function (path, isDir) {
+    var unsafeChars = /[\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200b-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
     path = path.replace(/^\./, '_'); // первый символ - точка (https://music.yandex.ru/album/2289231/track/20208868)
     path = path.replace(/"/g, "''"); // двойные кавычки в одинарные
     path = path.replace(/\t/g, ' '); // табы в пробелы (https://music.yandex.ru/album/718010/track/6570232)
-    path = path.replace(/\u00ad/g, ''); // мягкий перенос (https://music.yandex.ru/album/240172/track/2427589)
-    path = path.replace(/\u200B/g, ''); // 'zero width space' (https://music.yandex.ru/album/2918419/track/24876604)
+    path = path.replace(unsafeChars, '');
     path = path.replace(/[\\/:*?<>|~]/g, '_'); // запрещённые символы в винде
     if (isDir) {
         path = path.replace(/(\.| )$/, '_'); // точка или пробел в конце
