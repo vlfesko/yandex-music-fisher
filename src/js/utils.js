@@ -8,7 +8,7 @@ utils.ajax = function (url, type, onSuccess, onFail, onProgress) {
     xhr.open('GET', url, true);
     xhr.responseType = type;
     xhr.onload = function () {
-        if (xhr.status === 200) {
+        if (xhr.status === 200 && xhr.response) {
             onSuccess(xhr.response);
         } else {
             onFail(xhr.statusText + ' (' + xhr.status + ')', url);
