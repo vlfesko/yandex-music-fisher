@@ -172,6 +172,31 @@ utils.getDownload = function (downloadId, callback) {
     });
 };
 
+utils.checkUpdate = function (onUpdateAvailable) {
+    var releaseInfoUrl = 'https://api.github.com/repos/egoroof/yandex-music-fisher/releases/latest';
+    utils.ajax(releaseInfoUrl, 'json', function (releaseInfo) {
+        var latestVersion = releaseInfo.tag_name.replace('v', '').split('.');
+        var currentVersion = chrome.runtime.getManifest().version.split('.');
+
+        var isMajorUpdate = (
+            latestVersion[0] > currentVersion[0]
+        );
+        var isMinorUpdate = (
+            latestVersion[1] > currentVersion[1] &&
+            latestVersion[0] === currentVersion[0]
+        );
+        var isPatchUpdate = (
+            latestVersion[2] > currentVersion[2] &&
+            latestVersion[1] === currentVersion[1] &&
+            latestVersion[0] === currentVersion[0]
+        );
+
+        if (isMajorUpdate || isMinorUpdate || isPatchUpdate) {
+            onUpdateAvailable(latestVersion.join('.'), releaseInfo.assets[0].browser_download_url);
+        }
+    }, utils.logError);
+};
+
 utils.addId3Tag = function (oldArrayBuffer, framesObject) {
     function uint32ToUint8Array(uint32) {
         return [

@@ -1,7 +1,7 @@
 /* global chrome, storage, utils, downloader, ga */
 'use strict';
 
-var archiveUrl;
+var distributionUrl;
 
 (function (i, s, o, g, r, a, m) {
     i.GoogleAnalyticsObject = r;
@@ -135,7 +135,7 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
             // The callback is required before Chrome 42.
         });
         chrome.downloads.download({
-            url: archiveUrl,
+            url: distributionUrl,
             saveAs: false
         });
     } else if (buttonIndex === 1) {
@@ -149,43 +149,23 @@ storage.load(function () {
     if (!storage.current.shouldNotifyAboutUpdates) {
         return;
     }
-    var releaseInfoUrl = 'https://api.github.com/repos/egoroof/yandex-music-fisher/releases/latest';
-    utils.ajax(releaseInfoUrl, 'json', function (releaseInfo) {
-        archiveUrl = releaseInfo.assets[0].browser_download_url;
-        var latestVersion = releaseInfo.tag_name.replace('v', '').split('.');
-        var manifest = chrome.runtime.getManifest();
-        var currentVersion = manifest.version.split('.');
-
-        var isMajorUpdate = (
-            latestVersion[0] > currentVersion[0]
-        );
-        var isMinorUpdate = (
-            latestVersion[1] > currentVersion[1] &&
-            latestVersion[0] >= currentVersion[0]
-        );
-        var isPatchUpdate = (
-            latestVersion[2] > currentVersion[2] &&
-            latestVersion[1] >= currentVersion[1] &&
-            latestVersion[0] >= currentVersion[0]
-        );
-
-        if (isMajorUpdate || isMinorUpdate || isPatchUpdate) {
-            chrome.notifications.create('yandex-music-fisher-update', {
-                type: 'basic',
-                iconUrl: '/img/icon.png',
-                title: 'Yandex Music Fisher',
-                message: 'Доступно обновление ' + latestVersion.join('.'),
-                contextMessage: 'Обновления устанавливаются вручную!',
-                buttons: [{
-                    title: 'Скачать обновление',
-                    iconUrl: '/img/download.png'
-                }, {
-                    title: 'Просмотреть изменения'
-                }],
-                isClickable: false
-            }, function (notificationId) {
-                // The callback is required before Chrome 42.
-            });
-        }
-    }, utils.logError);
+    utils.checkUpdate(function (version, distUrl) {
+        distributionUrl = distUrl;
+        chrome.notifications.create('yandex-music-fisher-update', {
+            type: 'basic',
+            iconUrl: '/img/icon.png',
+            title: 'Yandex Music Fisher',
+            message: 'Доступно обновление ' + version,
+            contextMessage: 'Обновления устанавливаются вручную!',
+            buttons: [{
+                title: 'Скачать обновление',
+                iconUrl: '/img/download.png'
+            }, {
+                title: 'Просмотреть изменения'
+            }],
+            isClickable: false
+        }, function (notificationId) {
+            // The callback is required before Chrome 42.
+        });
+    });
 });
