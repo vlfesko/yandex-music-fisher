@@ -76,7 +76,9 @@ utils.clearPath = function (path, isDir) {
 
 utils.logError = function (error, details) {
     console.error(error, details);
-    ga('send', 'event', 'error', error, details);
+    if (error !== 'Пустой ответ' && error !== 'Ошибка трека: no-rights') {
+        ga('send', 'event', 'error', error, details);
+    }
 };
 
 utils.parseArtists = function (allArtists, separator) {

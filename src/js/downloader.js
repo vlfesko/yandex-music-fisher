@@ -233,9 +233,7 @@ downloader.downloadTrack = function (trackId) {
         entity.savePath = utils.clearPath(shortArtists + ' - ' + shortTitle + '.mp3', false);
 
         if (track.error) {
-            if (track.error !== 'no-rights') {
-                utils.logError('Ошибка трека: ' + track.error, track.id);
-            }
+            utils.logError('Ошибка трека: ' + track.error, track.id);
             return;
         }
 
@@ -291,9 +289,7 @@ downloader.downloadAlbum = function (albumId, artistOrLabelName) {
         album.volumes.forEach(function (volume, i) {
             volume.forEach(function (track, j) {
                 if (track.error) {
-                    if (track.error !== 'no-rights') {
-                        utils.logError('Ошибка трека: ' + track.error, track.id);
-                    }
+                    utils.logError('Ошибка трека: ' + track.error, track.id);
                     return;
                 }
 
@@ -357,9 +353,7 @@ downloader.downloadPlaylist = function (username, playlistId) {
 
         playlist.tracks.forEach(function (track, i) {
             if (track.error) {
-                if (track.error !== 'no-rights') {
-                    utils.logError('Ошибка трека: ' + track.error, track.id);
-                }
+                utils.logError('Ошибка трека: ' + track.error, track.id);
                 return;
             }
             playlistEntity.size += track.fileSize;
