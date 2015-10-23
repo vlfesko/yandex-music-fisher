@@ -12,7 +12,7 @@ utils.ajax = function (url, type, onSuccess, onFail, onProgress) {
             if (xhr.response) {
                 onSuccess(xhr.response);
             } else {
-                onFail('Пустой ответ', xhr.responseURL);
+                onFail('Пустой ответ', url);
             }
         } else {
             onFail(xhr.statusText + ' (' + xhr.status + ')', url);
