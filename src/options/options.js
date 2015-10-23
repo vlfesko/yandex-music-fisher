@@ -2,7 +2,7 @@
 'use strict';
 
 var backgroundPage;
-var checkboxes = ['shouldDownloadCover', 'enumerateAlbums', 'enumeratePlaylists', 'shouldNotifyAboutUpdates'];
+var checkboxes = ['shouldDownloadCover', 'enumerateAlbums', 'enumeratePlaylists', 'shouldNotifyAboutUpdates', 'singleClickDownload'];
 var selects = ['downloadThreadCount', 'albumCoverSize', 'albumCoverSizeId3'];
 
 checkboxes.forEach(function (checkbox) {

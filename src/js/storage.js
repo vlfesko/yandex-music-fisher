@@ -9,7 +9,8 @@ var storage = {
         albumCoverSizeId3: '400x400',
         enumerateAlbums: true,
         enumeratePlaylists: false,
-        shouldNotifyAboutUpdates: true
+        shouldNotifyAboutUpdates: true,
+        singleClickDownload: false
     },
     current: {}
 };

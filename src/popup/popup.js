@@ -435,39 +435,54 @@ chrome.runtime.getBackgroundPage(function (bp) {
         var page = bp.utils.getUrlInfo(activeTab.url);
         var downloadBtn = document.getElementById('startDownloadBtn');
         if (page.isPlaylist) {
+            downloadBtn.setAttribute('data-type', 'playlist');
+            downloadBtn.setAttribute('data-username', page.username);
+            downloadBtn.setAttribute('data-playlistId', page.playlistId);
+            if (bp.storage.current.singleClickDownload) {
+                hidePreloader();
+                downloadBtn.click();
+                return;
+            }
             bp.yandex.getPlaylist(page.username, page.playlistId, function (playlist) {
                 hidePreloader();
                 generateDownloadPlaylist(playlist);
-                downloadBtn.setAttribute('data-type', 'playlist');
-                downloadBtn.setAttribute('data-username', page.username);
-                downloadBtn.setAttribute('data-playlistId', page.playlistId);
             }, onAjaxFail);
         } else if (page.isTrack) {
+            downloadBtn.setAttribute('data-type', 'track');
+            downloadBtn.setAttribute('data-trackId', page.trackId);
+            if (bp.storage.current.singleClickDownload) {
+                hidePreloader();
+                downloadBtn.click();
+                return;
+            }
             bp.yandex.getTrack(page.trackId, function (track) {
                 hidePreloader();
                 generateDownloadTrack(track);
-                downloadBtn.setAttribute('data-type', 'track');
-                downloadBtn.setAttribute('data-trackId', page.trackId);
             }, onAjaxFail);
         } else if (page.isAlbum) {
+            downloadBtn.setAttribute('data-type', 'album');
+            downloadBtn.setAttribute('data-albumId', page.albumId);
+            if (bp.storage.current.singleClickDownload) {
+                hidePreloader();
+                downloadBtn.click();
+                return;
+            }
             bp.yandex.getAlbum(page.albumId, function (album) {
                 hidePreloader();
                 generateDownloadAlbum(album);
-                downloadBtn.setAttribute('data-type', 'album');
-                downloadBtn.setAttribute('data-albumId', page.albumId);
             }, onAjaxFail);
         } else if (page.isArtist) {
+            downloadBtn.setAttribute('data-type', 'artistOrLabel');
             bp.yandex.getArtist(page.artistId, function (artist) {
                 hidePreloader();
                 generateDownloadArtist(artist);
-                downloadBtn.setAttribute('data-type', 'artistOrLabel');
                 downloadBtn.setAttribute('data-name', artist.artist.name);
             }, onAjaxFail);
         } else if (page.isLabel) {
+            downloadBtn.setAttribute('data-type', 'artistOrLabel');
             bp.yandex.getLabel(page.labelId, function (label) {
                 hidePreloader();
                 generateDownloadLabel(label);
-                downloadBtn.setAttribute('data-type', 'artistOrLabel');
                 downloadBtn.setAttribute('data-name', label.label.name);
             }, onAjaxFail);
         } else {
