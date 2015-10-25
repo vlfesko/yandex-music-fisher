@@ -37,12 +37,10 @@ selects.forEach(function (select) {
 });
 
 document.getElementById('btnReset').onclick = function () {
-    if (confirm('Вы уверены, что хотите сбросить все настройки?')) {
-        backgroundPage.storage.resetAll(function () {
-            backgroundPage.storage.load();
-            location.reload();
-        });
-    }
+    backgroundPage.storage.resetAll(function () {
+        backgroundPage.storage.load();
+        location.reload();
+    });
 };
 
 chrome.runtime.getBackgroundPage(function (bp) {
