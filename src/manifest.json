@@ -40,5 +40,6 @@
         "32": "img/icon.png",
         "48": "img/icon.png",
         "128": "img/icon.png"
-    }
+    },
+    "homepage_url": "https://github.com/egoroof/yandex-music-fisher"
 }
