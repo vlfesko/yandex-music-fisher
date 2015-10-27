@@ -2,35 +2,36 @@
 
 'use strict';
 
+var $ = document.getElementById.bind(document);
 var backgroundPage, updateIntervalId;
 
-document.getElementById('addBtn').addEventListener('click', function () {
-    document.getElementById('downloadBtn').classList.remove('active');
-    this.classList.add('active');
-    document.getElementById('addContainer').classList.remove('hide');
-    document.getElementById('downloadContainer').classList.add('hide');
+$('addBtn').addEventListener('click', function () {
+    $('downloadBtn').classList.remove('active');
+    $('addBtn').classList.add('active');
+    $('addContainer').classList.remove('hide');
+    $('downloadContainer').classList.add('hide');
 });
 
-document.getElementById('downloadBtn').addEventListener('click', function () {
-    document.getElementById('addBtn').classList.remove('active');
-    this.classList.add('active');
-    document.getElementById('addContainer').classList.add('hide');
-    document.getElementById('downloadContainer').classList.remove('hide');
-    document.getElementById('errorContainer').classList.add('hide');
+$('downloadBtn').addEventListener('click', function () {
+    $('addBtn').classList.remove('active');
+    $('downloadBtn').classList.add('active');
+    $('addContainer').classList.add('hide');
+    $('downloadContainer').classList.remove('hide');
+    $('errorContainer').classList.add('hide');
     startUpdater();
 });
 
-document.getElementById('downloadFolderBtn').addEventListener('click', function () {
+$('downloadFolderBtn').addEventListener('click', function () {
     chrome.downloads.showDefaultFolder();
 });
 
-document.getElementById('settingsBtn').addEventListener('click', function () {
+$('settingsBtn').addEventListener('click', function () {
     chrome.tabs.create({
         url: '/options/options.html'
     });
 });
 
-document.getElementById('downloadContainer').addEventListener('mousedown', function (e) {
+$('downloadContainer').addEventListener('mousedown', function (e) {
     var isRemoveBtnClick = e.target.classList.contains('remove-btn');
     var isRestoreBtnClick = e.target.classList.contains('restore-btn');
     var downloadId = e.target.getAttribute('data-id');
@@ -97,9 +98,9 @@ document.getElementById('downloadContainer').addEventListener('mousedown', funct
     }
 });
 
-document.getElementById('startDownloadBtn').addEventListener('click', function () {
-    document.getElementById('downloadBtn').click();
-    document.getElementById('addBtn').classList.add('disabled');
+$('startDownloadBtn').addEventListener('click', function () {
+    $('downloadBtn').click();
+    $('addBtn').classList.add('disabled');
     var downloadType = this.getAttribute('data-type');
     switch (downloadType) {
         case 'track':
@@ -164,7 +165,7 @@ function updateDownloader() {
                 break;
         }
     }
-    document.getElementById('downloadContainer').innerHTML = content;
+    $('downloadContainer').innerHTML = content;
 }
 
 function generateTrackView(entity) {
@@ -257,9 +258,9 @@ function generateListView(entity) {
 }
 
 function hidePreloader() {
-    document.getElementById('preloader').classList.add('hide');
-    document.getElementById('addContainer').classList.remove('hide');
-    document.getElementById('downloadBtn').classList.remove('disabled');
+    $('preloader').classList.add('hide');
+    $('addContainer').classList.remove('hide');
+    $('downloadBtn').classList.remove('disabled');
 }
 
 function generateDownloadArtist(artist) {
@@ -291,14 +292,14 @@ function generateDownloadArtist(artist) {
         compilationContent += '<label><input type="checkbox" class="compilation" value="';
         compilationContent += artist.alsoAlbums[i].id + '">' + title + '</label><br>';
     }
-    document.getElementById('name').innerHTML = artist.artist.name;
-    document.getElementById('info').innerHTML = 'Дискография';
-    document.getElementById('albums').innerHTML = albumContent;
-    document.getElementById('compilations').innerHTML = compilationContent;
+    $('name').innerHTML = artist.artist.name;
+    $('info').innerHTML = 'Дискография';
+    $('albums').innerHTML = albumContent;
+    $('compilations').innerHTML = compilationContent;
 
     if (artist.albums.length) {
-        document.getElementById('albumCheckbox').addEventListener('click', function () {
-            var toggle = document.getElementById('albumCheckbox');
+        $('albumCheckbox').addEventListener('click', function () {
+            var toggle = $('albumCheckbox');
             var albums = document.getElementsByClassName('album');
             for (var i = 0; i < albums.length; i++) {
                 albums[i].checked = toggle.checked;
@@ -306,15 +307,15 @@ function generateDownloadArtist(artist) {
         });
     }
     if (artist.alsoAlbums.length) {
-        document.getElementById('compilationCheckbox').addEventListener('click', function () {
-            var toggle = document.getElementById('compilationCheckbox');
+        $('compilationCheckbox').addEventListener('click', function () {
+            var toggle = $('compilationCheckbox');
             var compilations = document.getElementsByClassName('compilation');
             for (var i = 0; i < compilations.length; i++) {
                 compilations[i].checked = toggle.checked;
             }
         });
     }
-    document.getElementById('addContainer').style.fontSize = '12px';
+    $('addContainer').style.fontSize = '12px';
 }
 
 function generateDownloadLabel(label) {
@@ -334,36 +335,36 @@ function generateDownloadLabel(label) {
         albumContent += label.albums[i].id + '">' + title + '</label><br>';
     }
 
-    document.getElementById('name').innerHTML = label.label.name;
-    document.getElementById('info').innerHTML = 'Лейбл';
-    document.getElementById('albums').innerHTML = albumContent;
+    $('name').innerHTML = label.label.name;
+    $('info').innerHTML = 'Лейбл';
+    $('albums').innerHTML = albumContent;
 
     if (label.albums.length) {
-        document.getElementById('albumCheckbox').addEventListener('click', function () {
-            var toggle = document.getElementById('albumCheckbox');
+        $('albumCheckbox').addEventListener('click', function () {
+            var toggle = $('albumCheckbox');
             var albums = document.getElementsByClassName('album');
             for (var i = 0; i < albums.length; i++) {
                 albums[i].checked = toggle.checked;
             }
         });
     }
-    document.getElementById('addContainer').style.fontSize = '12px';
+    $('addContainer').style.fontSize = '12px';
 }
 
 function generateDownloadTrack(track) {
     var artists = backgroundPage.utils.parseArtists(track.artists, ', ').artists;
     var size = backgroundPage.utils.bytesToStr(track.fileSize);
     var duration = backgroundPage.utils.durationToStr(track.durationMs);
-    document.getElementById('name').innerHTML = artists + ' - ' + track.title;
-    document.getElementById('info').innerHTML = 'Трек / ' + size + ' / ' + duration;
+    $('name').innerHTML = artists + ' - ' + track.title;
+    $('info').innerHTML = 'Трек / ' + size + ' / ' + duration;
 }
 
 function generateDownloadAlbum(album) {
     var artists = backgroundPage.utils.parseArtists(album.artists, ', ').artists;
-    document.getElementById('name').innerHTML = artists + ' - ' + album.title;
+    $('name').innerHTML = artists + ' - ' + album.title;
     if (!album.trackCount) {
-        document.getElementById('info').innerHTML = 'Пустой альбом';
-        document.getElementById('startDownloadBtn').style.display = 'none';
+        $('info').innerHTML = 'Пустой альбом';
+        $('startDownloadBtn').style.display = 'none';
         backgroundPage.utils.logError('Пустой альбом', album.id);
         return;
     }
@@ -381,14 +382,14 @@ function generateDownloadAlbum(album) {
     }
     size = backgroundPage.utils.bytesToStr(size);
     duration = backgroundPage.utils.durationToStr(duration);
-    document.getElementById('info').innerHTML = 'Альбом (' + album.trackCount + ') / ' + size + ' / ' + duration;
+    $('info').innerHTML = 'Альбом (' + album.trackCount + ') / ' + size + ' / ' + duration;
 }
 
 function generateDownloadPlaylist(playlist) {
-    document.getElementById('name').innerHTML = playlist.title;
+    $('name').innerHTML = playlist.title;
     if (!playlist.trackCount) {
-        document.getElementById('info').innerHTML = 'Пустой плейлист';
-        document.getElementById('startDownloadBtn').style.display = 'none';
+        $('info').innerHTML = 'Пустой плейлист';
+        $('startDownloadBtn').style.display = 'none';
         backgroundPage.utils.logError('Пустой плейлист', playlist.owner.login + '#' + playlist.kind);
         return;
     }
@@ -404,15 +405,15 @@ function generateDownloadPlaylist(playlist) {
     }
     size = backgroundPage.utils.bytesToStr(size);
     duration = backgroundPage.utils.durationToStr(duration);
-    document.getElementById('info').innerHTML = 'Плейлист (' + playlist.trackCount + ') / ' + size + ' / ' + duration;
+    $('info').innerHTML = 'Плейлист (' + playlist.trackCount + ') / ' + size + ' / ' + duration;
 }
 
 function onAjaxFail(error, details) {
     backgroundPage.utils.logError(error, details);
     hidePreloader();
-    document.getElementById('addContainer').classList.add('hide');
-    document.getElementById('addBtn').classList.add('disabled');
-    document.getElementById('errorContainer').classList.remove('hide');
+    $('addContainer').classList.add('hide');
+    $('addBtn').classList.add('disabled');
+    $('errorContainer').classList.remove('hide');
 }
 
 function adaptToSmallDeviceHeight(tabHeight) {
@@ -433,7 +434,7 @@ chrome.runtime.getBackgroundPage(function (bp) {
         }
         adaptToSmallDeviceHeight(activeTab.height);
         var page = bp.utils.getUrlInfo(activeTab.url);
-        var downloadBtn = document.getElementById('startDownloadBtn');
+        var downloadBtn = $('startDownloadBtn');
         if (page.isPlaylist) {
             downloadBtn.setAttribute('data-type', 'playlist');
             downloadBtn.setAttribute('data-username', page.username);
@@ -487,8 +488,8 @@ chrome.runtime.getBackgroundPage(function (bp) {
             }, onAjaxFail);
         } else {
             hidePreloader();
-            document.getElementById('downloadBtn').click();
-            document.getElementById('addBtn').classList.add('disabled');
+            $('downloadBtn').click();
+            $('addBtn').classList.add('disabled');
         }
     });
 });
