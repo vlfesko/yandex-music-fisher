@@ -8,7 +8,8 @@ var checkboxes = [
     'enumerateAlbums',
     'enumeratePlaylists',
     'shouldNotifyAboutUpdates',
-    'singleClickDownload'
+    'singleClickDownload',
+    'backgroundDownload'
 ];
 var selects = [
     'downloadThreadCount',
@@ -16,19 +17,51 @@ var selects = [
     'albumCoverSizeId3'
 ];
 
+function saveSetting(setting, value) {
+    var options = {};
+    options[setting] = value;
+    chrome.storage.local.set(options, backgroundPage.storage.load);
+}
+
 checkboxes.forEach(function (checkbox) {
     $(checkbox).onchange = function () {
-        var value = !!this.value;
-        var options = {};
-        options[checkbox] = value;
-        chrome.storage.local.set(options, backgroundPage.storage.load);
+        var checked = !!this.value;
+        saveSetting(checkbox, checked);
 
-        if (checkbox === 'shouldDownloadCover') {
-            if (value) {
-                $('albumCoverSize').removeAttribute('disabled');
-            } else {
-                $('albumCoverSize').setAttribute('disabled', 'disabled');
-            }
+        switch (checkbox) {
+            case 'shouldDownloadCover':
+                if (checked) {
+                    $('albumCoverSize').removeAttribute('disabled');
+                } else {
+                    $('albumCoverSize').setAttribute('disabled', 'disabled');
+                }
+                break;
+            case 'backgroundDownload':
+                var permissions = {
+                    permissions: ['background']
+                };
+                if (checked) {
+                    chrome.permissions.contains(permissions, function (contains) {
+                        if (!contains) {
+                            chrome.permissions.request(permissions, function (granted) {
+                                if (!granted) {
+                                    saveSetting(checkbox, false);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    chrome.permissions.contains(permissions, function (contains) {
+                        if (contains) {
+                            chrome.permissions.remove(permissions, function (removed) {
+                                if (!removed) {
+                                    saveSetting(checkbox, false);
+                                }
+                            });
+                        }
+                    });
+                }
+                break;
         }
     };
 });
@@ -36,22 +69,19 @@ checkboxes.forEach(function (checkbox) {
 selects.forEach(function (select) {
     $(select).onchange = function () {
         var value = this.value;
-        var options = {};
         if (select === 'downloadThreadCount') {
-            options[select] = parseInt(value);
-        } else {
-            options[select] = value;
+            value = parseInt(value);
         }
-        chrome.storage.local.set(options, backgroundPage.storage.load);
+        saveSetting(select, value);
     };
 });
 
-$('btnReset').onclick = function () {
+$('btnReset').addEventListener('click', function () {
     backgroundPage.storage.resetAll(function () {
         backgroundPage.storage.load();
         location.reload();
     });
-};
+});
 
 chrome.runtime.getBackgroundPage(function (bp) {
     backgroundPage = bp;
