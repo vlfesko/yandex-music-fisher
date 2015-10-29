@@ -3,163 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <title>Yandex Music Fisher</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link rel="stylesheet" href="../vendor/bootstrap-3.3.4-dist/css/bootstrap.min.css" type="text/css">
 </head>
 <body>
-<div class="container">
-    <div class="row">
-        <div class="col-sm-12">
-            <h1>Yandex Music Fisher
-                <small><i class="glyphicon glyphicon-cog"></i> Настройки</small>
-            </h1>
-        </div>
-    </div>
-    <table class="table table-striped table-bordered">
-        <thead>
-        <tr>
-            <th class="col-sm-5">Параметр</th>
-            <th>Значение</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td style="width: 50%;">
-                Количество одновременных загрузок
-                <small>(чем больше скорость доступа, тем большее значение следует ставить).</small>
-            </td>
-            <td>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <select id="downloadThreadCount" class="form-control input-sm">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                        </select>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>Сохранять обложку в папку с альбомами
-                <small>(для ID3 тега обложка загрузится в любом случае)</small>
-            </td>
-            <td>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <select id="shouldDownloadCover" class="form-control input-sm">
-                            <option value="true">Да</option>
-                            <option value="">Нет</option>
-                        </select>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>Размер обложки, скачиваемой в папку с альбомами</td>
-            <td>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <select id="albumCoverSize" class="form-control input-sm">
-                            <option value="200x200">200x200</option>
-                            <option value="300x300">300x300</option>
-                            <option value="400x400">400x400</option>
-                            <option value="460x460">460x460</option>
-                            <option value="600x600">600x600</option>
-                            <option value="700x700">700x700</option>
-                            <option value="1000x1000">1000x1000</option>
-                        </select>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>Размер обложки, прикрепляемой к каждому треку в ID3 теге</td>
-            <td>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <select id="albumCoverSizeId3" class="form-control input-sm">
-                            <option value="200x200">200x200</option>
-                            <option value="300x300">300x300</option>
-                            <option value="400x400">400x400</option>
-                            <option value="460x460">460x460</option>
-                            <option value="600x600">600x600</option>
-                            <option value="700x700">700x700</option>
-                            <option value="1000x1000">1000x1000</option>
-                        </select>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>Нумеровать треки альбомов</td>
-            <td>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <select id="enumerateAlbums" class="form-control input-sm">
-                            <option value="true">Да</option>
-                            <option value="">Нет</option>
-                        </select>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>Нумеровать треки плейлистов</td>
-            <td>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <select id="enumeratePlaylists" class="form-control input-sm">
-                            <option value="true">Да</option>
-                            <option value="">Нет</option>
-                        </select>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>Оповещать об обновлениях</td>
-            <td>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <select id="shouldNotifyAboutUpdates" class="form-control input-sm">
-                            <option value="true">Да</option>
-                            <option value="">Нет</option>
-                        </select>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>Скачивать в одно нажатие
-                <small>(только для отдельных треков, альбомов и плейлистов)</small>
-            </td>
-            <td>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <select id="singleClickDownload" class="form-control input-sm">
-                            <option value="true">Да</option>
-                            <option value="">Нет</option>
-                        </select>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-
-    <div class="btn-group">
-        <button class="btn btn-default" id="btnReset">
-            <i class="glyphicon glyphicon-floppy-open"></i> Сбросить настройки
-        </button>
-    </div>
-</div>
+<table>
+    <thead>
+    <tr>
+        <th>Параметр</th>
+        <th>Значение</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            <label for="downloadThreadCount">Количество одновременных загрузок</label>
+        </td>
+        <td>
+            <select id="downloadThreadCount">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="shouldDownloadCover">Сохранять обложку в папку с альбомами</label>
+        </td>
+        <td>
+            <select id="shouldDownloadCover">
+                <option value="true">Да</option>
+                <option value="">Нет</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="albumCoverSize">Размер обложки, скачиваемой в папку с альбомами</label>
+        </td>
+        <td>
+            <select id="albumCoverSize">
+                <option value="200x200">200x200</option>
+                <option value="300x300">300x300</option>
+                <option value="400x400">400x400</option>
+                <option value="460x460">460x460</option>
+                <option value="600x600">600x600</option>
+                <option value="700x700">700x700</option>
+                <option value="1000x1000">1000x1000</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="albumCoverSizeId3">Размер обложки, прикрепляемой к каждому треку в ID3 теге</label>
+        </td>
+        <td>
+            <select id="albumCoverSizeId3">
+                <option value="200x200">200x200</option>
+                <option value="300x300">300x300</option>
+                <option value="400x400">400x400</option>
+                <option value="460x460">460x460</option>
+                <option value="600x600">600x600</option>
+                <option value="700x700">700x700</option>
+                <option value="1000x1000">1000x1000</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="enumerateAlbums">Нумеровать треки альбомов</label>
+        </td>
+        <td>
+            <select id="enumerateAlbums">
+                <option value="true">Да</option>
+                <option value="">Нет</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="enumeratePlaylists">Нумеровать треки плейлистов</label>
+        </td>
+        <td>
+            <select id="enumeratePlaylists">
+                <option value="true">Да</option>
+                <option value="">Нет</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="shouldNotifyAboutUpdates">Оповещать об обновлениях</label>
+        </td>
+        <td>
+            <select id="shouldNotifyAboutUpdates">
+                <option value="true">Да</option>
+                <option value="">Нет</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="singleClickDownload">Скачивать в одно нажатие</label>
+        </td>
+        <td>
+            <select id="singleClickDownload">
+                <option value="true">Да</option>
+                <option value="">Нет</option>
+            </select>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<button id="btnReset">Сбросить настройки</button>
 
 <script src="options.js"></script>
 </body>

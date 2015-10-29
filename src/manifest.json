@@ -31,7 +31,7 @@
     },
     "options_page": "options/options.html",
     "options_ui": {
-        "page": "options/options2.html",
+        "page": "options/options.html",
         "chrome_style": true
     },
     "browser_action": {
