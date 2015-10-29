@@ -26,9 +26,11 @@ $('downloadFolderBtn').addEventListener('click', function () {
 });
 
 $('settingsBtn').addEventListener('click', function () {
-    chrome.tabs.create({
-        url: '/options/options.html'
-    });
+    if (chrome.runtime.openOptionsPage) { // Chrome 42+
+        chrome.runtime.openOptionsPage();
+    } else {
+        window.open(chrome.runtime.getURL('options/options.html'));
+    }
 });
 
 $('downloadContainer').addEventListener('mousedown', function (e) {
