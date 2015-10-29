@@ -42,6 +42,10 @@ checkboxes.forEach(function (checkbox) {
                 };
                 if (checked) {
                     chrome.permissions.contains(permissions, function (contains) {
+                        if (chrome.runtime.lastError) { // opera
+                            $('backgroundDownload').setAttribute('disabled', 'disabled');
+                            return;
+                        }
                         if (!contains) {
                             chrome.permissions.request(permissions, function (granted) {
                                 if (!granted) {
@@ -52,6 +56,10 @@ checkboxes.forEach(function (checkbox) {
                     });
                 } else {
                     chrome.permissions.contains(permissions, function (contains) {
+                        if (chrome.runtime.lastError) { // opera
+                            $('backgroundDownload').setAttribute('disabled', 'disabled');
+                            return;
+                        }
                         if (contains) {
                             chrome.permissions.remove(permissions, function (removed) {
                                 if (!removed) {
