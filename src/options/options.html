@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Yandex Music Fisher</title>
+
+    <link href="options.css" rel="stylesheet" type="text/css">
 </head>
 <body>
 <table>
-    <thead>
-    <tr>
-        <th>Параметр</th>
-        <th>Значение</th>
-    </tr>
-    </thead>
     <tbody>
+    <tr>
+        <th colspan="2">Общее</th>
+    </tr>
     <tr>
         <td>
             <label for="downloadThreadCount">Количество одновременных загрузок</label>
@@ -27,71 +26,6 @@
                 <option value="6">6</option>
                 <option value="7">7</option>
                 <option value="8">8</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="shouldDownloadCover">Сохранять обложку в папку с альбомами</label>
-        </td>
-        <td>
-            <select id="shouldDownloadCover">
-                <option value="true">Да</option>
-                <option value="">Нет</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="albumCoverSize">Размер обложки, скачиваемой в папку с альбомами</label>
-        </td>
-        <td>
-            <select id="albumCoverSize">
-                <option value="200x200">200x200</option>
-                <option value="300x300">300x300</option>
-                <option value="400x400">400x400</option>
-                <option value="460x460">460x460</option>
-                <option value="600x600">600x600</option>
-                <option value="700x700">700x700</option>
-                <option value="1000x1000">1000x1000</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="albumCoverSizeId3">Размер обложки, прикрепляемой к каждому треку в ID3 теге</label>
-        </td>
-        <td>
-            <select id="albumCoverSizeId3">
-                <option value="200x200">200x200</option>
-                <option value="300x300">300x300</option>
-                <option value="400x400">400x400</option>
-                <option value="460x460">460x460</option>
-                <option value="600x600">600x600</option>
-                <option value="700x700">700x700</option>
-                <option value="1000x1000">1000x1000</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="enumerateAlbums">Нумеровать треки альбомов</label>
-        </td>
-        <td>
-            <select id="enumerateAlbums">
-                <option value="true">Да</option>
-                <option value="">Нет</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="enumeratePlaylists">Нумеровать треки плейлистов</label>
-        </td>
-        <td>
-            <select id="enumeratePlaylists">
-                <option value="true">Да</option>
-                <option value="">Нет</option>
             </select>
         </td>
     </tr>
@@ -112,6 +46,81 @@
         </td>
         <td>
             <select id="singleClickDownload">
+                <option value="true">Да</option>
+                <option value="">Нет</option>
+            </select>
+        </td>
+    </tr>
+    </tbody>
+    <tbody>
+    <tr>
+        <th colspan="2">Обложка</th>
+    </tr>
+    <tr>
+        <td>
+            <label for="shouldDownloadCover">Сохранять обложку в папку с альбомами</label>
+        </td>
+        <td>
+            <select id="shouldDownloadCover">
+                <option value="true">Да</option>
+                <option value="">Нет</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="albumCoverSize">Размер обложки в папке с альбомами</label>
+        </td>
+        <td>
+            <select id="albumCoverSize">
+                <option value="200x200">200x200</option>
+                <option value="300x300">300x300</option>
+                <option value="400x400">400x400</option>
+                <option value="460x460">460x460</option>
+                <option value="600x600">600x600</option>
+                <option value="700x700">700x700</option>
+                <option value="1000x1000">1000x1000</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="albumCoverSizeId3">Размер обложки у треков в ID3 теге</label>
+        </td>
+        <td>
+            <select id="albumCoverSizeId3">
+                <option value="200x200">200x200</option>
+                <option value="300x300">300x300</option>
+                <option value="400x400">400x400</option>
+                <option value="460x460">460x460</option>
+                <option value="600x600">600x600</option>
+                <option value="700x700">700x700</option>
+                <option value="1000x1000">1000x1000</option>
+            </select>
+        </td>
+    </tr>
+    </tbody>
+    <tbody>
+    <tr>
+        <th colspan="2">Названия файлов</th>
+    </tr>
+    <tr>
+        <td>
+            <label for="enumerateAlbums">Нумеровать треки альбомов</label>
+        </td>
+        <td>
+            <select id="enumerateAlbums">
+                <option value="true">Да</option>
+                <option value="">Нет</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="enumeratePlaylists">Нумеровать треки плейлистов</label>
+        </td>
+        <td>
+            <select id="enumeratePlaylists">
                 <option value="true">Да</option>
                 <option value="">Нет</option>
             </select>
