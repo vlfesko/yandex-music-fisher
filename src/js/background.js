@@ -51,6 +51,9 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
 chrome.tabs.onActivated.addListener(function (activeInfo) {
     chrome.tabs.get(activeInfo.tabId, function (tab) { // переключение вкладки
+        if (chrome.runtime.lastError) { // консоль
+            return;
+        }
         utils.updateTabIcon(tab);
     });
 });

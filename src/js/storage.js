@@ -10,7 +10,8 @@ var storage = {
         enumerateAlbums: true,
         enumeratePlaylists: false,
         shouldNotifyAboutUpdates: true,
-        singleClickDownload: false
+        singleClickDownload: false,
+        backgroundDownload: false
     },
     current: {}
 };
