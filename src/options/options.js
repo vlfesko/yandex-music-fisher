@@ -23,65 +23,65 @@ function saveSetting(setting, value) {
     chrome.storage.local.set(options, backgroundPage.storage.load);
 }
 
-checkboxes.forEach(function (checkbox) {
-    $(checkbox).onchange = function () {
-        var checked = !!this.value;
-        saveSetting(checkbox, checked);
-
-        switch (checkbox) {
-            case 'shouldDownloadCover':
-                if (checked) {
-                    $('albumCoverSize').removeAttribute('disabled');
-                } else {
-                    $('albumCoverSize').setAttribute('disabled', 'disabled');
-                }
-                break;
-            case 'backgroundDownload':
-                var permissions = {
-                    permissions: ['background']
-                };
-                if (checked) {
-                    chrome.permissions.contains(permissions, function (contains) {
-                        if (chrome.runtime.lastError) { // opera
-                            $('backgroundDownload').setAttribute('disabled', 'disabled');
-                            return;
-                        }
-                        if (!contains) {
-                            chrome.permissions.request(permissions, function (granted) {
-                                if (!granted) {
-                                    saveSetting(checkbox, false);
-                                }
-                            });
-                        }
-                    });
-                } else {
-                    chrome.permissions.contains(permissions, function (contains) {
-                        if (chrome.runtime.lastError) { // opera
-                            $('backgroundDownload').setAttribute('disabled', 'disabled');
-                            return;
-                        }
-                        if (contains) {
-                            chrome.permissions.remove(permissions, function (removed) {
-                                if (!removed) {
-                                    saveSetting(checkbox, false);
-                                }
-                            });
-                        }
-                    });
-                }
-                break;
+function afterCheckboxChanged(checkbox) {
+    var checked = $(checkbox).checked;
+    if (checkbox === 'shouldDownloadCover') {
+        if (checked) {
+            $('albumCoverSize').removeAttribute('disabled');
+        } else {
+            $('albumCoverSize').setAttribute('disabled', 'disabled');
         }
-    };
+    }
+    else if (checkbox === 'backgroundDownload') {
+        var permissions = {
+            permissions: ['background']
+        };
+        chrome.permissions.contains(permissions, function (contains) {
+            if (chrome.runtime.lastError) { // opera
+                $('backgroundDownload').parentNode.parentNode.parentNode.style.display = 'none';
+            }
+            if (contains && !checked) { // btnReset
+                chrome.permissions.remove(permissions);
+            }
+        });
+    }
+}
+
+checkboxes.forEach(function (checkbox) {
+    $(checkbox).addEventListener('click', function () {
+        var checked = this.checked;
+        saveSetting(checkbox, checked);
+        afterCheckboxChanged(checkbox);
+
+        if (checkbox === 'backgroundDownload') {
+            var permissions = {
+                permissions: ['background']
+            };
+            if (checked) {
+                chrome.permissions.request(permissions, function (granted) {
+                    if (!granted) {
+                        saveSetting(checkbox, false);
+                    }
+                });
+            } else {
+                chrome.permissions.remove(permissions, function (removed) {
+                    if (!removed) {
+                        saveSetting(checkbox, false);
+                    }
+                });
+            }
+        }
+    });
 });
 
 selects.forEach(function (select) {
-    $(select).onchange = function () {
+    $(select).addEventListener('click', function () {
         var value = this.value;
         if (select === 'downloadThreadCount') {
             value = parseInt(value);
         }
         saveSetting(select, value);
-    };
+    });
 });
 
 $('btnReset').addEventListener('click', function () {
@@ -95,12 +95,8 @@ chrome.runtime.getBackgroundPage(function (bp) {
     backgroundPage = bp;
 
     checkboxes.forEach(function (checkbox) {
-        var value = ''; // конвертируется в false
-        if (backgroundPage.storage.current[checkbox]) {
-            value = 'true';
-        }
-        $(checkbox).value = value;
-        $(checkbox).onchange();
+        $(checkbox).checked = backgroundPage.storage.current[checkbox];
+        afterCheckboxChanged(checkbox);
     });
 
     selects.forEach(function (select) {

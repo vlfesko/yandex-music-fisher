@@ -1,5 +1,19 @@
+body {
+    margin-top: 0;
+    margin-left: 35px;
+}
+
+h3 {
+    margin-left: -18px;
+}
+
 select {
     width: 94px;
+}
+
+input[type=checkbox] {
+    margin-top: -4px;
+    margin-right: 4px;
 }
 
 table {
@@ -12,15 +26,10 @@ tbody::after {
     height: 10px;
 }
 
-td:nth-child(1) {
-    padding-left: 4px;
+tr {
+    height: 28px;
 }
 
 td:nth-child(2) {
     padding-left: 10px;
-    padding-bottom: 2px;
-}
-
-tbody > tr:nth-child(2n+2) {
-    background-color: #EEE;
 }

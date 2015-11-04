@@ -10,11 +10,11 @@
 <table>
     <tbody>
     <tr>
-        <th colspan="2">Общее</th>
+        <td colspan="2"><h3>Общее</h3></td>
     </tr>
     <tr>
         <td>
-            <label for="downloadThreadCount">Количество одновременных загрузок</label>
+            <label for="downloadThreadCount">Количество одновременных загрузок:</label>
         </td>
         <td>
             <select id="downloadThreadCount">
@@ -30,57 +30,33 @@
         </td>
     </tr>
     <tr>
-        <td>
-            <label for="shouldNotifyAboutUpdates">Оповещать об обновлениях</label>
-        </td>
-        <td>
-            <select id="shouldNotifyAboutUpdates">
-                <option value="true">Да</option>
-                <option value="">Нет</option>
-            </select>
+        <td colspan="2">
+            <label><input type="checkbox" id="shouldNotifyAboutUpdates"> Оповещать об обновлениях</label>
         </td>
     </tr>
     <tr>
-        <td>
-            <label for="singleClickDownload">Скачивать в одно нажатие</label>
-        </td>
-        <td>
-            <select id="singleClickDownload">
-                <option value="true">Да</option>
-                <option value="">Нет</option>
-            </select>
+        <td colspan="2">
+            <label><input type="checkbox" id="singleClickDownload"> Скачивать в одно нажатие</label>
         </td>
     </tr>
     <tr>
-        <td>
-            <label for="backgroundDownload">Скачивать в фоновом режиме</label>
-        </td>
-        <td>
-            <select id="backgroundDownload">
-                <option value="true">Да</option>
-                <option value="">Нет</option>
-            </select>
+        <td colspan="2">
+            <label><input type="checkbox" id="backgroundDownload"> Скачивать в фоновом режиме</label>
         </td>
     </tr>
     </tbody>
     <tbody>
     <tr>
-        <th colspan="2">Обложка</th>
+        <td colspan="2"><h3>Обложка</h3></td>
     </tr>
     <tr>
-        <td>
-            <label for="shouldDownloadCover">Сохранять обложку в папку с альбомами</label>
-        </td>
-        <td>
-            <select id="shouldDownloadCover">
-                <option value="true">Да</option>
-                <option value="">Нет</option>
-            </select>
+        <td colspan="2">
+            <label><input type="checkbox" id="shouldDownloadCover"> Сохранять обложку в папку с альбомами</label>
         </td>
     </tr>
     <tr>
         <td>
-            <label for="albumCoverSize">Размер обложки в папке с альбомами</label>
+            <label for="albumCoverSize">Размер обложки в папке с альбомами:</label>
         </td>
         <td>
             <select id="albumCoverSize">
@@ -96,7 +72,7 @@
     </tr>
     <tr>
         <td>
-            <label for="albumCoverSizeId3">Размер обложки у треков в ID3 теге</label>
+            <label for="albumCoverSizeId3">Размер обложки у треков в ID3 теге:</label>
         </td>
         <td>
             <select id="albumCoverSizeId3">
@@ -113,34 +89,30 @@
     </tbody>
     <tbody>
     <tr>
-        <th colspan="2">Названия файлов</th>
+        <td colspan="2"><h3>Названия файлов</h3></td>
     </tr>
     <tr>
-        <td>
-            <label for="enumerateAlbums">Нумеровать треки альбомов</label>
-        </td>
-        <td>
-            <select id="enumerateAlbums">
-                <option value="true">Да</option>
-                <option value="">Нет</option>
-            </select>
+        <td colspan="2">
+            <label><input type="checkbox" id="enumerateAlbums"> Нумеровать треки альбомов</label>
         </td>
     </tr>
     <tr>
-        <td>
-            <label for="enumeratePlaylists">Нумеровать треки плейлистов</label>
+        <td colspan="2">
+            <label><input type="checkbox" id="enumeratePlaylists"> Нумеровать треки плейлистов</label>
         </td>
+    </tr>
+    </tbody>
+    <tbody>
+    <tr>
+        <td colspan="2"><h3>Сброс настроек</h3></td>
+    </tr>
+    <tr>
         <td>
-            <select id="enumeratePlaylists">
-                <option value="true">Да</option>
-                <option value="">Нет</option>
-            </select>
+            <button id="btnReset">Сбросить настройки</button>
         </td>
     </tr>
     </tbody>
 </table>
-<br>
-<button id="btnReset">Сбросить настройки</button>
 
 <script src="options.js"></script>
 </body>
