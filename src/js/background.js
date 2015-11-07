@@ -134,9 +134,7 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
     }
     if (buttonIndex === 0) {
         chrome.downloads.showDefaultFolder();
-        chrome.notifications.clear(notificationId, function (wasCleared) {
-            // The callback is required before Chrome 42.
-        });
+        chrome.notifications.clear(notificationId);
         chrome.downloads.download({
             url: distributionUrl,
             saveAs: false
@@ -167,8 +165,6 @@ storage.load(function () {
                 title: 'Просмотреть изменения'
             }],
             isClickable: false
-        }, function (notificationId) {
-            // The callback is required before Chrome 42.
         });
     });
 });
