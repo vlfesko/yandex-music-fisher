@@ -221,6 +221,11 @@
         }).catch(utils.logError);
     });
 
+    utils.existDuplicates = iterable => {
+        let uniq = new Set(iterable);
+        return uniq.size !== iterable.length;
+    };
+
     utils.addId3Tag = (oldArrayBuffer, framesObject) => {
         let uint32ToUint8Array = uint32 => [
             uint32 >>> 24,

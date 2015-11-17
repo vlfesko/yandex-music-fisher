@@ -122,6 +122,7 @@
             chrome.downloads.download({
                 url: localUrl,
                 filename: entity.savePath,
+                conflictAction: 'overwrite',
                 saveAs: false
             }, onChromeDownloadStart);
         };
@@ -170,6 +171,7 @@
                 chrome.downloads.download({
                     url: localUrl,
                     filename: entity.filename,
+                    conflictAction: 'overwrite',
                     saveAs: false
                 }, onChromeDownloadStart);
             }).catch(onInterruptEntityExcept404);
@@ -234,7 +236,6 @@
                 let shortName = artistOrLabelName.substr(0, downloader.PATH_LIMIT);
                 saveDir += utils.clearPath(shortName, true) + '/';
             }
-            // пример длинного названия: https://music.yandex.ru/album/512639
             let shortAlbumArtists = albumEntity.artists.substr(0, downloader.PATH_LIMIT);
             let shortAlbumTitle = albumEntity.title.substr(0, downloader.PATH_LIMIT);
             if (album.year) {
@@ -254,6 +255,24 @@
                     attemptCount: 0
                 };
             }
+
+            // принудительная нумерация при совпадении названий, пример: https://music.yandex.ru/album/512639
+            let duplicationMap = [];
+            album.volumes.forEach(volume => {
+                let volumeTrackNames = [];
+                volume.forEach(track => {
+                    if (track.error) {
+                        return;
+                    }
+                    let title = track.title;
+                    if (track.version) {
+                        title += ' (' + track.version + ')';
+                    }
+                    let shortTitle = title.substr(0, downloader.PATH_LIMIT);
+                    volumeTrackNames.push(shortTitle);
+                });
+                duplicationMap.push(utils.existDuplicates(volumeTrackNames));
+            });
 
             album.volumes.forEach((volume, i) => {
                 volume.forEach((track, j) => {
@@ -292,7 +311,7 @@
                         savePath += 'CD' + albumPosition + '/';
                     }
 
-                    if (storage.current.enumerateAlbums) {
+                    if (storage.current.enumerateAlbums || duplicationMap[i]) {
                         savePath += utils.addExtraZeros(trackPosition, volume.length) + '. ';
                     }
 
@@ -329,6 +348,20 @@
             let shortPlaylistTitle = playlist.title.substr(0, downloader.PATH_LIMIT);
             let saveDir = utils.clearPath(shortPlaylistTitle, true);
 
+            let playlistTrackNames = [];
+            playlist.tracks.forEach(track => {
+                if (track.error) {
+                    return;
+                }
+                let title = track.title;
+                if (track.version) {
+                    title += ' (' + track.version + ')';
+                }
+                let shortTitle = title.substr(0, downloader.PATH_LIMIT);
+                playlistTrackNames.push(shortTitle);
+            });
+            let existDuplicates = utils.existDuplicates(playlistTrackNames);
+
             playlist.tracks.forEach((track, i) => {
                 if (track.error) {
                     utils.logError({
@@ -354,7 +387,7 @@
                 }
 
                 let savePath = saveDir + '/';
-                if (storage.current.enumeratePlaylists) {
+                if (storage.current.enumeratePlaylists || existDuplicates) {
                     savePath += utils.addExtraZeros(i + 1, playlist.tracks.length) + '. ';
                 }
 

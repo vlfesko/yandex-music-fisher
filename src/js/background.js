@@ -108,6 +108,7 @@
             chrome.notifications.clear(notificationId);
             chrome.downloads.download({
                 url: distributionUrl,
+                conflictAction: 'overwrite',
                 saveAs: false
             });
         } else if (buttonIndex === 1) {
