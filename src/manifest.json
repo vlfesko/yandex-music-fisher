@@ -20,7 +20,7 @@
         "background"
     ],
     "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",
-    "minimum_chrome_version": "42.0",
+    "minimum_chrome_version": "45.0",
     "background": {
         "scripts": [
             "vendor/md5.min.js",
