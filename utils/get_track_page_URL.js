@@ -4,17 +4,22 @@
     'use strict';
 
     let getTrackPageURL = trackId => {
-        yandex.getTrack(trackId, track => {
+        const urlPattern = 'https://music.yandex.ru/album/%albumId%/track/%trackId%';
+        yandex.getTrack(trackId).then(track => {
             let artists = utils.parseArtists(track.artists, ', ');
             console.log(artists.artists + ' - ' + track.title);
             if (track.error) {
                 console.info(track.error);
                 return;
             }
-            track.albums.forEach(album => console.log('https://music.yandex.ru/album/' + album.id + '/track/' + trackId));
-        }, (error, details) => console.log(error, details));
+            track.albums.forEach(album => console.log(urlPattern
+                .replace('%albumId%', album.id)
+                .replace('%trackId%', trackId)
+            ));
+        }).catch(error => console.log(error));
     };
+    window.getTrackPageURL = getTrackPageURL;
 
-    getTrackPageURL(10750327);
+    getTrackPageURL(4790215);
 
 })();

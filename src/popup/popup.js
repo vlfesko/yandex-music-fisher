@@ -19,32 +19,41 @@
             finished: 0,
             interrupted: 0
         };
-        for (let i = 0; i < totalTrackCount; i++) {
-            loadedTrackSize += entity.tracks[i].loadedBytes;
-            totalStatus[entity.tracks[i].status]++;
-            if (entity.tracks[i].status === backgroundPage.downloader.STATUS.FINISHED) {
+        let isAlbum = entity.type === backgroundPage.downloader.TYPE.ALBUM;
+        let isPlaylist = entity.type === backgroundPage.downloader.TYPE.PLAYLIST;
+
+        entity.tracks.forEach(track => {
+            loadedTrackSize += track.loadedBytes;
+            totalStatus[track.status]++;
+            if (track.status === backgroundPage.downloader.STATUS.FINISHED) {
                 loadedTrackCount++;
             }
-        }
+        });
+
+        let isLoading = totalStatus.loading > 0;
+        let isInterrupted = !isLoading && totalStatus.interrupted > 0;
+        let isFinished = !isInterrupted && totalStatus.finished === totalTrackCount;
+        let isWaiting = !isFinished && totalStatus.waiting > 0;
+
         let name = '';
-        if (entity.type === backgroundPage.downloader.TYPE.ALBUM) {
+        if (isAlbum) {
             name = 'Альбом <strong>' + entity.artists + ' - ' + entity.title + '</strong>';
-        } else if (entity.type === backgroundPage.downloader.TYPE.PLAYLIST) {
+        } else if (isPlaylist) {
             name = 'Плейлист <strong>' + entity.title + '</strong>';
         }
 
         let status = '';
         let loadedTrackSizeStr = backgroundPage.utils.bytesToStr(loadedTrackSize);
         let totalTrackSizeStr = backgroundPage.utils.bytesToStr(totalTrackSize);
-        if (totalStatus.loading > 0) {
+        if (isLoading) {
             status = '<span class="text-primary">Загрузка [' + loadedTrackSizeStr + ' из ' + totalTrackSizeStr + ']</span>';
-        } else if (totalStatus.interrupted > 0) {
+        } else if (isInterrupted) {
             status = '<span class="text-danger">Ошибка [скачано ' + loadedTrackSizeStr + ' из ' + totalTrackSizeStr + ']</span>&nbsp;';
             status += '<button type="button" class="btn btn-info btn-xs restore-btn" data-id="' + entity.index + '">';
             status += '<i class="glyphicon glyphicon-repeat restore-btn" data-id="' + entity.index + '"></i></button>';
-        } else if (totalStatus.finished === totalTrackCount) {
+        } else if (isFinished) {
             status = '<span class="text-success">Сохранён [' + totalTrackSizeStr + ']</span>';
-        } else if (totalStatus.waiting > 0) {
+        } else if (isWaiting) {
             status = '<span class="text-muted">В очереди [' + totalTrackSizeStr + ']</span>';
         }
 
@@ -67,21 +76,21 @@
         let loadedSize = backgroundPage.utils.bytesToStr(entity.loadedBytes);
         let totalSize = backgroundPage.utils.bytesToStr(entity.track.fileSize);
         let status = '';
-        switch (entity.status) {
-            case backgroundPage.downloader.STATUS.WAITING:
-                status = '<span class="text-muted">В очереди [' + totalSize + ']</span>';
-                break;
-            case backgroundPage.downloader.STATUS.LOADING:
-                status = '<span class="text-primary">Загрузка [' + loadedSize + ' из ' + totalSize + ']</span>';
-                break;
-            case backgroundPage.downloader.STATUS.FINISHED:
-                status = '<span class="text-success">Сохранён [' + totalSize + ']</span>';
-                break;
-            case backgroundPage.downloader.STATUS.INTERRUPTED:
-                status = '<span class="text-danger">Ошибка [скачано ' + loadedSize + ' из ' + totalSize + ']</span>&nbsp;';
-                status += '<button type="button" class="btn btn-info btn-xs restore-btn" data-id="' + entity.index + '">';
-                status += '<i class="glyphicon glyphicon-repeat restore-btn" data-id="' + entity.index + '"></i></button>';
-                break;
+        let isWaiting = entity.status === backgroundPage.downloader.STATUS.WAITING;
+        let isLoading = entity.status === backgroundPage.downloader.STATUS.LOADING;
+        let isFinished = entity.status === backgroundPage.downloader.STATUS.FINISHED;
+        let isInterrupted = entity.status === backgroundPage.downloader.STATUS.INTERRUPTED;
+
+        if (isWaiting) {
+            status = '<span class="text-muted">В очереди [' + totalSize + ']</span>';
+        } else if (isLoading) {
+            status = '<span class="text-primary">Загрузка [' + loadedSize + ' из ' + totalSize + ']</span>';
+        } else if (isFinished) {
+            status = '<span class="text-success">Сохранён [' + totalSize + ']</span>';
+        } else if (isInterrupted) {
+            status = '<span class="text-danger">Ошибка [скачано ' + loadedSize + ' из ' + totalSize + ']</span>&nbsp;';
+            status += '<button type="button" class="btn btn-info btn-xs restore-btn" data-id="' + entity.index + '">';
+            status += '<i class="glyphicon glyphicon-repeat restore-btn" data-id="' + entity.index + '"></i></button>';
         }
 
         let view = '<div class="panel panel-default">';
@@ -105,21 +114,17 @@
             content += 'Загрузок нет.<br><br>';
             content += 'Для добавления перейдите на страницу трека, альбома, плейлиста или исполнителя на сервисе Яндекс.Музыка';
         }
-        for (let i = 0; i < downloads.length; i++) {
-            let entity = downloads[i];
-            if (!entity) {
-                continue; // эту загрузку удалили
+        downloads.forEach(entity => {
+            let isAlbum = entity.type === backgroundPage.downloader.TYPE.ALBUM;
+            let isPlaylist = entity.type === backgroundPage.downloader.TYPE.PLAYLIST;
+            let isTrack = entity.type === backgroundPage.downloader.TYPE.TRACK;
+
+            if (isTrack) {
+                content = generateTrackView(entity) + content;
+            } else if (isAlbum || isPlaylist) {
+                content = generateListView(entity) + content;
             }
-            switch (entity.type) {
-                case backgroundPage.downloader.TYPE.TRACK:
-                    content = generateTrackView(entity) + content;
-                    break;
-                case backgroundPage.downloader.TYPE.ALBUM:
-                case backgroundPage.downloader.TYPE.PLAYLIST:
-                    content = generateListView(entity) + content;
-                    break;
-            }
-        }
+        });
         $('downloadContainer').innerHTML = content;
     };
 
@@ -153,65 +158,54 @@
     $('downloadContainer').addEventListener('mousedown', e => {
         let isRemoveBtnClick = e.target.classList.contains('remove-btn');
         let isRestoreBtnClick = e.target.classList.contains('restore-btn');
+
+        if (!isRemoveBtnClick && !isRestoreBtnClick) {
+            return;
+        }
+
         let downloadId = e.target.getAttribute('data-id');
         let entity = backgroundPage.downloader.downloads[downloadId];
 
-        if (isRemoveBtnClick) {
-            if (entity.type === backgroundPage.downloader.TYPE.ALBUM &&
-                entity.cover && entity.cover.status === backgroundPage.downloader.STATUS.LOADING) {
+        let isAlbum = entity.type === backgroundPage.downloader.TYPE.ALBUM;
+        let isCover = isAlbum && entity.cover;
+        let isPlaylist = entity.type === backgroundPage.downloader.TYPE.PLAYLIST;
+        let isTrack = entity.type === backgroundPage.downloader.TYPE.TRACK;
 
-                if (entity.cover.xhr) {
-                    entity.cover.xhr.abort();
-                }
+        if (isRemoveBtnClick) {
+            if (isCover && entity.cover.status === backgroundPage.downloader.STATUS.LOADING) {
                 backgroundPage.downloader.activeThreadCount--;
             }
-            switch (entity.type) {
-                case backgroundPage.downloader.TYPE.TRACK:
-                    if (entity.status === backgroundPage.downloader.STATUS.LOADING) {
-                        if (entity.xhr) {
-                            entity.xhr.abort();
-                        }
+            if (isTrack) {
+                if (entity.status === backgroundPage.downloader.STATUS.LOADING) {
+                    backgroundPage.downloader.activeThreadCount--;
+                }
+            } else if (isAlbum || isPlaylist) {
+                entity.tracks.forEach(track => {
+                    if (track.status === backgroundPage.downloader.STATUS.LOADING) {
                         backgroundPage.downloader.activeThreadCount--;
                     }
-                    break;
-                case backgroundPage.downloader.TYPE.ALBUM:
-                case backgroundPage.downloader.TYPE.PLAYLIST:
-                    for (let i = 0; i < entity.tracks.length; i++) {
-                        if (entity.tracks[i].status === backgroundPage.downloader.STATUS.LOADING) {
-                            if (entity.tracks[i].xhr) {
-                                entity.tracks[i].xhr.abort();
-                            }
-                            backgroundPage.downloader.activeThreadCount--;
-                        }
-                    }
-                    break;
+                });
             }
             delete(backgroundPage.downloader.downloads[downloadId]);
             backgroundPage.downloader.runAllThreads();
         } else if (isRestoreBtnClick) {
-            if (entity.type === backgroundPage.downloader.TYPE.ALBUM &&
-                entity.cover && entity.cover.status === backgroundPage.downloader.STATUS.INTERRUPTED) {
-
+            if (isCover && entity.cover.status === backgroundPage.downloader.STATUS.INTERRUPTED) {
                 entity.cover.attemptCount = 0;
                 entity.cover.status = backgroundPage.downloader.STATUS.WAITING;
                 backgroundPage.downloader.download();
             }
-            switch (entity.type) {
-                case backgroundPage.downloader.TYPE.TRACK:
-                    entity.attemptCount = 0;
-                    entity.status = backgroundPage.downloader.STATUS.WAITING;
-                    backgroundPage.downloader.download();
-                    break;
-                case backgroundPage.downloader.TYPE.ALBUM:
-                case backgroundPage.downloader.TYPE.PLAYLIST:
-                    for (let i = 0; i < entity.tracks.length; i++) {
-                        if (entity.tracks[i].status === backgroundPage.downloader.STATUS.INTERRUPTED) {
-                            entity.tracks[i].attemptCount = 0;
-                            entity.tracks[i].status = backgroundPage.downloader.STATUS.WAITING;
-                            backgroundPage.downloader.download();
-                        }
+            if (isTrack) {
+                entity.attemptCount = 0;
+                entity.status = backgroundPage.downloader.STATUS.WAITING;
+                backgroundPage.downloader.download();
+            } else if (isAlbum || isPlaylist) {
+                entity.tracks.forEach(track => {
+                    if (track.status === backgroundPage.downloader.STATUS.INTERRUPTED) {
+                        track.attemptCount = 0;
+                        track.status = backgroundPage.downloader.STATUS.WAITING;
+                        backgroundPage.downloader.download();
                     }
-                    break;
+                });
             }
         }
     });
@@ -240,11 +234,11 @@
                 let compilationElems = document.getElementsByClassName('compilation');
                 let allElems = [].slice.call(albumElems).concat([].slice.call(compilationElems));
 
-                for (let i = 0; i < allElems.length; i++) {
-                    if (allElems[i].checked) {
-                        backgroundPage.downloader.downloadAlbum(allElems[i].value, name);
+                allElems.forEach(albumElem => {
+                    if (albumElem.checked) {
+                        backgroundPage.downloader.downloadAlbum(albumElem.value, name);
                     }
-                }
+                });
                 break;
         }
         startUpdater();
@@ -263,26 +257,26 @@
             albumContent += '<label><input type="checkbox" id="albumCheckbox" checked><b>Альбомы (';
             albumContent += artist.albums.length + ')</b></label><br>';
         }
-        for (let i = 0; i < artist.albums.length; i++) {
-            let title = artist.albums[i].title;
-            if (artist.albums[i].version) {
-                title += ' (' + artist.albums[i].version + ')';
+        artist.albums.forEach(album => {
+            let title = album.title;
+            if (album.version) {
+                title += ' (' + album.version + ')';
             }
             albumContent += '<label><input type="checkbox" class="album" checked value="';
-            albumContent += artist.albums[i].id + '">' + title + '</label><br>';
-        }
+            albumContent += album.id + '">' + title + '</label><br>';
+        });
         if (artist.alsoAlbums.length) {
             compilationContent += '<label><input type="checkbox" id="compilationCheckbox"><b>Сборники (';
             compilationContent += artist.alsoAlbums.length + ')</b></label><br>';
         }
-        for (let i = 0; i < artist.alsoAlbums.length; i++) {
-            let title = artist.alsoAlbums[i].title;
-            if (artist.alsoAlbums[i].version) {
-                title += ' (' + artist.alsoAlbums[i].version + ')';
+        artist.alsoAlbums.forEach(album => {
+            let title = album.title;
+            if (album.version) {
+                title += ' (' + album.version + ')';
             }
             compilationContent += '<label><input type="checkbox" class="compilation" value="';
-            compilationContent += artist.alsoAlbums[i].id + '">' + title + '</label><br>';
-        }
+            compilationContent += album.id + '">' + title + '</label><br>';
+        });
         $('name').innerHTML = artist.artist.name;
         $('info').innerHTML = 'Дискография';
         $('albums').innerHTML = albumContent;
@@ -315,14 +309,14 @@
             albumContent += '<label><input type="checkbox" id="albumCheckbox"><b>Альбомы (';
             albumContent += label.albums.length + ')</b></label><br>';
         }
-        for (let i = 0; i < label.albums.length; i++) {
-            let title = label.albums[i].title;
-            if (label.albums[i].version) {
-                title += ' (' + label.albums[i].version + ')';
+        label.albums.forEach(album => {
+            let title = album.title;
+            if (album.version) {
+                title += ' (' + album.version + ')';
             }
             albumContent += '<label><input type="checkbox" class="album" value="';
-            albumContent += label.albums[i].id + '">' + title + '</label><br>';
-        }
+            albumContent += album.id + '">' + title + '</label><br>';
+        });
 
         $('name').innerHTML = label.label.name;
         $('info').innerHTML = 'Лейбл';
@@ -354,21 +348,23 @@
         if (!album.trackCount) {
             $('info').innerHTML = 'Пустой альбом';
             $('startDownloadBtn').style.display = 'none';
-            backgroundPage.utils.logError('Пустой альбом', album.id);
+            backgroundPage.utils.logError({
+                message: 'Пустой альбом',
+                details: album.id
+            });
             return;
         }
 
         let size = 0;
         let duration = 0;
-        for (let i = 0; i < album.volumes.length; i++) {
-            for (let j = 0; j < album.volumes[i].length; j++) {
-                let track = album.volumes[i][j];
+        album.volumes.forEach(volume => {
+            volume.forEach(track => {
                 if (!track.error) {
                     size += track.fileSize;
                     duration += track.durationMs;
                 }
-            }
-        }
+            });
+        });
         size = backgroundPage.utils.bytesToStr(size);
         duration = backgroundPage.utils.durationToStr(duration);
         $('info').innerHTML = 'Альбом (' + album.trackCount + ') / ' + size + ' / ' + duration;
@@ -379,26 +375,28 @@
         if (!playlist.trackCount) {
             $('info').innerHTML = 'Пустой плейлист';
             $('startDownloadBtn').style.display = 'none';
-            backgroundPage.utils.logError('Пустой плейлист', playlist.owner.login + '#' + playlist.kind);
+            backgroundPage.utils.logError({
+                message: 'Пустой плейлист',
+                details: playlist.owner.login + '#' + playlist.kind
+            });
             return;
         }
 
         let size = 0;
         let duration = 0;
-        for (let i = 0; i < playlist.tracks.length; i++) {
-            let track = playlist.tracks[i];
+        playlist.tracks.forEach(track => {
             if (!track.error) {
                 size += track.fileSize;
                 duration += track.durationMs;
             }
-        }
+        });
         size = backgroundPage.utils.bytesToStr(size);
         duration = backgroundPage.utils.durationToStr(duration);
         $('info').innerHTML = 'Плейлист (' + playlist.trackCount + ') / ' + size + ' / ' + duration;
     };
 
-    let onAjaxFail = (error, details) => {
-        backgroundPage.utils.logError(error, details);
+    let onAjaxFail = error => {
+        backgroundPage.utils.logError(error);
         hidePreloader();
         $('addContainer').classList.add('hide');
         $('addBtn').classList.add('disabled');
@@ -413,10 +411,7 @@
 
     chrome.runtime.getBackgroundPage(bp => {
         backgroundPage = bp;
-        bp.utils.getActiveTab(activeTab => {
-            if (!activeTab) {
-                return;
-            }
+        bp.utils.getActiveTab().then(activeTab => {
             adaptToSmallDeviceHeight(activeTab.height);
             let page = bp.utils.getUrlInfo(activeTab.url);
             let downloadBtn = $('startDownloadBtn');
@@ -429,10 +424,10 @@
                     downloadBtn.click();
                     return;
                 }
-                bp.yandex.getPlaylist(page.username, page.playlistId, playlist => {
+                bp.yandex.getPlaylist(page.username, page.playlistId).then(playlist => {
                     hidePreloader();
                     generateDownloadPlaylist(playlist);
-                }, onAjaxFail);
+                }).catch(onAjaxFail);
             } else if (page.isTrack) {
                 downloadBtn.setAttribute('data-type', 'track');
                 downloadBtn.setAttribute('data-trackId', page.trackId);
@@ -441,10 +436,10 @@
                     downloadBtn.click();
                     return;
                 }
-                bp.yandex.getTrack(page.trackId, track => {
+                bp.yandex.getTrack(page.trackId).then(track => {
                     hidePreloader();
                     generateDownloadTrack(track);
-                }, onAjaxFail);
+                }).catch(onAjaxFail);
             } else if (page.isAlbum) {
                 downloadBtn.setAttribute('data-type', 'album');
                 downloadBtn.setAttribute('data-albumId', page.albumId);
@@ -453,30 +448,30 @@
                     downloadBtn.click();
                     return;
                 }
-                bp.yandex.getAlbum(page.albumId, album => {
+                bp.yandex.getAlbum(page.albumId).then(album => {
                     hidePreloader();
                     generateDownloadAlbum(album);
-                }, onAjaxFail);
+                }).catch(onAjaxFail);
             } else if (page.isArtist) {
                 downloadBtn.setAttribute('data-type', 'artistOrLabel');
-                bp.yandex.getArtist(page.artistId, artist => {
+                bp.yandex.getArtist(page.artistId).then(artist => {
                     hidePreloader();
                     generateDownloadArtist(artist);
                     downloadBtn.setAttribute('data-name', artist.artist.name);
-                }, onAjaxFail);
+                }).catch(onAjaxFail);
             } else if (page.isLabel) {
                 downloadBtn.setAttribute('data-type', 'artistOrLabel');
-                bp.yandex.getLabel(page.labelId, label => {
+                bp.yandex.getLabel(page.labelId).then(label => {
                     hidePreloader();
                     generateDownloadLabel(label);
                     downloadBtn.setAttribute('data-name', label.label.name);
-                }, onAjaxFail);
+                }).catch(onAjaxFail);
             } else {
                 hidePreloader();
                 $('downloadBtn').click();
                 $('addBtn').classList.add('disabled');
             }
-        });
+        }).catch(bp.utils.logError);
     });
 
 })();

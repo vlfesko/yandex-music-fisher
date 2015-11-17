@@ -6,29 +6,39 @@
     let utils = {};
     window.utils = utils;
 
-    utils.ajax = (url, type, onSuccess, onFail, onProgress) => {
+    utils.ajax = (url, type, onProgress) => new Promise((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.responseType = type;
         xhr.onload = () => {
             if (xhr.status === 200) {
                 if (xhr.response) {
-                    onSuccess(xhr.response);
+                    resolve(xhr.response);
                 } else {
-                    onFail('Пустой ответ', url);
+                    reject({
+                        message: 'Пустой ответ',
+                        details: url
+                    });
                 }
             } else {
-                onFail(xhr.statusText + ' (' + xhr.status + ')', url);
+                reject({
+                    message: xhr.statusText + ' (' + xhr.status + ')',
+                    details: url
+                });
             }
         };
-        xhr.onerror = () => onFail('Ошибка при запросе', url);
+        xhr.onerror = () => reject({
+            message: 'Ошибка при запросе',
+            details: url
+        });
 
         if (onProgress) {
             xhr.onprogress = onProgress;
         }
         xhr.send();
-        return xhr;
-    };
+    });
+
+    utils.delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
     utils.bytesToStr = bytes => {
         let KiB = 1024;
@@ -76,10 +86,10 @@
         return path;
     };
 
-    utils.logError = (error, details) => {
-        console.error(error, details);
-        if (error !== 'Пустой ответ' && error !== 'Ошибка трека: no-rights') {
-            ga('send', 'event', 'error', error, details);
+    utils.logError = error => {
+        console.error(error.message, error.details);
+        if (error.message !== 'Пустой ответ' && error.message !== 'Ошибка трека: no-rights') {
+            ga('send', 'event', 'error', error.message, error.details);
         }
     };
 
@@ -154,28 +164,38 @@
         });
     };
 
-    utils.getActiveTab = callback => {
+    utils.getActiveTab = () => new Promise((resolve, reject) => {
         chrome.tabs.query({
             active: true,
             currentWindow: true
-        }, tabs => callback(tabs[0]));
-    };
+        }, tabs => {
+            let activeTab = tabs[0];
+            if (activeTab) {
+                resolve(activeTab);
+            } else {
+                reject(new Error('No active tab'));
+            }
+        });
+    });
 
-    utils.getDownload = (downloadId, callback) => {
+    utils.getDownload = downloadId => new Promise(resolve => {
         chrome.downloads.search({
             id: downloadId
         }, downloads => {
             let download = downloads[0];
+            if (!download) {
+                return;
+            }
             let name = download.byExtensionName;
             if (name && name === chrome.runtime.getManifest().name) {
-                callback(download);
+                resolve(download);
             }
         });
-    };
+    });
 
-    utils.checkUpdate = onUpdateAvailable => {
+    utils.checkUpdate = () => new Promise(resolve => {
         let releaseInfoUrl = 'https://api.github.com/repos/egoroof/yandex-music-fisher/releases/latest';
-        utils.ajax(releaseInfoUrl, 'json', releaseInfo => {
+        utils.ajax(releaseInfoUrl, 'json').then(releaseInfo => {
             let latestVersion = releaseInfo.tag_name.replace('v', '').split('.');
             let currentVersion = chrome.runtime.getManifest().version.split('.');
 
@@ -193,10 +213,13 @@
             );
 
             if (isMajorUpdate || isMinorUpdate || isPatchUpdate) {
-                onUpdateAvailable(latestVersion.join('.'), releaseInfo.assets[0].browser_download_url);
+                resolve({
+                    version: latestVersion.join('.'),
+                    distUrl: releaseInfo.assets[0].browser_download_url
+                });
             }
-        }, utils.logError);
-    };
+        }).catch(utils.logError);
+    });
 
     utils.addId3Tag = (oldArrayBuffer, framesObject) => {
         let uint32ToUint8Array = uint32 => [

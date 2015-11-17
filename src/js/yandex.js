@@ -6,52 +6,61 @@
     let yandex = {};
     window.yandex = yandex;
 
-    yandex.getTrackUrl = (trackId, onSuccess, onFail) => {
-        let url = 'https://music.yandex.' + storage.current.domain;
-        url += '/api/v2.0/handlers/track/' + trackId + '/download';
-        utils.ajax(url, 'json', json => {
+    yandex.getTrackUrl = trackId => {
+        let url = 'https://music.yandex.%domain%/api/v2.0/handlers/track/%id%/download'
+            .replace('%domain%', storage.current.domain)
+            .replace('%id%', trackId);
+        return utils.ajax(url, 'json').then(json => {
             if (json.codec !== 'mp3') {
                 ga('send', 'event', 'test', json.codec + ' codec', trackId);
             }
             if (json.gain) {
                 ga('send', 'event', 'test', 'gain', trackId);
             }
-            utils.ajax(json.src + '&format=json', 'json', json => {
-                let salt = 'XGRlBW9FXlekgbPrRHuSiA';
-                let md5 = window.md5(salt + json.path.substr(1) + json.s);
-                onSuccess('https://' + json.host + '/get-mp3/' + md5 + '/' + json.ts + json.path);
-            }, onFail);
-        }, onFail);
+            return utils.ajax(json.src + '&format=json', 'json');
+        }).then(json => {
+            let salt = 'XGRlBW9FXlekgbPrRHuSiA';
+            let md5 = window.md5(salt + json.path.substr(1) + json.s);
+            return 'https://' + json.host + '/get-mp3/' + md5 + '/' + json.ts + json.path;
+        });
     };
 
-    yandex.getTrack = (trackId, onSuccess, onFail) => {
-        let url = 'https://music.yandex.' + storage.current.domain;
-        url += '/handlers/track.jsx?track=' + trackId;
-        utils.ajax(url, 'json', json => onSuccess(json.track), onFail);
+    yandex.getTrack = trackId => {
+        let url = 'https://music.yandex.%domain%/handlers/track.jsx?track=%id%'
+            .replace('%domain%', storage.current.domain)
+            .replace('%id%', trackId);
+        return utils.ajax(url, 'json')
+            .then(json => json.track);
     };
 
-    yandex.getArtist = (artistId, onSuccess, onFail) => {
-        let url = 'https://music.yandex.' + storage.current.domain;
-        url += '/handlers/artist.jsx?artist=' + artistId + '&what=albums';
-        utils.ajax(url, 'json', onSuccess, onFail);
+    yandex.getArtist = artistId => {
+        let url = 'https://music.yandex.%domain%/handlers/artist.jsx?artist=%id%&what=albums'
+            .replace('%domain%', storage.current.domain)
+            .replace('%id%', artistId);
+        return utils.ajax(url, 'json');
     };
 
-    yandex.getAlbum = (albumId, onSuccess, onFail) => {
-        let url = 'https://music.yandex.' + storage.current.domain;
-        url += '/handlers/album.jsx?album=' + albumId;
-        utils.ajax(url, 'json', onSuccess, onFail);
+    yandex.getAlbum = albumId => {
+        let url = 'https://music.yandex.%domain%/handlers/album.jsx?album=%id%'
+            .replace('%domain%', storage.current.domain)
+            .replace('%id%', albumId);
+        return utils.ajax(url, 'json');
     };
 
-    yandex.getPlaylist = (username, playlistId, onSuccess, onFail) => {
-        let url = 'https://music.yandex.' + storage.current.domain;
-        url += '/handlers/playlist.jsx?owner=' + username + '&kinds=' + playlistId;
-        utils.ajax(url, 'json', json => onSuccess(json.playlist), onFail);
+    yandex.getPlaylist = (username, playlistId) => {
+        let url = 'https://music.yandex.%domain%/handlers/playlist.jsx?owner=%user%&kinds=%id%'
+            .replace('%domain%', storage.current.domain)
+            .replace('%user%', username)
+            .replace('%id%', playlistId);
+        return utils.ajax(url, 'json')
+            .then(json => json.playlist);
     };
 
-    yandex.getLabel = (labelId, onSuccess, onFail) => {
-        let url = 'https://music.yandex.' + storage.current.domain;
-        url += '/handlers/label.jsx?sort=year&id=' + labelId;
-        utils.ajax(url, 'json', onSuccess, onFail);
+    yandex.getLabel = labelId => {
+        let url = 'https://music.yandex.%domain%/handlers/label.jsx?sort=year&id=%id%'
+            .replace('%domain%', storage.current.domain)
+            .replace('%id%', labelId);
+        return utils.ajax(url, 'json');
     };
 
 })();

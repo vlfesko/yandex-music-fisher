@@ -26,13 +26,9 @@
     window.onerror = (message, file, line, col, error) => {
         let relativePattern = /chrome-extension:\/\/[^\/]+/g;
         let report = chrome.runtime.getManifest().version + ': ' + error.stack.replace(relativePattern, '').replace(/\n/g, '');
-        utils.getActiveTab(activeTab => {
-            if (activeTab) {
-                ga('send', 'event', 'onerror', report, activeTab.url);
-            } else {
-                ga('send', 'event', 'onerror', report);
-            }
-        });
+        utils.getActiveTab()
+            .then(activeTab => ga('send', 'event', 'onerror', report, activeTab.url))
+            .catch(() => ga('send', 'event', 'onerror', report));
     };
 
     chrome.runtime.onInstalled.addListener(details => { // установка или обновление расширения
@@ -64,38 +60,8 @@
         if (!delta.state) {
             return; // состояние не изменилось (начало загрузки)
         }
-        utils.getDownload(delta.id, download => {
-            let getEntityByBrowserDownloadId = browserDownloadId => {
-                for (let i = 0; i < downloader.downloads.length; i++) {
-                    let entity = downloader.downloads[i];
-                    if (!entity) {
-                        continue; // эту загрузку удалили
-                    }
-                    if (entity.type === downloader.TYPE.ALBUM &&
-                        entity.cover && entity.cover.browserDownloadId === browserDownloadId) {
-
-                        return entity.cover;
-                    }
-                    switch (entity.type) {
-                        case downloader.TYPE.ALBUM:
-                        case downloader.TYPE.PLAYLIST:
-                            for (let j = 0; j < entity.tracks.length; j++) {
-                                if (entity.tracks[j].browserDownloadId === browserDownloadId) {
-                                    return entity.tracks[j];
-                                }
-                            }
-                            break;
-                        case downloader.TYPE.TRACK:
-                            if (entity.browserDownloadId === browserDownloadId) {
-                                return entity;
-                            }
-                            break;
-                    }
-                }
-                return undefined;
-            };
-
-            let entity = getEntityByBrowserDownloadId(delta.id);
+        utils.getDownload(delta.id).then(download => {
+            let entity = downloader.getEntityByBrowserDownloadId(delta.id);
             if (entity) {
                 // не попадут: архив с обновлением,
                 // трек и обложка при удалённой сущности в процессе сохранения BLOB (теоретически, но маловероятно)
@@ -105,19 +71,22 @@
                     entity.attemptCount++;
                     entity.loadedBytes = 0;
                     if (entity.attemptCount < 3) {
-                        setTimeout(() => {
+                        utils.delay(10000).then(() => {
                             entity.status = downloader.STATUS.WAITING;
                             downloader.download();
-                        }, 10000);
+                        });
                     } else {
                         entity.status = downloader.STATUS.INTERRUPTED;
-                        let details;
+                        let error = {
+                            message: download.error,
+                            details: ''
+                        };
                         if (entity.type === downloader.TYPE.TRACK) {
-                            details = entity.track.id;
+                            error.details = entity.track.id;
                         } else if (entity.type === downloader.TYPE.COVER) {
-                            details = entity.url;
+                            error.details = entity.url;
                         }
-                        utils.logError(download.error, details);
+                        utils.logError(error);
                     }
                 }
                 window.URL.revokeObjectURL(download.url);
@@ -148,27 +117,28 @@
         }
     });
 
-    storage.load(() => {
-        if (!storage.current.shouldNotifyAboutUpdates) {
-            return;
+    storage.load().then(() => {
+        if (storage.current.shouldNotifyAboutUpdates) {
+            return utils.checkUpdate();
+        } else {
+            throw new Error('Update notifications are disabled');
         }
-        utils.checkUpdate((version, distUrl) => {
-            distributionUrl = distUrl;
-            chrome.notifications.create('yandex-music-fisher-update', {
-                type: 'basic',
-                iconUrl: '/img/icon.png',
-                title: 'Yandex Music Fisher',
-                message: 'Доступно обновление ' + version,
-                contextMessage: 'Обновления устанавливаются вручную!',
-                buttons: [{
-                    title: 'Скачать обновление',
-                    iconUrl: '/img/download.png'
-                }, {
-                    title: 'Просмотреть изменения'
-                }],
-                isClickable: false
-            });
+    }).then(updateInfo => {
+        distributionUrl = updateInfo.distUrl;
+        chrome.notifications.create('yandex-music-fisher-update', {
+            type: 'basic',
+            iconUrl: '/img/icon.png',
+            title: 'Yandex Music Fisher',
+            message: 'Доступно обновление ' + updateInfo.version,
+            contextMessage: 'Обновления устанавливаются вручную!',
+            buttons: [{
+                title: 'Скачать обновление',
+                iconUrl: '/img/download.png'
+            }, {
+                title: 'Просмотреть изменения'
+            }],
+            isClickable: false
         });
-    });
+    }).catch(err => console.info(err));
 
 })();

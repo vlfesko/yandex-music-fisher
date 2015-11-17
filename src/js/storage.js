@@ -2,7 +2,7 @@
 
 (() => {
     'use strict';
-    
+
     let storage = {
         defaults: {
             downloadThreadCount: 4,
@@ -30,15 +30,13 @@
         });
     };
 
-    storage.load = callback => {
+    storage.load = () => new Promise(resolve => {
         chrome.storage.local.get(params => {
             storage.current = params;
             storage.current.domain = 'ru';
-            if (callback) {
-                callback();
-            }
+            resolve();
         });
-    };
+    });
 
     storage.reset = param => {
         let defaultValue = storage.defaults[param];
@@ -47,7 +45,7 @@
         chrome.storage.local.set(data, storage.load);
     };
 
-    storage.resetAll = callback => {
+    storage.resetAll = () => new Promise(resolve => {
         let data = {};
         for (let param in storage.defaults) {
             if (storage.defaults.hasOwnProperty(param)) {
@@ -55,8 +53,8 @@
             }
         }
         chrome.storage.local.clear(() => {
-            chrome.storage.local.set(data, callback);
+            chrome.storage.local.set(data, resolve);
         });
-    };
+    });
 
 })();

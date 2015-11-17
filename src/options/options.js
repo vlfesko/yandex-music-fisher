@@ -87,7 +87,7 @@
     });
 
     $('btnReset').addEventListener('click', () => {
-        backgroundPage.storage.resetAll(() => {
+        backgroundPage.storage.resetAll().then(() => {
             backgroundPage.storage.load();
             location.reload();
         });
