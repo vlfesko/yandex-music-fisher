@@ -25,6 +25,16 @@
         });
     };
 
+    yandex.getTrackOldUrl = storageDir => {
+        let url = 'https://storage.mds.yandex.net/download-info/%storage%/2?format=json'
+            .replace('%storage%', storageDir);
+        return utils.ajax(url, 'json').then(json => {
+            let salt = 'XGRlBW9FXlekgbPrRHuSiA';
+            var md5 = window.md5(salt + json.path.substr(1) + json.s);
+            return 'https://' + json.host + '/get-mp3/' + md5 + '/' + json.ts + json.path;
+        });
+    };
+
     yandex.getTrack = trackId => {
         let url = 'https://music.yandex.%domain%/handlers/track.jsx?track=%id%'
             .replace('%domain%', storage.current.domain)

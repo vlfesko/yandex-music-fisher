@@ -13,7 +13,8 @@
             enumeratePlaylists: false,
             shouldNotifyAboutUpdates: true,
             singleClickDownload: false,
-            backgroundDownload: false
+            backgroundDownload: false,
+            downloadHighestBitrate: true
         },
         current: {}
     };

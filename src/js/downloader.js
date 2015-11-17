@@ -129,7 +129,7 @@
         let onInterruptEntityExcept404 = error => {
             if (error.message === 'Not found (404)') { // обложки с выбранном размером нет - игнорируем её
                 if (entity.type === downloader.TYPE.TRACK) { // продолжаем загрузку трека без обложки
-                    chain.then(() => utils.ajax(trackUrl, 'arraybuffer', onProgress))
+                    chain = chain.then(() => utils.ajax(trackUrl, 'arraybuffer', onProgress))
                         .then(saveTrack)
                         .catch(onInterruptEntity);
                 }
@@ -143,14 +143,18 @@
             if (trackAlbum.coverUri) {
                 // пример альбома без обложки: https://music.yandex.ru/album/2236232/track/23652415
                 let coverUrl = 'https://' + trackAlbum.coverUri.replace('%%', storage.current.albumCoverSizeId3);
-                chain.then(() => utils.ajax(coverUrl, 'arraybuffer'))
+                chain = chain.then(() => utils.ajax(coverUrl, 'arraybuffer'))
                     .catch(onInterruptEntityExcept404)
                     .then(arrayBuffer => {
                         coverArrayBuffer = arrayBuffer;
                     });
             }
-            chain.then(() => yandex.getTrackUrl(entity.track.id))
-                .then(url => {
+            if (storage.current.downloadHighestBitrate) {
+                chain = chain.then(() => yandex.getTrackUrl(entity.track.id));
+            } else {
+                chain = chain.then(() => yandex.getTrackOldUrl(entity.track.storageDir));
+            }
+            chain.then(url => {
                     trackUrl = url;
                 })
                 .then(() => utils.ajax(trackUrl, 'arraybuffer', onProgress))
@@ -230,7 +234,7 @@
                 let shortName = artistOrLabelName.substr(0, downloader.PATH_LIMIT);
                 saveDir += utils.clearPath(shortName, true) + '/';
             }
-            // пример длинного названия: https://music.yandex.ua/album/512639
+            // пример длинного названия: https://music.yandex.ru/album/512639
             let shortAlbumArtists = albumEntity.artists.substr(0, downloader.PATH_LIMIT);
             let shortAlbumTitle = albumEntity.title.substr(0, downloader.PATH_LIMIT);
             if (album.year) {

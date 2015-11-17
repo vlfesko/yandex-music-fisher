@@ -11,7 +11,8 @@
         'enumeratePlaylists',
         'shouldNotifyAboutUpdates',
         'singleClickDownload',
-        'backgroundDownload'
+        'backgroundDownload',
+        'downloadHighestBitrate'
     ];
     let selects = [
         'downloadThreadCount',
