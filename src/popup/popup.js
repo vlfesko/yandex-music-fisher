@@ -310,12 +310,13 @@
             albumContent += label.albums.length + ')</b></label><br>';
         }
         label.albums.forEach(album => {
+            let artists = backgroundPage.utils.parseArtists(album.artists, ', ').artists;
             let title = album.title;
             if (album.version) {
                 title += ' (' + album.version + ')';
             }
             albumContent += '<label><input type="checkbox" class="album" value="';
-            albumContent += album.id + '">' + title + '</label><br>';
+            albumContent += album.id + '">' + artists + ' - ' + title + '</label><br>';
         });
 
         $('name').innerHTML = label.label.name;

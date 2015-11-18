@@ -350,6 +350,7 @@
             let shortPlaylistTitle = playlist.title.substr(0, downloader.PATH_LIMIT);
             let saveDir = utils.clearPath(shortPlaylistTitle, true);
 
+            // пример https://music.yandex.ru/users/dimzon541/playlists/1002
             let playlistTrackNames = [];
             playlist.tracks.forEach(track => {
                 if (track.error) {
