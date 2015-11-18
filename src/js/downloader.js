@@ -90,9 +90,11 @@
             let artists = utils.parseArtists(entity.track.artists, '/');
             let frames = {
                 TIT2: entity.title, // Название
-                TPE1: artists.artists, // Исполнители
-                TALB: trackAlbum.title // Альбом
+                TPE1: artists.artists // Исполнители
             };
+            if (trackAlbum.title) {
+                frames.TALB = trackAlbum.title; // Альбом
+            }
             if (entity.track.durationMs) {
                 frames.TLEN = entity.track.durationMs; // Продолжительность
             }
