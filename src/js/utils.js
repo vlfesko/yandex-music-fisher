@@ -94,19 +94,21 @@
     };
 
     utils.parseArtists = (allArtists, separator) => {
+        const VA = 'Various Artists'; // пример https://music.yandex.ru/album/718010/track/6570232
+        const UA = 'Unknown Artist'; // пример https://music.yandex.ru/album/533785/track/4790215
         let artists = [];
         let composers = [];
         allArtists.forEach(artist => {
             if (artist.composer) { // пример https://music.yandex.ru/album/717747/track/6672611
                 composers.push(artist.name);
-            } else if (artist.various) { // пример https://music.yandex.ru/album/718010/track/6570232
-                artists.push('Various Artists');
+            } else if (artist.various) {
+                artists.push(VA);
             } else {
                 artists.push(artist.name);
             }
         });
         return {
-            artists: artists.join(separator) || composers.join(separator),
+            artists: artists.join(separator) || composers.join(separator) || UA,
             composers: composers.join(separator)
         };
     };
