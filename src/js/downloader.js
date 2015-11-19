@@ -29,6 +29,7 @@
     };
 
     downloader.download = () => {
+        utils.updateBadge();
         if (downloader.activeThreadCount < 0) {
             downloader.activeThreadCount = 0; // выравнивание при сбоях
         }
@@ -436,6 +437,30 @@
             }
         });
         return foundEntity;
+    };
+
+    downloader.getDownloadCount = () => {
+        let count = 0;
+        downloader.downloads.forEach(entity => {
+            let isAlbum = entity.type === downloader.TYPE.ALBUM;
+            let isCover = isAlbum && entity.cover;
+            let isPlaylist = entity.type === downloader.TYPE.PLAYLIST;
+            let isTrack = entity.type === downloader.TYPE.TRACK;
+
+            if (isCover && entity.cover.status !== downloader.STATUS.FINISHED) {
+                count++;
+            }
+            if (isAlbum || isPlaylist) {
+                entity.tracks.forEach(track => {
+                    if (track.status !== downloader.STATUS.FINISHED) {
+                        count++;
+                    }
+                });
+            } else if (isTrack && entity.status !== downloader.STATUS.FINISHED) {
+                count++;
+            }
+        });
+        return count;
     };
 
     downloader.getEntityByBrowserDownloadId = browserDownloadId => {

@@ -31,6 +31,11 @@
             .catch(() => ga('send', 'event', 'onerror', report));
     };
 
+    chrome.browserAction.setBadgeBackgroundColor({
+        color: [100, 100, 100, 255]
+    });
+    utils.updateBadge();
+
     chrome.runtime.onInstalled.addListener(details => { // установка или обновление расширения
         storage.init();
         let version = chrome.runtime.getManifest().version;
@@ -67,6 +72,7 @@
                 // трек и обложка при удалённой сущности в процессе сохранения BLOB (теоретически, но маловероятно)
                 if (delta.state.current === 'complete') {
                     entity.status = downloader.STATUS.FINISHED;
+                    utils.updateBadge();
                 } else if (delta.state.current === 'interrupted') {
                     entity.attemptCount++;
                     entity.loadedBytes = 0;

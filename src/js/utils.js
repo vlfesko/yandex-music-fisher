@@ -1,4 +1,4 @@
-/* global chrome, storage, ga */
+/* global chrome, storage, ga, downloader */
 
 (()=> {
     'use strict';
@@ -194,6 +194,17 @@
             }
         });
     });
+
+    utils.updateBadge = () => {
+        let count = downloader.getDownloadCount();
+        let countStr = '';
+        if (count) {
+            countStr = count.toString();
+        }
+        chrome.browserAction.setBadgeText({
+            text: countStr
+        });
+    };
 
     utils.checkUpdate = () => new Promise(resolve => {
         let releaseInfoUrl = 'https://api.github.com/repos/egoroof/yandex-music-fisher/releases/latest';
