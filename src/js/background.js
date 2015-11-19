@@ -97,6 +97,7 @@
                 }
                 window.URL.revokeObjectURL(download.url);
             }
+            chrome.downloads.setShelfEnabled(true);
             chrome.downloads.erase({
                 id: delta.id
             });
