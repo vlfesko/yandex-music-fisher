@@ -302,7 +302,7 @@
         offset++; // ревизия версии
         offset++; // флаги
 
-        writeBytes = uint28ToUint7Array(tagSize); // размер тега
+        writeBytes = uint28ToUint7Array(tagSize - 10); // размер тега
         bufferWriter.set(writeBytes, offset);
         offset += writeBytes.length;
 
