@@ -33,6 +33,15 @@
         ],
         "persistent": true
     },
+    "content_scripts": [ {
+        "js": [ "js/content.js" ],
+        "matches": [
+            "https://music.yandex.ru/genre/*",
+            "https://music.yandex.ua/genre/*",
+            "https://music.yandex.kz/genre/*",
+            "https://music.yandex.by/genre/*"
+        ]
+    } ],
     "options_page": "options/options.html",
     "options_ui": {
         "page": "options/options.html",

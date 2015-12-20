@@ -467,6 +467,31 @@
                     generateDownloadLabel(label);
                     downloadBtn.setAttribute('data-name', label.label.name);
                 }).catch(onAjaxFail);
+            } else if (page.isGenre) {
+                chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                    chrome.tabs.sendMessage(tabs[0].id, "getActiveTrackUrl", function(response) {
+                        if (response == undefined || !response.hasOwnProperty("url") || response["url"] == "") {
+                            hidePreloader();
+                            $('downloadBtn').click();
+                            $('addBtn').classList.add('disabled');
+                            return;
+                        }
+                        let url = response["url"];
+                        // тот же код, что и для страницы трека
+                        let page = bp.utils.getUrlInfo(url);
+                        downloadBtn.setAttribute('data-type', 'track');
+                        downloadBtn.setAttribute('data-trackId', page.trackId);
+                        if (bp.storage.current.singleClickDownload) {
+                            hidePreloader();
+                            downloadBtn.click();
+                            return;
+                        }
+                        bp.yandex.getTrack(page.trackId).then(track => {
+                            hidePreloader();
+                            generateDownloadTrack(track);
+                        }).catch(onAjaxFail);
+                    });
+                });
             } else {
                 hidePreloader();
                 $('downloadBtn').click();
