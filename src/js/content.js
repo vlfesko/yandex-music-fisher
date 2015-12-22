@@ -3,38 +3,28 @@
 (()=> {
     'use strict';
 
-    let genreActiveTrack = {};
-    window.genreActiveTrack = genreActiveTrack;
-
-    genreActiveTrack.getUrl = () => {
-        let emptyUrl = "";
-        let url = "";
-        let baseUrl = window.location.protocol + '//' + window.location.hostname;
-        let linkContainer = document
-            .getElementsByClassName("player-controls__track player-controls__track_shown");
-        if (linkContainer.length != 1) {
+    var getCurrentTrackUrl = () => {
+        let emptyUrl = '';
+        let baseUrl = location.protocol + '//' + location.hostname;
+        let linkContainer = document.getElementsByClassName('player-controls__track player-controls__track_shown');
+        if (!linkContainer.length) {
             return emptyUrl;
         }
         linkContainer = linkContainer[0];
-        let trackPageLink = linkContainer.getElementsByClassName("track__title link");
-        if (trackPageLink.length != 1) {
+        let trackPageLink = linkContainer.getElementsByClassName('track__title link');
+        if (!trackPageLink.length) {
             return emptyUrl;
         }
         trackPageLink = trackPageLink[0];
-        return baseUrl + trackPageLink.getAttribute("href");
+        return baseUrl + trackPageLink.getAttribute('href');
     };
 
-    chrome.runtime.onMessage.addListener(
-       function (request, sender, sendResponseCallback) {
-           let response = {};
-           switch (request.command) {
-               case "getActiveTrackUrl":
-                   response["url"] = genreActiveTrack.getUrl();
-                   break;
-           }
-           response["url"] = genreActiveTrack.getUrl();
-           sendResponseCallback(response);
-       }
-    );
+    chrome.runtime.onMessage.addListener(function (message, sender, sendResponseCallback) {
+        let response = {};
+        if (message === 'getCurrentTrackUrl') {
+            response.url = getCurrentTrackUrl();
+        }
+        sendResponseCallback(response);
+    });
 
 })();
