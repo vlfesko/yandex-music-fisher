@@ -467,6 +467,27 @@
                     generateDownloadLabel(label);
                     downloadBtn.setAttribute('data-name', label.label.name);
                 }).catch(onAjaxFail);
+            } else if (page.isGenre) {
+                chrome.tabs.sendMessage(activeTab.id, 'getCurrentTrackUrl', function (response) {
+                    if (!response || !response.url) {
+                        hidePreloader();
+                        $('downloadBtn').click();
+                        $('addBtn').classList.add('disabled');
+                        return;
+                    }
+                    let page = bp.utils.getUrlInfo(response.url);
+                    downloadBtn.setAttribute('data-type', 'track');
+                    downloadBtn.setAttribute('data-trackId', page.trackId);
+                    if (bp.storage.current.singleClickDownload) {
+                        hidePreloader();
+                        downloadBtn.click();
+                        return;
+                    }
+                    bp.yandex.getTrack(page.trackId).then(track => {
+                        hidePreloader();
+                        generateDownloadTrack(track);
+                    }).catch(onAjaxFail);
+                });
             } else {
                 hidePreloader();
                 $('downloadBtn').click();
