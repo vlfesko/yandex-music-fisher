@@ -253,24 +253,38 @@
     let generateDownloadArtist = artist => {
         let albumContent = '';
         let compilationContent = '';
-        if (artist.albums.length) {
+
+        let sortedAlbums = artist.albums.sort((a, b) => b.year - a.year);
+        if (sortedAlbums.length) {
             albumContent += '<label><input type="checkbox" id="albumCheckbox" checked><b>Альбомы (';
-            albumContent += artist.albums.length + ')</b></label><br>';
+            albumContent += sortedAlbums.length + ')</b></label><br>';
         }
-        artist.albums.forEach(album => {
-            let title = album.title;
+        let year = 0;
+        sortedAlbums.forEach(album => {
+            if (album.year !== year) {
+                year = album.year;
+                albumContent += '<br><label class="label-year">' + year + '</label><br>';
+            }
+            let title = '[' + album.trackCount + '] ' + album.title;
             if (album.version) {
                 title += ' (' + album.version + ')';
             }
             albumContent += '<label><input type="checkbox" class="album" checked value="';
             albumContent += album.id + '">' + title + '</label><br>';
         });
-        if (artist.alsoAlbums.length) {
-            compilationContent += '<label><input type="checkbox" id="compilationCheckbox"><b>Сборники (';
-            compilationContent += artist.alsoAlbums.length + ')</b></label><br>';
+
+        let sortedCompilations = artist.alsoAlbums.sort((a, b) => b.year - a.year);
+        if (sortedCompilations.length) {
+            compilationContent += '<br><label><input type="checkbox" id="compilationCheckbox"><b>Сборники (';
+            compilationContent += sortedCompilations.length + ')</b></label><br>';
         }
-        artist.alsoAlbums.forEach(album => {
-            let title = album.title;
+        year = 0;
+        sortedCompilations.forEach(album => {
+            if (album.year !== year) {
+                year = album.year;
+                compilationContent += '<br><label class="label-year">' + year + '</label><br>';
+            }
+            let title = '[' + album.trackCount + '] ' + album.title;
             if (album.version) {
                 title += ' (' + album.version + ')';
             }
@@ -282,7 +296,7 @@
         $('albums').innerHTML = albumContent;
         $('compilations').innerHTML = compilationContent;
 
-        if (artist.albums.length) {
+        if (sortedAlbums.length) {
             $('albumCheckbox').addEventListener('click', () => {
                 let toggle = $('albumCheckbox');
                 let albums = document.getElementsByClassName('album');
@@ -291,7 +305,7 @@
                 }
             });
         }
-        if (artist.alsoAlbums.length) {
+        if (sortedCompilations.length) {
             $('compilationCheckbox').addEventListener('click', () => {
                 let toggle = $('compilationCheckbox');
                 let compilations = document.getElementsByClassName('compilation');
@@ -305,25 +319,31 @@
 
     let generateDownloadLabel = label => {
         let albumContent = '';
-        if (label.albums.length) {
+        let sortedAlbums = label.albums.sort((a, b) => b.year - a.year);
+        if (sortedAlbums.length) {
             albumContent += '<label><input type="checkbox" id="albumCheckbox"><b>Альбомы (';
-            albumContent += label.albums.length + ')</b></label><br>';
+            albumContent += sortedAlbums.length + ')</b></label><br>';
         }
-        label.albums.forEach(album => {
+        let year = 0;
+        sortedAlbums.forEach(album => {
+            if (album.year !== year) {
+                year = album.year;
+                albumContent += '<br><label class="label-year">' + year + '</label><br>';
+            }
             let artists = backgroundPage.utils.parseArtists(album.artists, ', ').artists;
             let title = album.title;
             if (album.version) {
                 title += ' (' + album.version + ')';
             }
             albumContent += '<label><input type="checkbox" class="album" value="';
-            albumContent += album.id + '">' + artists + ' - ' + title + '</label><br>';
+            albumContent += album.id + '">[' + album.trackCount + '] ' +  artists + ' - ' + title + '</label><br>';
         });
 
         $('name').innerHTML = label.label.name;
         $('info').innerHTML = 'Лейбл';
         $('albums').innerHTML = albumContent;
 
-        if (label.albums.length) {
+        if (sortedAlbums.length) {
             $('albumCheckbox').addEventListener('click', () => {
                 let toggle = $('albumCheckbox');
                 let albums = document.getElementsByClassName('album');
