@@ -330,7 +330,7 @@
                 year = album.year;
                 albumContent += '<br><label class="label-year">' + year + '</label><br>';
             }
-            let artists = backgroundPage.utils.parseArtists(album.artists, ', ').artists;
+            let artists = backgroundPage.utils.parseArtists(album.artists).artists.join(', ');
             let title = album.title;
             if (album.version) {
                 title += ' (' + album.version + ')';
@@ -356,7 +356,7 @@
     };
 
     let generateDownloadTrack = track => {
-        let artists = backgroundPage.utils.parseArtists(track.artists, ', ').artists;
+        let artists = backgroundPage.utils.parseArtists(track.artists).artists.join(', ');
         let size = backgroundPage.utils.bytesToStr(track.fileSize);
         let duration = backgroundPage.utils.durationToStr(track.durationMs);
         $('name').innerHTML = artists + ' - ' + track.title;
@@ -364,7 +364,7 @@
     };
 
     let generateDownloadAlbum = album => {
-        let artists = backgroundPage.utils.parseArtists(album.artists, ', ').artists;
+        let artists = backgroundPage.utils.parseArtists(album.artists).artists.join(', ');
         $('name').innerHTML = artists + ' - ' + album.title;
         if (!album.trackCount) {
             $('info').innerHTML = 'Пустой альбом';

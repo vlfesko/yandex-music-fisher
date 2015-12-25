@@ -93,7 +93,7 @@
         }
     };
 
-    utils.parseArtists = (allArtists, separator) => {
+    utils.parseArtists = allArtists => {
         const VA = 'Various Artists'; // пример https://music.yandex.ru/album/718010/track/6570232
         const UA = 'Unknown Artist'; // пример https://music.yandex.ru/album/533785/track/4790215
         let artists = [];
@@ -107,9 +107,16 @@
                 artists.push(artist.name);
             }
         });
+        if (!artists.length) {
+            if (composers.length) {
+                artists = composers;
+            } else {
+                artists.push(UA);
+            }
+        }
         return {
-            artists: artists.join(separator) || composers.join(separator) || UA,
-            composers: composers.join(separator)
+            artists: artists,
+            composers: composers
         };
     };
 
@@ -234,119 +241,5 @@
             }
         }).catch(utils.logError);
     });
-
-    utils.addId3Tag = (oldArrayBuffer, framesObject) => {
-        let uint32ToUint8Array = uint32 => [
-            uint32 >>> 24,
-            (uint32 >>> 16) & 0xff,
-            (uint32 >>> 8) & 0xff,
-            uint32 & 0xff
-        ];
-
-        let uint28ToUint7Array = uint28 => [
-            uint28 >>> 21,
-            (uint28 >>> 14) & 0x7f,
-            (uint28 >>> 7) & 0x7f,
-            uint28 & 0x7f
-        ];
-
-        let framesObjectToArray = framesObject => {
-            let frames = [];
-            let frameIterator = Object.keys(framesObject);
-            for (let i = 0; i < frameIterator.length; i++) {
-                let frameValue = framesObject[frameIterator[i]];
-                if (typeof(frameValue) === 'number') {
-                    frames.push({
-                        name: frameIterator[i],
-                        value: frameValue,
-                        size: 10 + frameValue.toString().length + 1 // заголовок + фрейм + кодировка
-                    });
-                } else if (typeof(frameValue) === 'string') {
-                    frames.push({
-                        name: frameIterator[i],
-                        value: frameValue,
-                        size: 10 + (frameValue.length * 2) + 1 + 2 // заголовок + фрейм * 2 байта + кодировка + BOM
-                    });
-                } else if (frameIterator[i] === 'APIC') {
-                    let mimeType = 'image/jpeg';
-                    frames.push({
-                        name: frameIterator[i],
-                        value: frameValue,
-                        mimeType: mimeType,
-                        size: 10 + 1 + mimeType.length + 1 + 1 + 1 + frameValue.byteLength
-                        // заголовок + кодировка + MIME type + 0 + тип картинки + 0 + картинка
-                    });
-                }
-            }
-            return frames;
-        };
-
-        let offset = 0;
-        let padding = 4096;
-        let frames = framesObjectToArray(framesObject);
-        let totalFrameSize = frames.reduce((totalSize, frame) => totalSize + frame.size, 0);
-        let tagSize = totalFrameSize + padding + 10; // 10 на заголовок тега
-        let arrayBuffer = new ArrayBuffer(oldArrayBuffer.byteLength + tagSize);
-        let bufferWriter = new Uint8Array(arrayBuffer);
-        let coder8 = new TextEncoder('utf-8');
-        let coder16 = new TextEncoder('utf-16le');
-
-        let writeBytes = [0x49, 0x44, 0x33, 0x03]; // тег (ID3) и версия (3)
-        bufferWriter.set(writeBytes, offset);
-        offset += writeBytes.length;
-
-        offset++; // ревизия версии
-        offset++; // флаги
-
-        writeBytes = uint28ToUint7Array(tagSize - 10); // размер тега
-        bufferWriter.set(writeBytes, offset);
-        offset += writeBytes.length;
-
-        frames.forEach(frame => {
-            writeBytes = coder8.encode(frame.name); // название фрейма
-            bufferWriter.set(writeBytes, offset);
-            offset += writeBytes.length;
-
-            writeBytes = uint32ToUint8Array(frame.size - 10); // размер фрейма (без заголовка)
-            bufferWriter.set(writeBytes, offset);
-            offset += writeBytes.length;
-
-            offset += 2; // флаги
-
-            if (typeof(frame.value) === 'number') {
-                offset++; // кодировка
-
-                writeBytes = coder8.encode(frame.value); // значение фрейма
-                bufferWriter.set(writeBytes, offset);
-                offset += writeBytes.length;
-            } else if (typeof(frame.value) === 'string') {
-                writeBytes = [0x01, 0xff, 0xfe]; // кодировка и BOM
-                bufferWriter.set(writeBytes, offset);
-                offset += writeBytes.length;
-
-                writeBytes = coder16.encode(frame.value); // значение фрейма
-                bufferWriter.set(writeBytes, offset);
-                offset += writeBytes.length;
-            } else if (frame.name === 'APIC') {
-                offset++; // кодировка
-
-                writeBytes = coder8.encode(frame.mimeType); // MIME type
-                bufferWriter.set(writeBytes, offset);
-                offset += writeBytes.length;
-
-                writeBytes = [0x00, 0x03, 0x00]; // разделитель, тип картинки, разделитель
-                bufferWriter.set(writeBytes, offset);
-                offset += writeBytes.length;
-
-                bufferWriter.set(new Uint8Array(frame.value), offset); // картинка
-                offset += frame.value.byteLength;
-            }
-        });
-
-        offset += padding; // пустое место для перезаписи фреймов
-        bufferWriter.set(new Uint8Array(oldArrayBuffer), offset);
-        let blob = new Blob([arrayBuffer], {type: 'audio/mpeg'});
-        return window.URL.createObjectURL(blob);
-    };
 
 })();

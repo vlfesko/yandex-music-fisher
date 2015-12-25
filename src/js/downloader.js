@@ -1,4 +1,4 @@
-/* global storage, yandex, chrome, utils, ga */
+/* global storage, yandex, chrome, utils, ga, ID3Writer */
 
 (()=> {
     'use strict';
@@ -89,43 +89,48 @@
             if (!downloader.downloads[entity.index]) { // загрузку отменили
                 return;
             }
-            let artists = utils.parseArtists(entity.track.artists, '/');
-            let frames = {
-                TIT2: entity.title, // Название
-                TPE1: artists.artists // Исполнители
-            };
+            let writer = new ID3Writer(trackArrayBuffer);
+            let artists = utils.parseArtists(entity.track.artists);
+            if (entity.title) {
+                writer.setFrame('TIT2', entity.title);
+            }
+            if (artists.artists.length) {
+                writer.setFrame('TPE1', artists.artists);
+            }
             if (trackAlbum.title) {
-                frames.TALB = trackAlbum.title; // Альбом
+                writer.setFrame('TALB', trackAlbum.title);
             }
             if (entity.track.durationMs) {
-                frames.TLEN = entity.track.durationMs; // Продолжительность
+                writer.setFrame('TLEN', entity.track.durationMs);
             }
             if (trackAlbum.year) {
-                frames.TYER = trackAlbum.year; // Год
+                writer.setFrame('TYER', trackAlbum.year);
             }
-            if (artists.composers) {
-                frames.TCOM = artists.composers; // Композиторы
+            if (artists.composers.length) {
+                writer.setFrame('TCOM', artists.composers);
             }
             if (entity.trackPosition) {
-                frames.TRCK = entity.trackPosition; // Номер в альбоме
+                writer.setFrame('TRCK', entity.trackPosition);
             }
             if (entity.albumPosition && entity.albumCount > 1) {
-                frames.TPOS = entity.albumPosition; // Номер диска
+                writer.setFrame('TPOS', entity.albumPosition);
             }
-            frames.TPE2 = utils.parseArtists(trackAlbum.artists, ', ').artists; // Исполнитель альбома
+            let albumArtist = utils.parseArtists(trackAlbum.artists).artists.join(', ');
+            if (albumArtist){
+                writer.setFrame('TPE2', albumArtist);
+            }
             let genre = trackAlbum.genre;
             if (genre) {
-                frames.TCON = genre[0].toUpperCase() + genre.substr(1); // Жанр
+                writer.setFrame('TCON', [genre[0].toUpperCase() + genre.substr(1)]);
             }
             if (coverArrayBuffer) {
-                frames.APIC = coverArrayBuffer; // Обложка
+                writer.setFrame('APIC', coverArrayBuffer);
             }
-
-            let localUrl = utils.addId3Tag(trackArrayBuffer, frames);
+            writer.addTag();
 
             chrome.downloads.setShelfEnabled(false);
             chrome.downloads.download({
-                url: localUrl,
+                url: writer.getURL(),
                 filename: entity.savePath,
                 conflictAction: 'overwrite',
                 saveAs: false
@@ -200,7 +205,7 @@
                 status: downloader.STATUS.WAITING,
                 index: downloader.downloads.length,
                 track: track,
-                artists: utils.parseArtists(track.artists, ', ').artists,
+                artists: utils.parseArtists(track.artists).artists.join(', '),
                 title: track.title,
                 loadedBytes: 0,
                 attemptCount: 0
@@ -229,7 +234,7 @@
                 index: downloader.downloads.length,
                 duration: 0,
                 size: 0,
-                artists: utils.parseArtists(album.artists, ', ').artists,
+                artists: utils.parseArtists(album.artists).artists.join(', '),
                 title: album.title,
                 tracks: []
             };
@@ -282,7 +287,7 @@
                         index: albumEntity.index,
                         status: downloader.STATUS.WAITING,
                         track: track,
-                        artists: utils.parseArtists(track.artists, ', ').artists,
+                        artists: utils.parseArtists(track.artists).artists.join(', '),
                         title: track.title,
                         loadedBytes: 0,
                         attemptCount: 0,
@@ -361,7 +366,7 @@
                     index: playlistEntity.index,
                     status: downloader.STATUS.WAITING,
                     track: track,
-                    artists: utils.parseArtists(track.artists, ', ').artists,
+                    artists: utils.parseArtists(track.artists).artists.join(', '),
                     title: track.title,
                     loadedBytes: 0,
                     attemptCount: 0

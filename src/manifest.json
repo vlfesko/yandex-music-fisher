@@ -25,6 +25,7 @@
   "background": {
     "scripts": [
       "vendor/md5.min.js",
+      "vendor/browser-id3-writer-1.2.0.min.js",
       "js/utils.js",
       "js/yandex.js",
       "js/storage.js",
