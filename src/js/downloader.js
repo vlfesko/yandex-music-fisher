@@ -116,12 +116,15 @@
                 writer.setFrame('TPOS', entity.albumPosition);
             }
             let albumArtist = utils.parseArtists(trackAlbum.artists).artists.join(', ');
-            if (albumArtist){
+            if (albumArtist) {
                 writer.setFrame('TPE2', albumArtist);
             }
             let genre = trackAlbum.genre;
             if (genre) {
                 writer.setFrame('TCON', [genre[0].toUpperCase() + genre.substr(1)]);
+            }
+            if (entity.lyrics) {
+                writer.setFrame('USLT', entity.lyrics);
             }
             if (coverArrayBuffer) {
                 writer.setFrame('APIC', coverArrayBuffer);
@@ -191,7 +194,8 @@
 
     downloader.downloadTrack = trackId => {
         ga('send', 'event', 'track', trackId);
-        yandex.getTrack(trackId).then(track => {
+        yandex.getTrack(trackId).then(json => {
+            let track = json.track;
             if (track.error) {
                 utils.logError({
                     message: 'Ошибка трека: ' + track.error,
@@ -200,25 +204,30 @@
                 return;
             }
 
-            let entity = {
+            let trackEntity = {
                 type: downloader.TYPE.TRACK,
                 status: downloader.STATUS.WAITING,
                 index: downloader.downloads.length,
                 track: track,
                 artists: utils.parseArtists(track.artists).artists.join(', '),
                 title: track.title,
+                savePath: null,
+                lyrics: null,
                 loadedBytes: 0,
                 attemptCount: 0
             };
             if (track.version) {
-                entity.title += ' (' + track.version + ')';
+                trackEntity.title += ' (' + track.version + ')';
+            }
+            if (json.lyric.length && json.lyric[0].fullLyrics) {
+                trackEntity.lyrics = json.lyric[0].fullLyrics;
             }
 
-            let shortArtists = entity.artists.substr(0, downloader.PATH_LIMIT);
-            let shortTitle = entity.title.substr(0, downloader.PATH_LIMIT);
-            entity.savePath = utils.clearPath(shortArtists + ' - ' + shortTitle + '.mp3', false);
+            let shortArtists = trackEntity.artists.substr(0, downloader.PATH_LIMIT);
+            let shortTitle = trackEntity.title.substr(0, downloader.PATH_LIMIT);
+            trackEntity.savePath = utils.clearPath(shortArtists + ' - ' + shortTitle + '.mp3', false);
 
-            downloader.downloads.push(entity);
+            downloader.downloads.push(trackEntity);
             downloader.download();
         }).catch(utils.logError);
     };
@@ -236,7 +245,8 @@
                 size: 0,
                 artists: utils.parseArtists(album.artists).artists.join(', '),
                 title: album.title,
-                tracks: []
+                tracks: [],
+                cover: null
             };
 
             if (album.version) {
@@ -289,6 +299,7 @@
                         track: track,
                         artists: utils.parseArtists(track.artists).artists.join(', '),
                         title: track.title,
+                        savePath: null,
                         loadedBytes: 0,
                         attemptCount: 0,
                         trackPosition: trackPosition,
@@ -368,6 +379,7 @@
                     track: track,
                     artists: utils.parseArtists(track.artists).artists.join(', '),
                     title: track.title,
+                    savePath: null,
                     loadedBytes: 0,
                     attemptCount: 0
                 };

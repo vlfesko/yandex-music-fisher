@@ -457,9 +457,9 @@
                     downloadBtn.click();
                     return;
                 }
-                bp.yandex.getTrack(page.trackId).then(track => {
+                bp.yandex.getTrack(page.trackId).then(json => {
                     hidePreloader();
-                    generateDownloadTrack(track);
+                    generateDownloadTrack(json.track);
                 }).catch(onAjaxFail);
             } else if (page.isAlbum) {
                 downloadBtn.setAttribute('data-type', 'album');
@@ -503,9 +503,9 @@
                         downloadBtn.click();
                         return;
                     }
-                    bp.yandex.getTrack(page.trackId).then(track => {
+                    bp.yandex.getTrack(page.trackId).then(json => {
                         hidePreloader();
-                        generateDownloadTrack(track);
+                        generateDownloadTrack(json.track);
                     }).catch(onAjaxFail);
                 });
             } else {
