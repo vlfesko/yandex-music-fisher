@@ -262,25 +262,8 @@
                 };
             }
 
-            // принудительная нумерация при совпадении названий, пример: https://music.yandex.ru/album/512639
-            let duplicationMap = [];
-            album.volumes.forEach(volume => {
-                let volumeTrackNames = [];
-                volume.forEach(track => {
-                    if (track.error) {
-                        return;
-                    }
-                    let title = track.title;
-                    if (track.version) {
-                        title += ' (' + track.version + ')';
-                    }
-                    let shortTitle = title.substr(0, downloader.PATH_LIMIT);
-                    volumeTrackNames.push(shortTitle);
-                });
-                duplicationMap.push(utils.existDuplicates(volumeTrackNames));
-            });
-
             album.volumes.forEach((volume, i) => {
+                let trackNameCounter = {}; // пример: https://music.yandex.ru/album/512639
                 volume.forEach((track, j) => {
                     if (track.error) {
                         utils.logError({
@@ -310,6 +293,7 @@
                     if (track.version) {
                         trackEntity.title += ' (' + track.version + ')';
                     }
+                    let shortTrackTitle = trackEntity.title.substr(0, downloader.PATH_LIMIT);
 
                     let savePath = saveDir + '/';
                     if (album.volumes.length > 1) {
@@ -317,13 +301,20 @@
                         savePath += 'CD' + albumPosition + '/';
                     }
 
-                    if (storage.current.enumerateAlbums || duplicationMap[i]) {
+                    if (storage.current.enumerateAlbums) {
+                        // нумеруем все треки
                         savePath += utils.addExtraZeros(trackPosition, volume.length) + '. ';
+                    } else {
+                        // если совпадают имена - добавляем номер
+                        if (shortTrackTitle in trackNameCounter) {
+                            trackNameCounter[shortTrackTitle]++;
+                            shortTrackTitle += ' (' + trackNameCounter[shortTrackTitle] + ')';
+                        } else {
+                            trackNameCounter[shortTrackTitle] = 1;
+                        }
                     }
 
-                    let shortTrackTitle = trackEntity.title.substr(0, downloader.PATH_LIMIT);
                     trackEntity.savePath = savePath + utils.clearPath(shortTrackTitle + '.mp3', false);
-
                     albumEntity.tracks.push(trackEntity);
                 });
             });
@@ -353,21 +344,7 @@
             };
             let shortPlaylistTitle = playlist.title.substr(0, downloader.PATH_LIMIT);
             let saveDir = utils.clearPath(shortPlaylistTitle, true);
-
-            // пример https://music.yandex.ru/users/dimzon541/playlists/1002
-            let playlistTrackNames = [];
-            playlist.tracks.forEach(track => {
-                if (track.error) {
-                    return;
-                }
-                let title = track.title;
-                if (track.version) {
-                    title += ' (' + track.version + ')';
-                }
-                let shortTitle = title.substr(0, downloader.PATH_LIMIT);
-                playlistTrackNames.push(shortTitle);
-            });
-            let existDuplicates = utils.existDuplicates(playlistTrackNames);
+            let trackNameCounter = {}; // пример https://music.yandex.ru/users/dimzon541/playlists/1002
 
             playlist.tracks.forEach((track, i) => {
                 if (track.error) {
@@ -392,16 +369,25 @@
                 if (track.version) {
                     trackEntity.title += ' (' + track.version + ')';
                 }
-
-                let savePath = saveDir + '/';
-                if (storage.current.enumeratePlaylists || existDuplicates) {
-                    savePath += utils.addExtraZeros(i + 1, playlist.tracks.length) + '. ';
-                }
-
                 let shortTrackArtists = trackEntity.artists.substr(0, downloader.PATH_LIMIT);
                 let shortTrackTitle = trackEntity.title.substr(0, downloader.PATH_LIMIT);
-                trackEntity.savePath = savePath + utils.clearPath(shortTrackArtists + ' - ' + shortTrackTitle + '.mp3', false);
+                let name = shortTrackArtists + ' - ' + shortTrackTitle;
 
+                let savePath = saveDir + '/';
+                if (storage.current.enumeratePlaylists) {
+                    // нумеруем все треки
+                    savePath += utils.addExtraZeros(i + 1, playlist.tracks.length) + '. ';
+                } else {
+                    // если совпадают имена - добавляем номер
+                    if (name in trackNameCounter) {
+                        trackNameCounter[name]++;
+                        name += ' (' + trackNameCounter[name] + ')';
+                    } else {
+                        trackNameCounter[name] = 1;
+                    }
+                }
+
+                trackEntity.savePath = savePath + utils.clearPath(name + '.mp3', false);
                 playlistEntity.tracks.push(trackEntity);
             });
 
