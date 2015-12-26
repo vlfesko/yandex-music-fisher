@@ -179,9 +179,8 @@
             active: true,
             currentWindow: true
         }, tabs => {
-            let activeTab = tabs[0];
-            if (activeTab) {
-                resolve(activeTab);
+            if (tabs.length) {
+                resolve(tabs[0]);
             } else {
                 reject(new Error('No active tab'));
             }
@@ -192,13 +191,8 @@
         chrome.downloads.search({
             id: downloadId
         }, downloads => {
-            let download = downloads[0];
-            if (!download) {
-                return;
-            }
-            let name = download.byExtensionName;
-            if (name && name === chrome.runtime.getManifest().name) {
-                resolve(download);
+            if (downloads.length && downloads[0].byExtensionName === chrome.runtime.getManifest().name) {
+                resolve(downloads[0]);
             }
         });
     });

@@ -416,7 +416,7 @@
     };
 
     downloader.getWaitingEntity = () => {
-        let foundEntity = false;
+        let foundEntity;
         downloader.downloads.some(entity => {
             let isAlbum = entity.type === downloader.TYPE.ALBUM;
             let isCover = isAlbum && entity.cover;
@@ -468,7 +468,7 @@
     };
 
     downloader.getEntityByBrowserDownloadId = browserDownloadId => {
-        let foundEntity = false;
+        let foundEntity;
         downloader.downloads.some(entity => {
             let isAlbum = entity.type === downloader.TYPE.ALBUM;
             let isCover = isAlbum && entity.cover;
