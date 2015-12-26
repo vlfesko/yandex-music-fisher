@@ -69,7 +69,6 @@
 
         let onChromeDownloadStart = downloadId => {
             if (chrome.runtime.lastError) {
-                chrome.downloads.setShelfEnabled(true);
                 let error = {
                     message: chrome.runtime.lastError.message,
                     details: ''
@@ -81,6 +80,7 @@
                 }
                 onInterruptEntity(error);
             } else {
+                chrome.downloads.setShelfEnabled(false);
                 entity.browserDownloadId = downloadId;
             }
         };
@@ -131,7 +131,6 @@
             }
             writer.addTag();
 
-            chrome.downloads.setShelfEnabled(false);
             chrome.downloads.download({
                 url: writer.getURL(),
                 filename: entity.savePath,
@@ -181,7 +180,6 @@
                 }
                 let blob = new Blob([arrayBuffer], {type: 'image/jpeg'});
                 let localUrl = window.URL.createObjectURL(blob);
-                chrome.downloads.setShelfEnabled(false);
                 chrome.downloads.download({
                     url: localUrl,
                     filename: entity.filename,
