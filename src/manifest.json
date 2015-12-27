@@ -40,10 +40,10 @@
         "js/content.js"
       ],
       "matches": [
-        "https://music.yandex.ru/genre/*",
-        "https://music.yandex.ua/genre/*",
-        "https://music.yandex.kz/genre/*",
-        "https://music.yandex.by/genre/*"
+        "https://music.yandex.ru/*",
+        "https://music.yandex.ua/*",
+        "https://music.yandex.kz/*",
+        "https://music.yandex.by/*"
       ]
     }
   ],
