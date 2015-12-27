@@ -39,8 +39,7 @@
         let url = 'https://music.yandex.%domain%/handlers/track.jsx?track=%id%'
             .replace('%domain%', storage.current.domain)
             .replace('%id%', trackId);
-        return utils.ajax(url, 'json')
-            .then(json => json.track);
+        return utils.ajax(url, 'json');
     };
 
     yandex.getArtist = artistId => {

@@ -33,6 +33,13 @@ input[type=checkbox] {
     margin-left: 44px;
 }
 
+.label-year {
+    margin-left: 18px;
+    font-weight: bold;
+    cursor: default;
+    font-size: 14px;
+}
+
 #preloader > img {
     margin: 25px 142px;
 }

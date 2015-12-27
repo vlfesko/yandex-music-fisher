@@ -5,9 +5,10 @@
 
     let getTrackPageURL = trackId => {
         const urlPattern = 'https://music.yandex.ru/album/%albumId%/track/%trackId%';
-        yandex.getTrack(trackId).then(track => {
-            let artists = utils.parseArtists(track.artists, ', ');
-            console.log(artists.artists + ' - ' + track.title);
+        yandex.getTrack(trackId).then(json => {
+            let track = json.track;
+            let artists = utils.parseArtists(track.artists).artists.join(', ');
+            console.log(artists + ' - ' + track.title);
             if (track.error) {
                 console.info(track.error);
                 return;

@@ -62,8 +62,10 @@
     });
 
     chrome.downloads.onChanged.addListener(delta => {
-        if (!delta.state) {
-            return; // состояние не изменилось (начало загрузки)
+        if (!delta.state) { // состояние не изменилось (начало загрузки)
+            utils.getDownload(delta.id).then(() => chrome.downloads.setShelfEnabled(true));
+            // не нашёл способа перехватывать ошибки, когда другое расширение отключает анимацию загрузок
+            return;
         }
         utils.getDownload(delta.id).then(download => {
             let entity = downloader.getEntityByBrowserDownloadId(delta.id);
@@ -97,7 +99,6 @@
                 }
                 window.URL.revokeObjectURL(download.url);
             }
-            chrome.downloads.setShelfEnabled(true);
             chrome.downloads.erase({
                 id: delta.id
             });
